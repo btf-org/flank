@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+NEW_DIR=$(mktemp -d $(brew --repo)/var/flank/new-cmd-XXXXX)
+chmod 777 $NEW_DIR
+touch $NEW_DIR/.users
+echo 'flankadmins' > $NEW_DIR/.groups
+history | tail -2 | head -1 | awk '{$1=""; sub(/^ /,""); print}' > $NEW_DIR/blackbox.sh
+echo 'Command is flankified. Run `su flankadmin` to enter flank shell.'
