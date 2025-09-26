@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 
 #define PORT 8083
-#define BUF_SIZE 40
+#define BUF_SIZE 4096
 
 int main() {
     int server_fd, client_fd;
@@ -81,12 +81,16 @@ int main() {
             // read response from iflank
             // int out_bytes;
             while ((out_bytes = read(from_iflank_pipe_rw[0], buffer, BUF_SIZE)) > 0) {
-		printf("out buffer %s\n", buffer);
-		fwrite(buffer, 1, out_bytes, stdout);
+		char header[256];
+		int header_len;
+	        header_len = snprintf(header, sizeof(header),
+		    "HTTP/1.1 200 OK\r\n"
+		    "Content-Type: text/html\r\n"
+		    "Content-Length: %d\r\n"
+		    "\r\n", out_bytes);
+                write(client_fd, header, header_len); // forward to client
                 write(client_fd, buffer, out_bytes); // forward to client
-		printf("out_bytes < BUF_SIZE? %d <? %d \n", out_bytes, BUF_SIZE);
                 if (out_bytes < BUF_SIZE){
-			printf("break\n");
 			break; // stop if child has no more data
 		}
             }
