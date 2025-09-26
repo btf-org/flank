@@ -7,7 +7,7 @@
 
 
 
-#define MAX_LINE_SIZE 10
+#define MAX_LINE_SIZE 20
 
 void pwd(){
     char buf[1024];
@@ -68,6 +68,7 @@ int main(){
 	char c;
 	int i = 0;
 	printf("$ ");
+	fflush(stdout);
 	while((c=getchar()) != EOF){
 		if(c == '\n'){
 			line[i] = '\0';
@@ -87,6 +88,7 @@ int main(){
 			line[0] = '\0'; // reset it 
 			i = 0;
 			printf("$ ");
+			fflush(stdout);
 		} else {
 			line[i] = c;
 			i++;
