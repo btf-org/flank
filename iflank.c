@@ -67,9 +67,11 @@ int main(){
 	char line[MAX_LINE_SIZE];
 	char c;
 	int i = 0;
-	printf("$ ");
-	fflush(stdout);
+	// printf("$ ");
+	// fflush(stdout);
 	while((c=getchar()) != EOF){
+		// printf("%d ", c);
+		// fflush(stdout);
 		if(c == '\n'){
 			line[i] = '\0';
 			if(strcmp(line, "pwd") == 0){
@@ -87,7 +89,7 @@ int main(){
 			}
 			line[0] = '\0'; // reset it 
 			i = 0;
-			printf("$ ");
+			// printf("$ ");
 			fflush(stdout);
 		} else {
 			line[i] = c;
