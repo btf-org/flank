@@ -29,7 +29,7 @@ At this time, I was a data engineer, and I was constantly re-running jobs for pe
 
 ## How does Flank work
 
-There are a couple shortcomings in Unix that make program-sharing difficult today:
+There are a couple constraints from the old days of Unix that make program-sharing difficult today:
 
 - The interface has no mouse (bad for user)
 - The interface has no guardrails (bad for engineer)
