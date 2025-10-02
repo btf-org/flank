@@ -40,7 +40,7 @@ When I learned about all this, I was a data engineer, and I was constantly re-ru
 There are a couple constraints from the old days of Unix that make program-sharing difficult today:
 
 - The interface has no mouse (bad for user)
-- The interface has no guardrails (bad for engineer)
+- The interface has no guardrails (bad for engineers who fix user errors)
 - The permissioning system doesn't natively support Access Control Lists (ACLs) or Principle of Least Privilege (PoLP)
 
 Flank is a specialized, restricted shell that addresses these issues. And then there's an intuitive web interface that sits on top. The goal is to bring the power (of Unix) to the people!
