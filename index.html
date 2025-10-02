@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>POST Example</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #display { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+
+  <h1>Send Text to Server</h1>
+
+  <input type="text" id="inputBox" placeholder="Type something..." />
+  <button id="sendBtn">Send</button>
+
+  <div id="display">Response will appear here</div>
+
+  <script>
+    const inputBox = document.getElementById('inputBox');
+    const sendBtn = document.getElementById('sendBtn');
+    const display = document.getElementById('display');
+
+    sendBtn.addEventListener('click', async () => {
+      const text = inputBox.value;
+
+      try {
+        const response = await fetch('http://localhost:8083/iflank', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain'
+          },
+          body: text + '\n'
+        });
+
+        const responseText = await response.text();
+        display.textContent = responseText;
+      } catch (err) {
+        display.textContent = 'Error: ' + err.message;
+      }
+    });
+  </script>
+
+</body>
+</html>
+
