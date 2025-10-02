@@ -12,6 +12,8 @@ Flank allows backend engineers to solve business problems by themselves, by just
 
 ## Quickstart
 
+### Mac / Homebrew
+
 ```bash
 $ brew tap blahblahblah
 $ brew install flank
@@ -20,6 +22,10 @@ $ flank
 
 # hopefully self-explanatory from here :)
 ```
+
+### Linux / Windows
+
+Not available yet
 
 ## Background and Motivation
 
