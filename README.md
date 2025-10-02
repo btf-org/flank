@@ -8,7 +8,7 @@ Flank is a tool for sharing programs from your CLI, with a simple UI and built-i
 
 ## How does Flank help engineers
 
-Flank allows backend engineers to solve business problems by themselves, by just writing code in their favorite language. It eliminates lots of meetings, tools, and messages.
+Flank allows backend engineers to solve business problems by just writing code, on their computer, in their favorite language. It eliminates lots of meetings, tools, and messages.
 
 ## Quickstart
 
