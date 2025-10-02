@@ -177,7 +177,7 @@ int main() {
 		    write(client_fd, header, header_len);	// forward to client
 		    ssize_t n;
 		    while ((n = read(fd, buffer, sizeof(buffer))) > 0) {
-			 write(client_fd, buffer, n);
+                   write(client_fd, buffer, n);
 		    }
 		    close(fd);
 	       } else {
