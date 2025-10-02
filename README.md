@@ -25,7 +25,7 @@ $ flank
 
 I discovered the Unix ecosystem late in life. It blew my mind. I like having my own personal computer, but I kept thinking about how wild it would be to work at a company where everyone used one Unix machine. Especially if you worked at Bell, and all other engineers were future Turing Award winners. That'd be nice.
 
-At this time, I was a data engineer, and I was constantly re-running jobs for people. Living in this hellish cyberspace between Slack and the AWS Console. And I realized how simple this was in 1979. I could have just moved the program into the user's home directory. 
+At this time, I was a data engineer, and I was constantly re-running jobs for people. Living in this hellish cyberspace between Slack and the AWS Console. And I realized how simple this was in 1979. I could have just moved the program into the user's home directory and _they could run it whenever they wanted to!_
 
 ## How does Flank unleash the Unix ecosystem
 
