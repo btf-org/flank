@@ -23,6 +23,7 @@ int cd(const char *path){
         perror("chdir");
         return 1;
     }
+    printf("changed to %s\n", path);
     return 0;
 }
 
@@ -73,6 +74,9 @@ int main(){
 		// printf("%d ", c);
 		// fflush(stdout);
 		if(c == '\n'){
+			if (line[i - 1] == '\r'){
+				line[i - 1] = '\0';
+			}
 			line[i] = '\0';
 			if(strcmp(line, "pwd") == 0){
 				pwd();
