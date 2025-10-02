@@ -15,7 +15,7 @@ Flank allows backend engineers to solve business problems by themselves, by just
 ### Mac / Homebrew
 
 ```bash
-$ brew tap blahblahblah
+$ brew tap btf-org/flank
 $ brew install flank
 
 $ flank 
