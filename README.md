@@ -1,0 +1,38 @@
+# Flank, the Sequel
+
+The open-source rewrite, in C!
+
+## What is Flank
+
+Flank is a tool for sharing programs from your CLI, but with a simple UI and built-in guardrails.
+
+## How does Flank help engineers
+
+Flank allows backend engineers to solve business problems by themselves, by just writing code in their favorite language. It eliminates lots of meetings, tools, and messages.
+
+## Quickstart
+
+```
+$ brew tap blahblahblah
+$ brew install flank
+
+$ flank 
+
+# hopefully self-explanatory from here :)
+```
+
+## Background and Motivation
+
+I discovered the Unix ecosystem late in life. It blew my mind. I like having my own personal computer, but I kept thinking about how wild it would be to work at a company where everyone used one Unix machine. Especially if you worked at Bell and all other engineers were future Turing Award winners.
+
+The one that really blew my mind was just how easy it was to share a program with a user. This realization came to me when I was a data engineer and I was constantly re-running jobs for people. Back in 1979, I could have just moved the program into the user's home directory. Instead, I was fielding 50 Slack messages a day and living in the AWS Console.
+
+## How does Flank unleash the Unix ecosystem
+
+There are a couple shortcomings in Unix that make program-sharing difficult today:
+
+- The interface has no mouse (bad for user)
+- The interface has no guardrails (bad for engineer)
+- The permissioning system doesn't natively support Access Control Lists (ACLs) / Principle of Least Privilege (PoLP)
+
+Flank is a specialized, restricted shell that addresses these shortcomings, with an intuitive web interface that sits on top. The hope is that we bring the power (of Unix) to the people!
