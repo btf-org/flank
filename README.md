@@ -4,7 +4,7 @@ The open-source rewrite, in C!
 
 ## What is Flank
 
-Flank is a tool for sharing programs from your CLI, but with a simple UI and built-in guardrails.
+Flank is a tool for sharing programs from your CLI, with a simple UI and built-in guardrails.
 
 ## How does Flank help engineers
 
@@ -23,9 +23,9 @@ $ flank
 
 ## Background and Motivation
 
-I discovered the Unix ecosystem late in life. It blew my mind. I like having my own personal computer, but I kept thinking about how wild it would be to work at a company where everyone used one Unix machine. Especially if you worked at Bell and all other engineers were future Turing Award winners.
+I discovered the Unix ecosystem late in life. It blew my mind. I like having my own personal computer, but I kept thinking about how wild it would be to work at a company where everyone used one Unix machine. Especially if you worked at Bell, and all other engineers were future Turing Award winners...
 
-The one that really blew my mind was just how easy it was to share a program with a user. This realization came to me when I was a data engineer and I was constantly re-running jobs for people. Back in 1979, I could have just moved the program into the user's home directory. Instead, I was fielding 50 Slack messages a day and living in the AWS Console.
+At this time, I was a data engineer, and I was constantly re-running jobs for people. Fielding 50 Slack messages a day and living in the AWS Console. And I realized how simple this was in 1979. I could have just moved the program into the user's home directory. 
 
 ## How does Flank unleash the Unix ecosystem
 
