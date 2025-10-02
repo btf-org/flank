@@ -35,4 +35,4 @@ There are a couple constraints from the old days of Unix that make program-shari
 - The interface has no guardrails (bad for engineer)
 - The permissioning system doesn't natively support Access Control Lists (ACLs) or Principle of Least Privilege (PoLP)
 
-Flank is a specialized, restricted shell that addresses these shortcomings, with an intuitive web interface that sits on top. The hope is that we bring the power (of Unix) to the people!
+Flank is a specialized, restricted shell with a simple web interface that sits on top. The hope is that we can bring the power (of Unix) to the people!
