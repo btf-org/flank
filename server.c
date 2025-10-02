@@ -3,6 +3,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+
 
 #define PORT 8083
 #define BUF_SIZE 4096
@@ -12,6 +15,27 @@ int server_fd;
 void sigint_handler(int sig) {
     close(server_fd);  // free the listening socket
     exit(0);
+}
+
+char *parse_body(char *request_buf){
+	char *start = strstr(request_buf, "\r\n\r\n");
+	if(start == 0){
+		return NULL;
+	}
+	return start + 4;
+}
+
+void parse_path(char *request_buf, char *path_out){
+	char method[8];
+	char path[1024];
+	char version[16];
+
+	// Parse the first line: METHOD PATH VERSION
+	sscanf(request_buf, "%7s %1023s %15s", method, path_out, version);
+
+	printf("Method: %s\n", method);
+	printf("Path: %s\n", path_out);
+	printf("Version: %s\n", version);
 }
 
 int main() {
@@ -88,36 +112,71 @@ int main() {
 	// read() returns 0 at EOF, when the other side closes the connection
 	while ((bytes_read = read(client_fd, buffer, BUF_SIZE)) > 0) {
             // send input to iflank
+	    buffer[bytes_read] = '\0';
 	    printf("Input: %s\n", buffer);
 	    printf("Bytes read: %d\n", bytes_read);
 	    for (int i = 0; i < bytes_read; i++) {
      		printf("%d ", (unsigned char)buffer[i]);
 	    }
 	    printf("\n");
-	    printf("about to write\n");
-            write(to_iflank_pipe_rw[1], buffer, bytes_read);
-	    printf("just wrote: %s\n", buffer);
+	    char *body = parse_body(buffer);
+	    char path[1024];
+	    parse_path(buffer, path);
+	    printf("path: %s\n", path);
+	    if(strcmp(path, "/iflank") == 0){
+		    printf("remainder: %s\n", body);
+		    printf("about to write\n");
+		    write(to_iflank_pipe_rw[1], body, buffer + bytes_read - body);
+		    printf("just wrote: %s\n", body);
 
-            // flush if using FILE*, otherwise ensure child gets data
-            // fflush(iflank_stdin); // if you wrap pipe with fdopen
+		    // flush if using FILE*, otherwise ensure child gets data
+		    // fflush(iflank_stdin); // if you wrap pipe with fdopen
 
-            // read response from iflank
-            // int out_bytes;
-            while ((out_bytes = read(from_iflank_pipe_rw[0], buffer, BUF_SIZE)) > 0) {
-		printf("Output: %s\n", buffer);
-		char header[256];
-		int header_len;
-	        header_len = snprintf(header, sizeof(header),
-		    "HTTP/1.1 200 OK\r\n"
-		    "Content-Type: text/plain\r\n"
-		    "Content-Length: %d\r\n"
-		    "\r\n", out_bytes);
-                write(client_fd, header, header_len); // forward to client
-                write(client_fd, buffer, out_bytes); // forward to client
-                if (out_bytes < BUF_SIZE){
-			break; // stop if child has no more data
-		}
-            }
+		    // read response from iflank
+		    // int out_bytes;
+		    while ((out_bytes = read(from_iflank_pipe_rw[0], buffer, BUF_SIZE)) > 0) {
+			buffer[out_bytes] = '\0';
+			printf("Output: %s\n", buffer);
+			char header[256];
+			int header_len;
+			header_len = snprintf(header, sizeof(header),
+			    "HTTP/1.1 200 OK\r\n"
+			    "Content-Type: text/plain\r\n"
+			    "Content-Length: %d\r\n"
+			    "\r\n", out_bytes);
+			write(client_fd, header, header_len); // forward to client
+			write(client_fd, buffer, out_bytes); // forward to client
+			if (out_bytes < BUF_SIZE){
+				break; // stop if child has no more data
+			}
+		    }
+	    } else if (strcmp(path, "/") == 0){
+			int fd = open("index.html", O_RDONLY);
+			struct stat st;
+			fstat(fd, &st);
+			off_t filesize = st.st_size;
+			char header[256];
+			int header_len;
+			header_len = snprintf(header, sizeof(header),
+			    "HTTP/1.1 200 OK\r\n"
+			    "Content-Type: text/html\r\n"
+			    "Content-Length: %lld\r\n"
+			    "\r\n", (long long)filesize);
+			write(client_fd, header, header_len); // forward to client
+			ssize_t n;
+			while ((n = read(fd, buffer, sizeof(buffer))) > 0) {
+			    write(client_fd, buffer, n);
+			}
+			close(fd);
+	    }
+	    else {
+		    printf("path not supported: %s\n", path);
+			// char header[256];
+			// int header_len;
+			char header[]  = "HTTP/1.1 404 Not Found\r\n"
+			    "Content-Length: 0\r\n\r\n";
+			write(client_fd, header, sizeof(header) - 1);
+	    }
         }
 
         close(client_fd);
