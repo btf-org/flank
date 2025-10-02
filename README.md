@@ -23,7 +23,7 @@ $ flank
 # hopefully self-explanatory from here :)
 ```
 
-### Linux / Windows
+### Linux Distros / Windows
 
 Not available yet
 
