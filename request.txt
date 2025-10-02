@@ -1,3 +1,6 @@
-GET / HTTP/1.1
+POST /api HTTP/1.1
 Host: localhost
+Content-Type: text/plain
+Content-Length: 13
 
+pwd
