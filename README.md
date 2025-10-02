@@ -27,7 +27,7 @@ I discovered the Unix ecosystem late in life. It blew my mind. I like having my 
 
 At this time, I was a data engineer, and I was constantly re-running jobs for people. Living in this hellish cyberspace between Slack and the AWS Console. And I realized how simple this was in 1979. I could have just moved the program into the user's home directory and _they could run it whenever they wanted to!_
 
-## How does Flank unleash the Unix ecosystem
+## How does Flank work
 
 There are a couple shortcomings in Unix that make program-sharing difficult today:
 
