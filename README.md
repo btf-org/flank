@@ -16,7 +16,7 @@ Flank allows backend engineers to solve business problems by themselves, by just
 
 ```bash
 $ brew tap btf-org/flank
-$ brew install flank
+$ brew install btf-org/flank/flank
 
 $ flank 
 
