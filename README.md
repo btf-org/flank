@@ -12,7 +12,7 @@ Flank allows backend engineers to solve business problems by themselves, by just
 
 ## Quickstart
 
-```
+```bash
 $ brew tap blahblahblah
 $ brew install flank
 
