@@ -25,7 +25,9 @@ $ flank
 # hopefully self-explanatory from here :)
 ```
 
-Not available yet
+### Windows / Linux Distros
+
+Not available... yet
 
 ## Background and Motivation
 
