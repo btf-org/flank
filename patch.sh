@@ -9,7 +9,8 @@ latest_tag=$(git tag --list "v*.*.*" --sort=-v:refname | head -n1)
 if [ -z "$latest_tag" ]; then
     echo "No tags found. Exiting..."
     return 1
-else
+fi
+
 
 version=${latest_tag#v}
 IFS='.' read -r major minor patch <<< "$version"
@@ -19,5 +20,10 @@ patch=$((patch + 1))
 
 new_tag="v$major.$minor.$patch"
 
-git tag -a "$new_tag" -m $1
-git push origin $new_tag
+echo "Latest Tag: $latest_tag"
+echo "Da New Tag: $new_tag"
+echo "Annotation: $1"
+echo ""
+read -rp "Hit enter to tag and push" choice
+# git tag -a "$new_tag" -m "$1"
+# git push origin "$new_tag"
