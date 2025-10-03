@@ -25,5 +25,5 @@ echo "Da New Tag: $new_tag"
 echo "Annotation: $1"
 echo ""
 read -rp "Hit enter to tag and push" choice
-# git tag -a "$new_tag" -m "$1"
-# git push origin "$new_tag"
+git tag -a "$new_tag" -m "$1"
+git push origin "$new_tag"
