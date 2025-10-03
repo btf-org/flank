@@ -2,15 +2,13 @@
 
 The open-source rewrite, in C!
 
-## What is Flank
+## Flank is for sharing programs
+Imagine if, after writing a Python script on your computer, you could just immediately share it with a non-technical teammate. But in a way where it’s easy for them to use and they can’t do disastrous things to your computer.
+ 
+## Program-sharing simplifies a lot hassles
+What is “BI” or “internal tools” or “dashboards” if not program-sharing? It’s just an interface around some backend code. That’s a lot of meetings, tools, and Slack messages to accomplish something we already had in 1979 (see below). Not to mention all the engineering time that is wasted running ad-hoc queries/scripts when there isn’t time to build an interface. 
 
-Flank is a tool for sharing programs from your CLI, with a simple UI and built-in guardrails.
-
-## How does Flank help engineers
-
-Flank allows backend/database engineers to solve business problems by just writing code, on their computer, in their favorite language. It eliminates lots of meetings, tools, and messages.
-
-## Quickstart
+## Easiest thing is just to try it
 
 ### Mac / Homebrew 
 
@@ -29,18 +27,15 @@ $ flank
 
 Not available... yet
 
-## Background and Motivation
+## We actually had this, before
+In the 70s, there were companies where everyone logged into the same Unix machine. Sharing a program was as simple as copying a script into another user’s home directory.
 
-I discovered the Unix ecosystem late in life. It blew my mind. I like having my own personal computer, but I kept thinking about how wild it would have been to work at a company where everyone used one big Unix machine. (Especially if you worked at Bell in the 70s, and all the other engineers were future Turing Award winners. That'd be nice.)
+## But then we lost it
+We abandoned the team computer for PCs, and there it went. For whatever reason, held onto the idea of sharing files (Dropbox for documents, git for code) but we lost the idea of sharing programs.
 
-When I learned about all this, I was a data engineer, and I was constantly re-running jobs for people. Living in this hellish cyberspace between Slack and the AWS Console. And I realized how simple this was in 1979. 40 years, all I would have to do is move the program into the user's home directory and _they could run it whenever they wanted to!_
+## Adding it back is actually sort of simple
+The system just needs to do two things:
+1. Provide an intuitive UX for non-engineers to run things.
+2. Access your computer in a way it's locked down and can only do one thing (run the script).
 
-## How does Flank work
-
-There are a couple constraints from the old days of Unix that make program-sharing difficult today:
-
-- The interface has no mouse (bad for users)
-- The interface has no guardrails (bad for engineers who fix user errors)
-- The permissioning system doesn't natively support Access Control Lists (ACLs) or Principle of Least Privilege (PoLP) (also bad for engineers)
-
-Flank is a specialized, restricted shell that addresses these issues, with an intuitive web interface that sits on top. The goal is to bring the power (of Unix) to the people!
+As a mode of interaction, the CLI is actually very intuitive if you provide good prompting. It’s just missing a mouse and input fields. So Flank is just a specialized, restricted shell with a thin web client. 
