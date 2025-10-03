@@ -16,7 +16,7 @@ We abandoned the team computer for PCs, and there it went. We held onto the idea
 #### Program-sharing is awesome
 The way we currently share programs (i.e. allow a non-engineer to trigger backend code) is to build a full-blown website/BI tool.
 
-If you can just... give the user the program they want... safely... intuitively... it eliminates lots of meetings, JIRA tickets, and tools.
+If you can just... give the user the program they want... safely... intuitively... it eliminates lots of meetings, JIRA tickets, and tools. Not to mention it eliminates the situation where you get stuck running ad-hoc scripts/queries for other people.
 
 #### How do we bring back program-sharing?
 Your workstation can do 98% of the work. It's just missing 2 things:
