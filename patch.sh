@@ -22,3 +22,4 @@ patch=$((patch + 1))
 new_tag="v$major.$minor.$patch"
 
 git tag -a "$new_tag" -m $1
+git push origin $new_tag
