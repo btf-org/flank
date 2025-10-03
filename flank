@@ -39,6 +39,7 @@ while true; do
 	    else
 		echo "S - Start Server"
 	    fi
+	    echo "X - Exit"
 	    echo ""
             read -rp "Choose an option: " choice
             case "$choice" in
@@ -52,7 +53,11 @@ while true; do
 		    read -rp "Press enter to continue" choice
 		    ;;
 		S) STATE="START_SERVER" ;;
-                *) echo "Invalid choice";;
+		X) STATE="EXIT" ;;
+                *)
+		    read -rp "Invalid Choice! Press enter to continue" choice
+		    echo ""
+		    ;;
             esac
             ;;
         
@@ -88,6 +93,7 @@ while true; do
             ;;
         
         EXIT)
+	    echo ""
             echo "Goodbye!"
             break
             ;;
@@ -99,9 +105,4 @@ while true; do
     esac
 done
 
-NEW_DIR=$(mktemp -d $(brew --repo)/var/flank/new-cmd-XXXXX)
-chmod 777 $NEW_DIR
-# touch $NEW_DIR/.users
-# echo 'flankadmins' > $NEW_DIR/.groups
-history | tail -2 | head -1 | awk '{$1=""; sub(/^ /,""); print}' > $NEW_DIR/blackbox.sh
-echo 'Command is flankified. Run `su flankadmin` to enter flank shell.'
+# history | tail -2 | head -1 | awk '{$1=""; sub(/^ /,""); print}' > $NEW_DIR/blackbox.sh
