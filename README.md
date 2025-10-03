@@ -36,7 +36,7 @@ We abandoned the team computer for PCs, and there it went. We held onto the idea
 #### Program-sharing is awesome
 The way we currently share programs (i.e. allow a non-engineer to trigger backend code) is to build a React app/dashboard/BI tool. If you can just... give them the program... safely... intuitively... it eliminates lots of meetings, JIRA tickets, and tools.
 
-#### How do we bring back program-sharing
+#### How do we bring back program-sharing?
 Your workstation can do 98% of the work. It's just missing 2 things:
 1. Your CLI is not an intuitive interface for entering parameters and viewing/downloading results.
 2. Your CLI has no guardrails. And poor out-of-the-box access control.
