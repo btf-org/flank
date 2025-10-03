@@ -64,7 +64,7 @@ int r(const char *path){
 }
 
 int main(){
-	cd("/Users/angusmitchell/Workspace/protoflank/flank");
+	cd("/opt/homebrew/var/flank");
 	char line[MAX_LINE_SIZE];
 	char c;
 	int i = 0;
