@@ -1,4 +1,104 @@
 #!/usr/bin/env bash
+
+if pgrep -x "flankserver" > /dev/null; then
+    STATE="MAIN_MENU"
+else
+    STATE="SERVER_NOT_RUNNING"
+fi
+
+while true; do
+    case "$STATE" in
+	SERVER_NOT_RUNNING)
+	    read -rp "Flank server is not running. Start? [y/n] " choice
+	    case "$choice" in
+		y) STATE="START_SERVER";;
+		n) STATE="MAIN_MENU" ;;
+		*) echo "Input y or n" ;;
+	    esac
+	    ;;
+	START_SERVER)
+	    nohup flankserver &
+	    PID=$!
+	    echo ""
+	    echo "flankserver started on port 8083 (PID=$PID)"
+	    echo "    http://localhost:8083"
+	    echo ""
+	    echo "You can kill it through this menu or by running"
+	    echo "    $ pkill -x flankserver"
+	    echo ""
+	    read -rp "Press enter to continue" choice
+	    STATE="MAIN_MENU"
+	    ;;
+        MAIN_MENU)
+            echo "=== Main Menu ==="
+            echo "1 - New 'hello world' command"
+            # echo "2 - New command from bash history"
+	    echo ""
+	    if pgrep -x "flankserver" > /dev/null; then
+		echo "K - Kill Server"
+	    else
+		echo "S - Start Server"
+	    fi
+	    echo ""
+            read -rp "Choose an option: " choice
+            case "$choice" in
+                1) STATE="HELLO_WORLD" ;;
+                # 2) STATE="SETTINGS" ;;
+                K) 
+		    pkill -x flankserver
+		    echo ""
+		    echo "Server killed..."
+		    echo ""
+		    read -rp "Press enter to continue" choice
+		    ;;
+		S) STATE="START_SERVER" ;;
+                *) echo "Invalid choice";;
+            esac
+            ;;
+        
+        HELLO_WORLD)
+	    DIR="$(brew --repo)/var/flank/hello-world"
+
+	    if [ -d "$DIR" ]; then
+		# Directory exists, create a new one with a randomized suffix
+		DIR=$(mktemp -d "${DIR}-XXXX")
+	    else
+		# Directory doesn't exist, create it
+		mkdir "$DIR"
+	    fi
+	    chmod 777 $DIR
+	    echo 'echo '\''hello world!'\' > $DIR/blackbox.sh
+	    echo "Command created"
+	    echo "    http://localhost:8083"
+	    echo ""
+	    read -rp "Press enter to continue" choice
+            STATE="MAIN_MENU"
+            ;;
+        
+        SETTINGS)
+            echo "=== Settings ==="
+            echo "1) Change setting X"
+            echo "2) Return to Main Menu"
+            read -rp "Choose an option: " choice
+            case "$choice" in
+                1) echo "Setting X changed!" ;;
+                2) STATE="MAIN_MENU" ;;
+                *) echo "Invalid choice";;
+            esac
+            ;;
+        
+        EXIT)
+            echo "Goodbye!"
+            break
+            ;;
+        
+        *)
+            echo "Unknown state: $STATE"
+            STATE="MAIN_MENU"
+            ;;
+    esac
+done
+
 NEW_DIR=$(mktemp -d $(brew --repo)/var/flank/new-cmd-XXXXX)
 chmod 777 $NEW_DIR
 # touch $NEW_DIR/.users
