@@ -1,5 +1,3 @@
-set -e
-
 if [ -z "$1" ]; then
     echo "Must supply message"
     return 1
