@@ -3,7 +3,7 @@
 The open-source rewrite, in C!
 
 ## Flank is for sharing programs
-Write a script. On your computer. In whatever language. Then, from your CLI, share it with a non-engineer, as easily as you'd `cp your-script` into a new directory.
+Write a script, on your computer, in whatever language. Then, from your CLI, share it with a non-engineer, as easily as you'd `cp your-script` into a new directory.
  
 ## Program-sharing simplifies a lot hassles
 What is “BI” or “internal tools” or “dashboards” if not program-sharing? It’s just an interface around some backend code. That’s a lot of meetings, tools, and Slack messages to accomplish something we already had in 1979 (see below). Not to mention all the engineering time that is wasted running ad-hoc queries/scripts when there isn’t time to build an interface. 
@@ -19,8 +19,12 @@ $ brew tap btf-org/flank
 $ brew install btf-org/flank/flank
 
 $ flank 
+```
 
-# hopefully self-explanatory from here :)
+#### Getting updates
+```bash
+$ brew update # should update all your "taps", including btf-org/flank
+$ brew install btf-org/flank/flank
 ```
 
 ### Windows / Linux Distros
