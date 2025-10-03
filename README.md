@@ -3,7 +3,7 @@
 The open-source rewrite, in C!
 
 ## Flank is for sharing programs
-Imagine if, after writing a Python script on your computer, you could just immediately share it with a non-technical teammate. But in a way where it’s easy for them to use and they can’t do disastrous things to your computer.
+Write a script. On your computer. In whatever language. Then, from your CLI, share it with a non-engineer, as easily as you'd `cp script` into a new directory.
  
 ## Program-sharing simplifies a lot hassles
 What is “BI” or “internal tools” or “dashboards” if not program-sharing? It’s just an interface around some backend code. That’s a lot of meetings, tools, and Slack messages to accomplish something we already had in 1979 (see below). Not to mention all the engineering time that is wasted running ad-hoc queries/scripts when there isn’t time to build an interface. 
