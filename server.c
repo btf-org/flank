@@ -41,21 +41,20 @@ int main(int argc, char *argv[]) {
      signal(SIGINT, sigint_handler);
      signal(SIGTERM, sigint_handler);
 
-
      char *iflank_path = "iflank";
      char *iflank_name = "iflank";
-    for (int i = 1; i + 1 < argc; ++i) {
-        if (strcmp(argv[i], "--iflank-path") == 0) {
-            iflank_path = argv[i+1];
-            char *last_slash = strrchr(iflank_path, '/');
-            if(last_slash > 0){
-                 iflank_name = last_slash + 1;
-          } else {
-               iflank_name = last_slash;
-          }
-            break;
-        }
-    }
+     for (int i = 1; i + 1 < argc; ++i) {
+	  if (strcmp(argv[i], "--iflank-path") == 0) {
+	       iflank_path = argv[i + 1];
+	       char *last_slash = strrchr(iflank_path, '/');
+	       if (last_slash > 0) {
+		    iflank_name = last_slash + 1;
+	       } else {
+		    iflank_name = last_slash;
+	       }
+	       break;
+	  }
+     }
      int client_fd;
      struct sockaddr_in addr;
      char buffer[BUF_SIZE];
@@ -192,7 +191,7 @@ int main(int argc, char *argv[]) {
 		    write(client_fd, header, header_len);	// forward to client
 		    ssize_t n;
 		    while ((n = read(fd, buffer, sizeof(buffer))) > 0) {
-                   write(client_fd, buffer, n);
+			 write(client_fd, buffer, n);
 		    }
 		    close(fd);
 	       } else {
