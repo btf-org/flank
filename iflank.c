@@ -73,15 +73,11 @@ int main(int argc, char *argv[]) {
      int i = 0;
      for (int i = 1; i < argc; i++) {
 	  if (strcmp(argv[i], "--http-mode") == 0) {
-	       TTY_MODE == 0;
+	       TTY_MODE = 0;
 	  }
      }
      if (TTY_MODE == 1) {
-	  printf("\nWelcome to iflank! Some notes:\n");
-	  printf("  - Press Ctrl-D if you need to exit\n");
-	  printf
-	      ("  - iflank is a restricted shell without many of the features of a shell like bash\n");
-	  printf("\n");
+	  printf("\nWelcome to iflank! Press Ctrl-D if you need to exit. FYI, iflank is a restricted shell without many of the features of a shell like bash.\n\n");
      }
      if (TTY_MODE == 1) {
 	  printf("iflank> ");
