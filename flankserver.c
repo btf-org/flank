@@ -6,10 +6,10 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#define PORT 8083
 #define BUF_SIZE 4096
 
-int server_fd;
+int server_fd; // used in signal handlers
+int PORT = 8083; // doesn't need to be here unless I refactor and don't want to pass around
 
 void sigint_handler(int sig) {
      close(server_fd);		// free the listening socket
@@ -18,21 +18,19 @@ void sigint_handler(int sig) {
 
 char *parse_body(char *request_buf) {
      char *start = strstr(request_buf, "\r\n\r\n");
-     if (start == 0) {
+     if (start == NULL) {
 	  return NULL;
      }
      return start + 4;
 }
 
-void parse_path(char *request_buf, char *path_out) {
-     char method[8];
-     char path[1024];
+void parse_path(char *request_buf, char *path_out, char *method_out) {
      char version[16];
 
      // Parse the first line: METHOD PATH VERSION
-     sscanf(request_buf, "%7s %1023s %15s", method, path_out, version);
+     sscanf(request_buf, "%7s %1023s %15s", method_out, path_out, version);
 
-     printf("Method: %s\n", method);
+     printf("Method: %s\n", method_out);
      printf("Path: %s\n", path_out);
      printf("Version: %s\n", version);
 }
@@ -43,6 +41,9 @@ int main(int argc, char *argv[]) {
 
      char *iflank_path = "iflank";
      char *iflank_name = "iflank";
+     if (strstr(argv[0], "fsl") != NULL){
+          PORT = 8084;
+     }
      for (int i = 1; i + 1 < argc; ++i) {
 	  if (strcmp(argv[i], "--iflank-path") == 0) {
 	       iflank_path = argv[i + 1];
@@ -53,12 +54,12 @@ int main(int argc, char *argv[]) {
 		    iflank_name = last_slash;
 	       }
 	       break;
-	  }
+       }
      }
      int client_fd;
      struct sockaddr_in addr;
      char buffer[BUF_SIZE];
-     int bytes_read;
+     int http_bytes_read;
 
      int to_iflank_pipe_rw[2], from_iflank_pipe_rw[2];
      pid_t pid;
@@ -76,7 +77,7 @@ int main(int argc, char *argv[]) {
 	  // point 1 at whatever FD is write end of pipe
 	  close(to_iflank_pipe_rw[1]);	// close the "write" end of the "to" pipe (it's for the parent)
 	  close(from_iflank_pipe_rw[0]);	// close the "read" end of the "from" pipe (it's for the parent)
-	  execlp(iflank_path, iflank_name, "--http-mode", NULL);	// filename, argv[0] the name the program sees itself as, end of arg list
+	  execlp(iflank_path, iflank_name, NULL); // "--http-mode", NULL);	// filename, argv[0] the name the program sees itself as, end of arg list
 	  perror("execlp");
 	  exit(1);
      } else {
@@ -122,45 +123,48 @@ int main(int argc, char *argv[]) {
 	       continue;
 	  }
 
-	  int out_bytes;
-	  // while ((out_bytes = read(from_iflank_pipe_rw[0], buffer, BUF_SIZE)) > 0) {
-	  //      write(client_fd, buffer, out_bytes); // forward to client
-	  //      printf("out_bytes < BUF_SIZE? %d <? %d \n", out_bytes, BUF_SIZE);
-	  //      if (out_bytes < BUF_SIZE){
+	  int iflank_bytes_read;
+	  // while ((iflank_bytes_read = read(from_iflank_pipe_rw[0], buffer, BUF_SIZE)) > 0) {
+	  //      write(client_fd, buffer, iflank_bytes_read); // forward to client
+	  //      printf("iflank_bytes_read < BUF_SIZE? %d <? %d \n", iflank_bytes_read, BUF_SIZE);
+	  //      if (iflank_bytes_read < BUF_SIZE){
 	  //              printf("break\n");
 	  //              break; // stop if child has no more data
 	  //      }
 	  // }
 	  // read() returns 0 at EOF, when the other side closes the connection
-	  while ((bytes_read = read(client_fd, buffer, BUF_SIZE)) > 0) {
+	  while ((http_bytes_read = read(client_fd, buffer, BUF_SIZE - 1)) > 0) {
 	       // send input to iflank
-	       buffer[bytes_read] = '\0';
+	       buffer[http_bytes_read] = '\0';
 	       printf("Input: %s\n", buffer);
-	       printf("Bytes read: %d\n", bytes_read);
-	       for (int i = 0; i < bytes_read; i++) {
+	       printf("Bytes read: %d\n", http_bytes_read);
+	       for (int i = 0; i < http_bytes_read; i++) {
 		    printf("%d ", (unsigned char)buffer[i]);
 	       }
 	       printf("\n");
 	       char *body = parse_body(buffer);
 	       char path[1024];
-	       parse_path(buffer, path);
+            char method[8];
+	       parse_path(buffer, path, method);
 	       printf("path: %s\n", path);
 	       if (strcmp(path, "/iflank") == 0) {
-		    printf("remainder: %s\n", body);
-		    printf("about to write\n");
-		    write(to_iflank_pipe_rw[1], body,
-			  buffer + bytes_read - body);
-		    printf("just wrote: %s\n", body);
+               if(strcmp(method, "POST") == 0){
+                   printf("remainder: %s\n", body);
+                   printf("about to write\n");
+                   write(to_iflank_pipe_rw[1], body,
+                      buffer + http_bytes_read - body);
+                   printf("just wrote: %s\n", body);
+               }
 
 		    // flush if using FILE*, otherwise ensure child gets data
 		    // fflush(iflank_stdin); // if you wrap pipe with fdopen
 
 		    // read response from iflank
-		    // int out_bytes;
-		    while ((out_bytes =
+		    // int iflank_bytes_read;
+		    while ((iflank_bytes_read =
 			    read(from_iflank_pipe_rw[0], buffer,
-				 BUF_SIZE)) > 0) {
-			 buffer[out_bytes] = '\0';
+				 BUF_SIZE - 1)) > 0) {
+			 buffer[iflank_bytes_read] = '\0';
 			 printf("Output: %s\n", buffer);
 			 char header[256];
 			 int header_len;
@@ -169,10 +173,10 @@ int main(int argc, char *argv[]) {
 				      "HTTP/1.1 200 OK\r\n"
 				      "Content-Type: text/plain\r\n"
 				      "Content-Length: %d\r\n" "\r\n",
-				      out_bytes);
+				      iflank_bytes_read);
 			 write(client_fd, header, header_len);	// forward to client
-			 write(client_fd, buffer, out_bytes);	// forward to client
-			 if (out_bytes < BUF_SIZE) {
+			 write(client_fd, buffer, iflank_bytes_read);	// forward to client
+			 if (iflank_bytes_read < BUF_SIZE) {
 			      break;	// stop if child has no more data
 			 }
 		    }
