@@ -23,21 +23,21 @@
   <div id="display">Response will appear here</div> -->
 
   <script>
-    function makeCommand() {
-      const container = document.createElement('div');
+    function makeCommand(outputOnly=false) {
+	const container = document.createElement('div');
+	if(!outputOnly){
+	    const input = document.createElement('input');
+	    const button = document.createElement('button');
+	    button.textContent = 'Send';
+		button.addEventListener('click', sendCommand);
+	    container.appendChild(input);
+	    container.appendChild(button);
+	}
+	const output = document.createElement('div');
+	output.className = "white-space-pre p-1_25 my-0_75 border-1 border-color-black";
+	container.appendChild(output);
 
-    const input = document.createElement('input');
-    const button = document.createElement('button');
-    button.textContent = 'Send';
-	button.addEventListener('click', sendCommand);
-    const output = document.createElement('div');
-    output.className = "white-space-pre p-1_25 my-0_75 border-1 border-color-black";
-
-    container.appendChild(input);
-    container.appendChild(button);
-    container.appendChild(output);
-
-    document.body.appendChild(container);
+	document.body.appendChild(container);
     };
     async function sendCommand(event) {
 	const button = event.target;	
@@ -45,7 +45,7 @@
 	const [input, btn, output] = container.children;
 
       try {
-        const response = await fetch('http://localhost:8083/iflank', {
+        const response = await fetch(window.location.origin + '/iflank', {
           method: 'POST',
           headers: {
             'Content-Type': 'text/plain'
@@ -61,30 +61,27 @@
       }
     makeCommand();
     }
-    makeCommand();
+    async function getInitialOutput(){
+	const container = document.body.children[document.body.children.length - 1];
+	const output = container.children[container.children.length - 1];
 
-//     const inputBox = document.getElementById('inputBox');
-//     const sendBtn = document.getElementById('sendBtn');
-//     const display = document.getElementById('display');
-// 
-//     sendBtn.addEventListener('click', async () => {
-//       const text = inputBox.value;
-// 
-//       try {
-//         const response = await fetch('http://localhost:8083/iflank', {
-//           method: 'POST',
-//           headers: {
-//             'Content-Type': 'text/plain'
-//           },
-//           body: text + '\n'
-//         });
-// 
-//         const responseText = await response.text();
-//         display.textContent = responseText;
-//       } catch (err) {
-//         display.textContent = 'Error: ' + err.message;
-//       }
-//     });
+      try {
+        const response = await fetch(window.location.origin + '/iflank', { method: 'GET' });
+        const responseText = await response.text();
+        output.textContent = responseText;
+      } catch (err) {
+        output.textContent = 'Error reaching server: ' + err.message;
+	  return;
+      }
+    }
+    async function setup(){
+	makeCommand(true);
+	await getInitialOutput();
+	makeCommand(false);
+    }
+
+    setup();
+
   </script>
 
 </body>
