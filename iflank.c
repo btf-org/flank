@@ -9,7 +9,7 @@
 #define ST_FS 1
 #define ST_CMD 2
 
-int TTY_MODE = 1;
+int IN_TTY_MODE = 1;
 
 void pwd() {
      char buf[1024];
@@ -101,13 +101,16 @@ int main(int argc, char *argv[]) {
      int i = 0;
      for (int i = 1; i < argc; i++) {
 	  if (strcmp(argv[i], "--http-mode") == 0) {
-	       TTY_MODE = 0;
+	       IN_TTY_MODE = 0;
 	  }
      }
-     if (TTY_MODE == 1) {
-	  printf("\nWelcome to iflank! Press Ctrl-D if you need to exit. FYI, iflank is a restricted shell without many of the features of a shell like bash.\n\n");
+     if (IN_TTY_MODE == 1) {
+	  printf("\nWelcome to iflank v0.1.3! Press Ctrl-D if you need to exit. FYI, iflank is a restricted shell without many of the features of a shell like bash.\n\n");
+     } else {
+	  printf("Welcome to iflank v0.1.3!\n");
+	  fflush(stdout);
      }
-     if (TTY_MODE == 1) {
+     if (IN_TTY_MODE == 1) {
 	  printf("iflank> ");
 	  fflush(stdout);
      }
@@ -141,7 +144,7 @@ int main(int argc, char *argv[]) {
 	       }
 	       line[0] = '\0';	// reset it 
 	       i = 0;
-	       if (TTY_MODE == 1) {
+	       if (IN_TTY_MODE == 1) {
 		    printf("iflank> ");
 	       }
 	       fflush(stdout);
