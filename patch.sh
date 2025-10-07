@@ -27,5 +27,8 @@ echo ""
 read -rp "Hit enter to tag and replace in iflank" choice
 git tag -a "$new_tag" -m "$1"
 sed -i '' 's/to iflank v.*\..*\..*!/to iflank '$new_tag'!/' iflank.c
-# read -rp "Hit enter to tag and push" choice
-# git push origin "$new_tag"
+git status
+read -rp "Hit enter to add in working tree and push" choice
+git commit -am 'update to '$new_tag
+git push
+git push origin "$new_tag"
