@@ -24,6 +24,8 @@ echo "Latest Tag: $latest_tag"
 echo "Da New Tag: $new_tag"
 echo "Annotation: $1"
 echo ""
-read -rp "Hit enter to tag and push" choice
+read -rp "Hit enter to tag and replace in iflank" choice
 git tag -a "$new_tag" -m "$1"
-git push origin "$new_tag"
+sed -i '' 's/to iflank v.*\..*\..*!/to iflank '$new_tag'!/' iflank.c
+# read -rp "Hit enter to tag and push" choice
+# git push origin "$new_tag"
