@@ -109,9 +109,9 @@ int main(int argc, char *argv[]) {
 	  }
      }
      if (IN_TTY_MODE == 1) {
-	  printf("\nWelcome to iflank v0.1.5! Press Ctrl-D if you need to exit. FYI, iflank is a restricted shell without many of the features of a shell like bash.\n\n");
+	  printf("\nWelcome to iflank v0.1.6! Press Ctrl-D if you need to exit. FYI, iflank is a restricted shell without many of the features of a shell like bash.\n\n");
      } else {
-	  // printf("Welcome to iflank v0.1.5!\n");
+	  // printf("Welcome to iflank v0.1.6!\n");
 	  // fflush(stdout);
      }
      cd("/opt/homebrew/var/flank");
