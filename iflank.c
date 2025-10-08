@@ -70,7 +70,7 @@ void help(int state){
      if(state == ST_FS){
           printf("cd <name> / ls\n");
      } else if (state == ST_CMD){
-          printf("r blackbox.sh / cd .. \n");
+          printf("<a onclick='runCommand(\"r blackbox.sh\")'>Run</a> / cd .. \n");
      }
 }
 
