@@ -80,7 +80,7 @@
       try {
         const response = await fetch(window.location.origin + '/iflank', { method: 'GET' });
         const responseText = await response.text();
-        output.textContent = responseText;
+        output.innerHTML = responseText;
       } catch (err) {
         output.textContent = 'Error reaching server: ' + err.message;
 	  return;
