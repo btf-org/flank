@@ -136,11 +136,11 @@ int main(int argc, char *argv[]) {
 	  while ((http_bytes_read = read(client_fd, buffer, BUF_SIZE - 1)) > 0) {
 	       // send input to iflank
 	       buffer[http_bytes_read] = '\0';
-	       printf("Input: %s\n", buffer);
-	       printf("Bytes read: %d\n", http_bytes_read);
-	       for (int i = 0; i < http_bytes_read; i++) {
-		    printf("%d ", (unsigned char)buffer[i]);
-	       }
+	       printf("HTTP Input: %s\n", buffer);
+	       printf("HTTP Bytes read: %d\n", http_bytes_read);
+	       //for (int i = 0; i < http_bytes_read; i++) {
+		  //  printf("%d ", (unsigned char)buffer[i]);
+	       //}
 	       printf("\n");
 	       char *body = parse_body(buffer);
 	       char path[1024];
@@ -165,7 +165,12 @@ int main(int argc, char *argv[]) {
 			    read(from_iflank_pipe_rw[0], buffer,
 				 BUF_SIZE - 1)) > 0) {
 			 buffer[iflank_bytes_read] = '\0';
-			 printf("Output: %s\n", buffer);
+                printf("iflank bytes read: %d\n", iflank_bytes_read);
+			 printf("iflank's Output: %s\n", buffer);
+                 for (int i = 0; i < iflank_bytes_read; i++) {
+                   printf("%d ", (unsigned char)buffer[i]);
+                 }
+                 printf("\n");
 			 char header[256];
 			 int header_len;
 			 header_len =
@@ -176,7 +181,7 @@ int main(int argc, char *argv[]) {
 				      iflank_bytes_read);
 			 write(client_fd, header, header_len);	// forward to client
 			 write(client_fd, buffer, iflank_bytes_read);	// forward to client
-			 if (iflank_bytes_read < BUF_SIZE) {
+			 if (buffer[iflank_bytes_read-1] == '\0') {
 			      break;	// stop if child has no more data
 			 }
 		    }
