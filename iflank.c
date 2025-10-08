@@ -10,6 +10,7 @@
 #define ST_CMD 2
 
 int IN_TTY_MODE = 1;
+char END_HTTP = '\0';
 
 void pwd() {
      char buf[1024];
@@ -25,7 +26,7 @@ int cd(const char *path) {
 	  perror("chdir");
 	  return 1;
      }
-     printf("changed to %s\n", path);
+     // printf("changed to %s\n", path);
      return 0;
 }
 
@@ -68,9 +69,9 @@ int in_cmd_dir(){
 
 void help(int state){
      if(state == ST_FS){
-          printf("cd <name> / ls\n");
+          printf("");
      } else if (state == ST_CMD){
-          printf("<a href='' onclick='runCommand(\"r blackbox.sh\")'>Run</a> / cd .. \n");
+          printf("<div>Actions: <a href='#' onclick='runCommand(\"r blackbox.sh\")'>Run</a></div>");
      }
 }
 
@@ -99,7 +100,6 @@ int r(const char *path) {
 }
 
 int main(int argc, char *argv[]) {
-     cd("/opt/homebrew/var/flank");
      char line[MAX_LINE_SIZE];
      char c;
      int state = ST_FS;
@@ -111,8 +111,22 @@ int main(int argc, char *argv[]) {
      if (IN_TTY_MODE == 1) {
 	  printf("\nWelcome to iflank v0.1.5! Press Ctrl-D if you need to exit. FYI, iflank is a restricted shell without many of the features of a shell like bash.\n\n");
      } else {
-	  printf("Welcome to iflank v0.1.5!\n");
+	  // printf("Welcome to iflank v0.1.5!\n");
+	  // fflush(stdout);
+     }
+     cd("/opt/homebrew/var/flank");
+     pwd();
+              printf("\n");
+     ls(state);
+     help(state);
+     if(IN_TTY_MODE == 0){
+          // printf("printftest");
 	  fflush(stdout);
+          char test[1];
+          //test[0] = 'h';
+          //test[1] = 'i';
+          test[0] = '\0';
+          write(STDOUT_FILENO, test, 1);
      }
      if (IN_TTY_MODE == 1) {
 	  printf("iflank> ");
@@ -147,12 +161,22 @@ int main(int argc, char *argv[]) {
 		    cd(dir);
               if(in_cmd_dir()){
                    state = ST_CMD;
+                   pwd();
+              printf("\n");
+                   help(state);
               } else {
                    state = ST_FS;
+                   pwd();
+              printf("\n");
+                   ls(state);
+                   help(state);
               }
 	       } else if (strncmp(line, "r ", 2) == 0) {
 		    char *path = line + 2;
 		    r(path);
+              pwd();
+              printf("\n");
+              help(state);
 	       } else {
 		    printf("%s\n", line);
 	       }
@@ -160,8 +184,11 @@ int main(int argc, char *argv[]) {
 	       i = 0;
 	       if (IN_TTY_MODE == 1) {
 		    printf("iflank> ");
-	       }
 	       fflush(stdout);
+	       } else {
+	       fflush(stdout);
+               write(STDOUT_FILENO, &END_HTTP, 1);
+            }
 	  } else {
 	       line[i] = c;
 	       i++;
