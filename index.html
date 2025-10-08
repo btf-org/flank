@@ -23,6 +23,14 @@
   <div id="display">Response will appear here</div> -->
 
   <script>
+    function runCommand(cmd){
+	console.log(cmd);
+	const lastContainer = document.body.children[document.body.children.length - 1];
+	const lastInput = lastContainer.children[0]
+	lastInput.value = cmd;
+	const lastBtn = lastContainer.children[1];
+	lastBtn.click();
+    }
     function makeCommand(outputOnly=false) {
 	const container = document.createElement('div');
 	if(!outputOnly){
@@ -54,7 +62,10 @@
         });
 
         const responseText = await response.text();
-        output.textContent = responseText;
+	  console.log(responseText);
+	  console.log(output.innerHTML);
+        output.innerHTML = responseText;
+	  console.log(output.innerHTML);
       } catch (err) {
         output.textContent = 'Error reaching server: ' + err.message;
 	  return;
