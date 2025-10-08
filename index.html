@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>POST Example</title>
+  <title>Flank</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
+    .font-family-monospace { font-family: monospace }
     .white-space-pre { white-space: pre-line; }
     .p-1_25 { padding: 1.25rem; }
     .my-0_75 { margin-top: 0.75rem; margin-bottom: 0.75rem; }
@@ -13,7 +13,7 @@
     /* #display { margin-top: 20px; padding: 10px; border: 1px solid #ccc; } */
   </style>
 </head>
-<body>
+<body class="p-1_25 font-family-monospace">
 
   <!-- <h1>Send Text to Server</h1>
 
@@ -36,6 +36,7 @@
 	if(!outputOnly){
 	    const input = document.createElement('input');
 	    const button = document.createElement('button');
+	    input.className = "font-family-monospace";
 	    button.textContent = 'Send';
 		button.addEventListener('click', sendCommand);
 	    container.appendChild(input);
