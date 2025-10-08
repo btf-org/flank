@@ -103,7 +103,6 @@ int main(int argc, char *argv[]) {
      char line[MAX_LINE_SIZE];
      char c;
      int state = ST_FS;
-     int i = 0;
      for (int i = 1; i < argc; i++) {
 	  if (strcmp(argv[i], "--http-mode") == 0) {
 	       IN_TTY_MODE = 0;
@@ -119,9 +118,19 @@ int main(int argc, char *argv[]) {
 	  printf("iflank> ");
 	  fflush(stdout);
      }
+     int i = 0;
      while ((c = getchar()) != EOF) {
 	  // printf("%d ", c);
 	  // fflush(stdout);
+       if(i == MAX_LINE_SIZE - 1){
+            if(c != '\n'){
+                 line[0] = '\0';	// reset it 
+                 i = 0;
+                 printf("line limit is %d characters! Input not accepted\n", MAX_LINE_SIZE - 1);
+                 fflush(stdout);
+                 continue;
+            }
+       }
 	  if (c == '\n') {
 	       if (line[i - 1] == '\r') {
 		    line[i - 1] = '\0';
