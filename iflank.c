@@ -29,7 +29,7 @@ int cd(const char *path) {
      return 0;
 }
 
-int ls() {
+int ls(int state) {
      DIR *d = opendir(".");
      if (!d) {
 	  perror("opendir");
@@ -38,7 +38,12 @@ int ls() {
 
      struct dirent *entry;
      while ((entry = readdir(d)) != NULL) {
+          if(state == ST_FS){
+               printf("<div>%s<a style='margin-left: 5px;' href='#' onclick='runCommand(\"cd %s\");'>click</a></div>", entry->d_name, entry->d_name);
+          } else {
+
 	  printf("%s\n", entry->d_name);
+          }
      }
      closedir(d);
      return 0;
@@ -127,7 +132,7 @@ int main(int argc, char *argv[]) {
 	       } else if (strcmp(line, "help") == 0){
               help(state);
             }else if (strcmp(line, "ls") == 0) {
-		    ls();
+		    ls(state);
 	       } else if (strncmp(line, "cd ", 3) == 0) {
 		    char *dir = line + 3;
 		    cd(dir);
