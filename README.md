@@ -2,30 +2,41 @@
 
 The open-source rewrite, in C!
 
-## Flank is for sharing programs
+## What is it?
+Flank is a web interface for running command-line programs (and sharing that access with others).
 
-#### Sharing programs?
-You write a script, on your computer, in whatever language. Then, from your CLI, share it with a non-engineer, as easily as you'd `cp your-script` into a new directory.
+## What else can it do?
+- Cron
+- Download output
+- View logs
+- Pipe output of cmd1 => input of cmd2
 
-#### We actually had this... a long time ago
-In the 70s, there were companies where everyone logged into the same Unix machine. Sharing a program really was as simple as `cp your-script` into another user’s home directory.
+## How does it work?
+```
+1. You put a command in a special directory (varies by OS)
 
-#### But then we lost it
-We abandoned the team computer for PCs, and there it went. We held onto the idea of sharing files (Dropbox for documents, git for code), but for some reason we lost the idea of sharing programs.
+/var
+   /lib
+      /flank
+         wrapping-your-cmd.sh
 
-#### Program-sharing is awesome
-The way we currently share programs (i.e. allow a non-engineer to trigger backend code) is to build a full-blown website/BI tool.
 
-If you can just... give the user the program they want... safely... intuitively... it eliminates lots of meetings, JIRA tickets, and tools. Not to mention it eliminates the situation where you get stuck running ad-hoc scripts/queries for other people.
+2. Flank runs a special shell that can only run stuff there
 
-#### How do we bring back program-sharing?
-Your workstation can do 98% of the work. It's just missing 2 things:
-1. Your CLI is not an intuitive interface for entering parameters and viewing/downloading results.
-2. Your CLI has no guardrails. And poor out-of-the-box access control.
+/var
+   /lib
+     +-------- FLANK SHELL --------+
+     |   /flank                    |
+     |      wrapping-your-cmd.sh   |
+     +-----------------------------+
 
-So Flank is a highly restricted, interactive shell. And then there's a thin web client on top.
 
-## Mac / Homebrew 
+3. There's a web interface that makes input easy and output pretty
+   
+```
+
+## How do I get started?
+### Mac / Homebrew 
 
 #### Installation
 
@@ -42,6 +53,6 @@ $ brew update # should update all your "taps", including btf-org/flank
 $ brew install btf-org/flank/flank
 ```
 
-## Windows / Linux Distros
+### Windows / Linux Distros
 
 Not available... yet
