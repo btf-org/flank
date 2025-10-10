@@ -1,41 +1,33 @@
-# Flank, the Sequel
+# Flank
 
-The open-source rewrite, in C!
+## What
+Flank makes CLI commands easy to use, even for non-engineers. It's a browser-based UI.
 
-## What is it?
-Flank is a web interface for running command-line programs (and sharing that access with others).
+## Comparison
+Compared to other ways of building software, it has the speed & power of the CLI combined with the guardrails & easy of use of a designed application
 
-## What else can it do?
-- Cron
-- Download output
-- View logs
-- Pipe output of cmd1 => input of cmd2
+## Who's it for
+Backend engineers, SQL people, data scientists
 
-## How does it work?
-```
-1. You put a command in a special directory (varies by OS)
+## What else can it do
+Flank ships with a “standard library” of programs that makes it easy to accomplish other tasks natively in the OS, without having to use other tools:
+- Cron jobs
+- Pipelines
+- Monitoring running jobs
+- Changelog
+- Audit user actions
 
-/var
-   /lib
-      /flank
-         wrapping-your-cmd.sh
+## Example
+Teammate: “Hey can you get me those updated numbers?” You run a Python script on your machine and email them over.
 
+Normally, you’re either stuck running the script yourself, getting your teammate on the CLI (dangerous), or hosting the code and building an interface for it (time consuming)
 
-2. Flank runs a special shell that can only run stuff there
+With Flank, you just share access and it handles the guardrails and creation of a simple interface.
 
-/var
-   /lib
-     +-------- FLANK SHELL --------+
-     |   /flank                    |
-     |      wrapping-your-cmd.sh   |
-     +-----------------------------+
+## Compatible with
+POSIX Shells
 
-
-3. There's a web interface that makes input easy and output pretty
-   
-```
-
-## How do I get started?
+## Getting started
 ### Mac / Homebrew 
 
 #### Installation
