@@ -10,6 +10,7 @@ while true; do
 	    echo ''
 	    echo '(C)ommands / (P)rocesses'
 	    echo ''
+	    printf '\0'
 	    read -rp "$PROMPT" choice
 	    case $choice in
 		C)
@@ -28,6 +29,7 @@ while true; do
 	    echo ''
 	    echo '(B)ack / (K)ill <pid>'
 	    echo ''
+	    printf '\0'
 	    read -rp "$PROMPT" choice args
 	    case $choice in 
 		B)
@@ -49,6 +51,7 @@ while true; do
 	    echo ""
 	    echo "Next: (G)oto <name>"
 	    echo ""
+	    printf '\0'
 	    read -rp "$PROMPT" choice arg
 	    case $choice in
 		G)
@@ -69,6 +72,7 @@ while true; do
 	    echo ''
 	    echo 'Next: (R)un / (H)ome'
 	    echo ''
+	    printf '\0'
 	    read -rp "$PROMPT" choice
 	    case $choice in
 		R)

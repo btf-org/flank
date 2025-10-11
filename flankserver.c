@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
 	       continue;
 	  }
 
-	  int iflank_bytes_read;
+	  int iflank_bytes_read = 0;
 	  // while ((iflank_bytes_read = read(from_iflank_pipe_rw[0], buffer, BUF_SIZE)) > 0) {
 	  //      write(client_fd, buffer, iflank_bytes_read); // forward to client
 	  //      printf("iflank_bytes_read < BUF_SIZE? %d <? %d \n", iflank_bytes_read, BUF_SIZE);
@@ -161,16 +161,24 @@ int main(int argc, char *argv[]) {
 
 		    // read response from iflank
 		    // int iflank_bytes_read;
-		    while ((iflank_bytes_read =
-			    read(from_iflank_pipe_rw[0], buffer,
+              char *buf_head = buffer;
+		    while ((iflank_bytes_read +=
+			    read(from_iflank_pipe_rw[0], buf_head,
 				 BUF_SIZE - 1)) > 0) {
-			 buffer[iflank_bytes_read] = '\0';
+               buf_head = &buffer[iflank_bytes_read];
+			 // buffer[iflank_bytes_read] = '\0';
                 printf("iflank bytes read: %d\n", iflank_bytes_read);
-			 printf("iflank's Output: %s\n", buffer);
+			 // printf("iflank's Output: %s\n", buffer);
                  for (int i = 0; i < iflank_bytes_read; i++) {
                    printf("%d ", (unsigned char)buffer[i]);
                  }
+                 for (int i = 0; i < iflank_bytes_read; i++) {
+                   printf("%c ", (unsigned char)buffer[i]);
+                 }
                  printf("\n");
+			 //if (iflank_bytes_read < BUF_SIZE) {
+			 if (buffer[iflank_bytes_read-1] == '\0') {
+                     printf("Full message %s\n", buffer);
 			 char header[256];
 			 int header_len;
 			 header_len =
@@ -181,7 +189,7 @@ int main(int argc, char *argv[]) {
 				      iflank_bytes_read);
 			 write(client_fd, header, header_len);	// forward to client
 			 write(client_fd, buffer, iflank_bytes_read);	// forward to client
-			 if (buffer[iflank_bytes_read-1] == '\0') {
+                    iflank_bytes_read = 0;
 			      break;	// stop if child has no more data
 			 }
 		    }
