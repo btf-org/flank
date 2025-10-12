@@ -80,6 +80,7 @@ while true; do
 		    PAGE='CMD'
 		    ;;
 		H)
+		    cd /opt/homebrew/var/flank
 		    PAGE='HOME'
 		    ;;
 		*)
