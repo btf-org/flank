@@ -1,31 +1,34 @@
-# Flank, the Sequel
+# Flank
 
-The open-source rewrite, in C!
+## What
+Flank makes CLI commands easy to use, even for non-engineers. It's a browser-based UI.
 
-## Flank is for sharing programs
+## Comparison
+Compared to other ways of building software, it has the speed & power of the CLI combined with the guardrails & easy of use of a designed application
 
-#### Sharing programs?
-You write a script, on your computer, in whatever language. Then, from your CLI, share it with a non-engineer, as easily as you'd `cp your-script` into a new directory.
+## Who's it for
+Backend engineers, SQL people, data scientists
 
-#### We actually had this... a long time ago
-In the 70s, there were companies where everyone logged into the same Unix machine. Sharing a program really was as simple as `cp your-script` into another user’s home directory.
+## What else can it do
+Flank ships with a “standard library” of programs that makes it easy to accomplish other tasks natively in the OS, without having to use other tools:
+- Cron jobs
+- Pipelines
+- Monitoring running jobs
+- Changelog
+- Audit user actions
 
-#### But then we lost it
-We abandoned the team computer for PCs, and there it went. We held onto the idea of sharing files (Dropbox for documents, git for code), but for some reason we lost the idea of sharing programs.
+## Example
+Teammate: “Hey can you get me those updated numbers?” You run a Python script on your machine and email them over.
 
-#### Program-sharing is awesome
-The way we currently share programs (i.e. allow a non-engineer to trigger backend code) is to build a full-blown website/BI tool.
+Normally, you’re either stuck running the script yourself, getting your teammate on the CLI (dangerous), or hosting the code and building an interface for it (time consuming)
 
-If you can just... give the user the program they want... safely... intuitively... it eliminates lots of meetings, JIRA tickets, and tools. Not to mention it eliminates the situation where you get stuck running ad-hoc scripts/queries for other people.
+With Flank, you just share access and it handles the guardrails and creation of a simple interface.
 
-#### How do we bring back program-sharing?
-Your workstation can do 98% of the work. It's just missing 2 things:
-1. Your CLI is not an intuitive interface for entering parameters and viewing/downloading results.
-2. Your CLI has no guardrails. And poor out-of-the-box access control.
+## Compatible with
+POSIX Shells
 
-So Flank is a highly restricted, interactive shell. And then there's a thin web client on top.
-
-## Mac / Homebrew 
+## Getting started
+### Mac / Homebrew 
 
 #### Installation
 
@@ -42,6 +45,6 @@ $ brew update # should update all your "taps", including btf-org/flank
 $ brew install btf-org/flank/flank
 ```
 
-## Windows / Linux Distros
+### Windows / Linux Distros
 
 Not available... yet
