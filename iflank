@@ -2,8 +2,9 @@
 
 PAGE='HOME'
 PROMPT='iflank> '
+FLANK_ROOT=$(brew --prefix)/var/flank
 
-cd /opt/homebrew/var/flank
+cd $FLANK_ROOT
 while true; do
     case "$PAGE" in
 	HOME)
@@ -81,7 +82,7 @@ while true; do
 		    PAGE='CMD'
 		    ;;
 		H)
-		    cd /opt/homebrew/var/flank
+		    cd $FLANK_ROOT
 		    PAGE='HOME'
 		    ;;
 		*)
