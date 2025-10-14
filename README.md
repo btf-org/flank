@@ -1,5 +1,5 @@
 # Flank
-Flank is a straight-from-the-CLI tool builder that shortcuts the need for "dashboards", "internal tools", "BI", and certain cloud services. It allows backend engineers, database developers, and data scientists to solve problems end-to-end, in the language of their choice, without the usual mess of JIRA tickets, product managers, Slack messages, and DSLs.
+Flank is a straight-from-the-CLI tool builder that, in some situations, can shortcut the need for "dashboards", "internal tools", "BI", and cloud services. It allows backend engineers, database developers, and data scientists to solve problems end-to-end, in the language of their choice, without the usual mess of JIRA tickets, product managers, Slack messages, and DSLs.
 
 ## Getting started
 ### Mac / Homebrew 
