@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 PAGE='HOME'
 PROMPT='iflank> '
