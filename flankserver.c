@@ -195,7 +195,17 @@ int main(int argc, char *argv[]) {
 			 }
 		    }
 	       } else if (strcmp(path, "/") == 0) {
-		    int fd = open("index.html", O_RDONLY);
+               const char *index_html_path = NULL;
+
+              if (access("./index.html", F_OK) == 0) {
+                  index_html_path = "./index.html";
+              } else if (access("/usr/share/flank/index.html", F_OK) == 0) {
+                  index_html_path = "/usr/share/flank/index.html";
+              } else {
+                  fprintf(stderr, "index.html not found\n");
+                  return 1;
+              }
+		    int fd = open(index_html_path, O_RDONLY);
 		    struct stat st;
 		    fstat(fd, &st);
 		    off_t filesize = st.st_size;
