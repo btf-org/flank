@@ -8,6 +8,7 @@ mkdir -p releases/flank_"$version"_amd64/usr/share/flank
 mkdir -p releases/flank_"$version"_amd64/var/lib/flank
 
 cp build/DEBIAN/control build/DEBIAN/postinst releases/flank_"$version"_amd64/DEBIAN/
+sed -i '' 's/Version: .*$/Version: '$version'/' releases/flank_"$version"_amd64/DEBIAN/control
 chmod 775 releases/flank_"$version"_amd64/DEBIAN/postinst
 cp flank iflank releases/flank_"$version"_amd64/usr/local/bin/
 docker run --rm -v "$PWD":/work -w /work ubuntu bash -c "apt update && apt install -y gcc && gcc flankserver.c -o releases/flank_"$version"_amd64/usr/local/bin/flankserver"
