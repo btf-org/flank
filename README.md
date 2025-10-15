@@ -26,9 +26,8 @@ $ brew install btf-org/flank/flank
 #### Installation
 
 ```bash
-$ wget https://github.com/btf-org/flank/releases/download/v0.1.11/flank_0.1.11_amd64.deb
-$ chmod 700 flank_0.1.11_amd64.deb
-$ sudo apt install ./flank_0.1.11_amd64.deb
+$ wget https://github.com/btf-org/flank/releases/download/v0.1.12/flank_0.1.12_amd64.deb
+$ sudo apt install ./flank_0.1.12_amd64.deb
 ```
 
 #### Usage
