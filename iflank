@@ -2,7 +2,18 @@
 
 PAGE='HOME'
 PROMPT='iflank> '
-FLANK_ROOT=$(brew --prefix)/var/flank
+if [ -d /var/lib/flank ]; then
+    FLANK_ROOT=/var/lib/flank
+elif [ -d /opt/homebrew/var/flank ]; then
+    FLANK_ROOT=/opt/homebrew/var/flank
+elif [ -d /usr/local/var/flank ]; then
+    FLANK_ROOT=/usr/local/var/flank
+elif [ -n $(which brew) && $(brew --prefix) > 0 ]; then
+    FLANK_ROOT=$(brew --prefix)/var
+else 
+    echo "Cannot find flank root!"
+    exit
+fi
 
 cd $FLANK_ROOT
 while true; do
