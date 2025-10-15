@@ -11,8 +11,8 @@ cp build/DEBIAN/control build/DEBIAN/postinst releases/flank_"$version"_amd64/DE
 sed -i '' 's/Version: .*$/Version: '$version'/' releases/flank_"$version"_amd64/DEBIAN/control
 chmod 775 releases/flank_"$version"_amd64/DEBIAN/postinst
 cp flank iflank releases/flank_"$version"_amd64/usr/local/bin/
-docker run --rm -v "$PWD":/work -w /work ubuntu bash -c "apt update && apt install -y gcc && gcc flankserver.c -o releases/flank_"$version"_amd64/usr/local/bin/flankserver"
+docker run --platform linux/amd64 --rm -v "$PWD":/work -w /work ubuntu bash -c "apt update && apt install -y gcc && gcc flankserver.c -o releases/flank_"$version"_amd64/usr/local/bin/flankserver"
 cp index.html releases/flank_"$version"_amd64/usr/share/flank/
 
-docker run --rm -v "$PWD":/work -w /work ubuntu bash -c "apt update && apt install -y tree && tree && pwd && dpkg-deb --build releases/flank_"$version"_amd64"
+docker run --platform linux/amd64 --rm -v "$PWD":/work -w /work ubuntu bash -c "apt update && apt install -y tree && tree && pwd && dpkg-deb --build releases/flank_"$version"_amd64"
 
