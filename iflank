@@ -69,7 +69,7 @@ while true; do
 	    case $choice in
 		G)
 		    cd $arg
-		    if [[ -f template.sh ]]; then
+		    if [ -f template.sh ]; then
 			PAGE='CMD'
 		    else
 			PAGE='FS'
