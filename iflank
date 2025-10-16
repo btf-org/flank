@@ -69,7 +69,7 @@ while true; do
 	    case $choice in
 		G)
 		    cd $arg
-		    if [ -f blackbox.sh ]; then
+		    if [[ -f template.sh ]]; then
 			PAGE='CMD'
 		    else
 			PAGE='FS'
@@ -89,7 +89,7 @@ while true; do
 	    read -rp "$PROMPT" choice
 	    case $choice in
 		R)
-		    bash blackbox.sh
+		    bash template.sh
 		    PAGE='CMD'
 		    ;;
 		H)
