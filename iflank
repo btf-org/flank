@@ -89,7 +89,7 @@ while true; do
 	    read -rp "$PROMPT" choice
 	    case $choice in
 		R)
-		    bash template.sh
+		    nohup bash template.sh &
 		    PAGE='CMD'
 		    ;;
 		H)
