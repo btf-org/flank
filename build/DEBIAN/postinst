@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e
 mkdir -p /var/lib/flank
-chown root:root /var/lib/flank
+chmod 777 /var/lib/flank
 
