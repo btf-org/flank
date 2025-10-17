@@ -16,3 +16,9 @@ cp index.html releases/flank_"$version"_amd64/usr/share/flank/
 
 docker run --platform linux/amd64 --rm -v "$PWD":/work -w /work ubuntu bash -c "apt update && apt install -y tree && tree && pwd && dpkg-deb --build releases/flank_"$version"_amd64"
 
+git status
+read -rp "Hit [enter] to commit & push ./releases"
+git add releases
+git commit -m "debian $latest_tag"
+git push
+printf 'https://github.com/btf-org/flank/releases/new'
