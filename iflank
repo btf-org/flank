@@ -14,6 +14,7 @@ else
     echo "Cannot find flank root!"
     exit
 fi
+PS_VERSION=''
 
 cd $FLANK_ROOT
 while true; do
@@ -38,7 +39,19 @@ while true; do
 	    esac
 	    ;;
 	PS)
-	    ps | grep FLDT | grep -v 'grep FLDT'
+	    if [ -z $PS_VERSION ]; then
+		if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
+		    PS_VERSION='procps'
+		else
+		    PS_VERSION='bsd'
+		fi
+	    fi
+	    # [F]LDT will match on FLDT but it won't match on itself
+	    if [ $PS_VERSION == 'procps' ]; then 
+		ps e | grep [F]LDT 
+	    else
+		ps | grep [F]LDT 
+	    fi
 	    echo ''
 	    echo '(B)ack / (K)ill <pid>'
 	    echo ''
@@ -92,7 +105,21 @@ while true; do
 		    FLDT=$(date -Iseconds)
 		    RUN_DIR=./runs/$FLDT
 		    mkdir -p $RUN_DIR
-		    nohup bash -c "FLDT=$FLDT $(cat template.sh)" 1> $RUN_DIR/stdout.log 2> $RUN_DIR/stderr.log &
+		    if [ -z $PS_VERSION ]; then
+			if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
+			    PS_VERSION='procps'
+			else
+			    PS_VERSION='bsd'
+			fi
+		    fi
+		    if [ $PS_VERSION == 'procps' ]; then
+			# On procps, the prepended env variable actually shows up
+			FLDT=$FLDT nohup bash -c "$(cat template.sh)" 1> $RUN_DIR/stdout.log 2> $RUN_DIR/stderr.log &
+		    else
+			# The ; after $FLDT is there to make this a compound command
+			# For whatever reason that forces Mac `ps` to print the whole command
+			nohup bash -c "FLDT=$FLDT; $(cat template.sh)" 1> $RUN_DIR/stdout.log 2> $RUN_DIR/stderr.log &
+		    fi
 		    PAGE='CMD'
 		    ;;
 		H)
