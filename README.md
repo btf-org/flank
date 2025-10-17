@@ -1,5 +1,5 @@
 # Flank
-Flank is a CLI wrapper, in some situations, can shortcut the need for "dashboards", "internal tools", "BI", and cloud services. It allows backend engineers, database developers, and data scientists to solve problems end-to-end, in the language of their choice, without the usual mess of JIRA tickets, product managers, Slack messages, and DSLs.
+Flank is a user-friendly CLI wrapper that, in certain circumstances, can shortcut the need for "dashboards", "internal tools", "BI", and cloud services. It allows backend engineers, database developers, and data scientists to solve problems end-to-end, in the language of their choice, without the usual mess of JIRA tickets, product managers, Slack messages, and DSLs.
 
 ## Mac / Homebrew
 
@@ -26,9 +26,8 @@ $ brew install btf-org/flank/flank
 #### Installation
 
 ```bash
-$ wget https://github.com/btf-org/flank/releases/download/v0.1.11/flank_0.1.11_amd64.deb
-$ chmod 700 flank_0.1.11_amd64.deb
-$ sudo apt install ./flank_0.1.11_amd64.deb
+$ wget https://github.com/btf-org/flank/releases/download/v0.1.12/flank_0.1.12_amd64.deb
+$ sudo apt install ./flank_0.1.12_amd64.deb
 ```
 
 #### Usage
