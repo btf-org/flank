@@ -96,7 +96,7 @@ while true; do
 	CMD)
 	    pwd
 	    echo ''
-	    echo 'Next: (R)un / (H)ome'
+	    echo 'Next: (R)un / (L)ogs / (H)ome'
 	    echo ''
 	    printf '\0'
 	    read -rp "$PROMPT" choice
@@ -104,6 +104,9 @@ while true; do
 		R)
 		    FLDT=$(date -Iseconds)
 		    RUN_DIR=./runs/$FLDT
+		    if [ -d $RUN_DIR ]; then
+			RUN_DIR=$(mktemp -u $RUN_DIR"_XXX")
+		    fi
 		    mkdir -p $RUN_DIR
 		    if [ -z $PS_VERSION ]; then
 			if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
@@ -122,9 +125,63 @@ while true; do
 		    fi
 		    PAGE='CMD'
 		    ;;
+		L)
+		    cd runs
+		    PAGE='LOGS'
+		    ;;
 		H)
 		    cd $FLANK_ROOT
 		    PAGE='HOME'
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	LOGS)
+	    pwd
+	    echo ''
+	    ls -1
+	    echo ''
+	    echo 'Next: (O)pen :name / (B)ack'
+	    printf '\0'
+	    read -rp "$PROMPT" choice args
+	    case $choice in
+		O)
+		    cd $args
+		    PAGE='LOG_DIR'
+		    ;;
+		B)
+		    cd ..
+		    PAGE='CMD'
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	LOG_DIR)
+	    pwd
+	    echo ''
+	    echo 'Next: Std (O)ut / Std (E)rr / Other (L)ogs / (B)ack to Cmd'
+	    printf '\0'
+	    read -rp "$PROMPT" choice args
+	    case $choice in
+		O)
+		    cat stdout.log
+		    printf '\0'
+		    ;;
+		E) 
+		    cat stderr.log
+		    printf '\0'
+		    ;;
+		L)
+		    cd ..
+		    PAGE='LOGS'
+		    ;;
+		B)
+		    cd ../..
+		    PAGE='CMD'
 		    ;;
 		*)
 		    read -rp "Invalid choice! Hit [Enter] to continue"
