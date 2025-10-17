@@ -38,7 +38,7 @@ while true; do
 	    esac
 	    ;;
 	PS)
-	    ps
+	    ps | grep FLDT | grep -v 'grep FLDT'
 	    echo ''
 	    echo '(B)ack / (K)ill <pid>'
 	    echo ''
@@ -89,9 +89,10 @@ while true; do
 	    read -rp "$PROMPT" choice
 	    case $choice in
 		R)
-		    RUN_DIR=./runs/$(date -Iseconds)
+		    FLDT=$(date -Iseconds)
+		    RUN_DIR=./runs/$FLDT
 		    mkdir -p $RUN_DIR
-		    nohup bash -c "$(cat template.sh)" 1> $RUN_DIR/stdout.log 2> $RUN_DIR/stderr.log &
+		    nohup bash -c "FLDT=$FLDT $(cat template.sh)" 1> $RUN_DIR/stdout.log 2> $RUN_DIR/stderr.log &
 		    PAGE='CMD'
 		    ;;
 		H)
