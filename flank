@@ -57,7 +57,7 @@ while true; do
 	    ;;
         MAIN_MENU)
             echo "=== Main Menu ==="
-            echo "N - New Command"
+            echo "C - Create Command"
 	    if pgrep -x "flankserver" > /dev/null; then
 		echo "K - Kill Server"
 	    else
@@ -67,7 +67,7 @@ while true; do
 	    echo ""
             read -rp "Choose an option: " choice
             case "$choice" in
-                N) STATE="NEW_CMD" ;;
+                C) STATE="CREATE_CMD" ;;
                 # 2) STATE="SETTINGS" ;;
                 K) 
 		    pkill -x flankserver
@@ -85,11 +85,11 @@ while true; do
             esac
             ;;
         
-        NEW_CMD)
+        CREATE_CMD)
 	    history | tail -20
 	    echo ''
-	    read -rp 'Pick line number: ' line_no
-	    CMD_FROM_HIST=$(fc -ln $line_no $line_no | sed 's/^[[:space:]]*//')
+	    read -rp 'Pick history number: ' line_no
+	    CMD_FROM_HIST="cd "$(pwd)" && "$(fc -ln $line_no $line_no | sed 's/^[[:space:]]*//')
 	    echo "Adding this command to Flank:"
 	    echo '   '$CMD_FROM_HIST
 	    echo ''
