@@ -92,7 +92,6 @@ while true; do
 		    RUN_DIR=./runs/$(date -Iseconds)
 		    mkdir -p $RUN_DIR
 		    nohup bash -c "$(cat template.sh)" 1> $RUN_DIR/stdout.log 2> $RUN_DIR/stderr.log &
-		    echo $!
 		    PAGE='CMD'
 		    ;;
 		H)
