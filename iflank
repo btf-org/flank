@@ -46,11 +46,10 @@ while true; do
 		    PS_VERSION='bsd'
 		fi
 	    fi
-	    # [F]LDT will match on FLOGDIR but it won't match on itself
 	    if [ $PS_VERSION == 'procps' ]; then 
-		ps e | grep [F]LOGDIR 
+		ps | grep "$FLANK_ROOT/.*/exec.sh" | grep -v "grep .*$FLANK_ROOT" | grep -v "bash -c bash $FLANK_ROOT"
 	    else
-		ps | grep [F]LOGDIR 
+		ps | grep "$FLANK_ROOT""/.*/exec.sh" | grep -v "grep .*""$FLANK_ROOT" | grep -v "bash -c bash ""$FLANK_ROOT"
 	    fi
 	    echo ''
 	    echo '(B)ack / (K)ill <pid> / (L)ogs <pid>'
@@ -62,16 +61,15 @@ while true; do
 		    PAGE='HOME'
 		    ;;
 		K)
-		    kill -9 $args 
+		    kill $args 
 		    PAGE='PS'
 		    ;;
 		L)
 		    if [ $PS_VERSION == 'procps' ]; then 
-			log_dir=$(ps e $args | tail +2 | grep -o 'FLOGDIR=[^[:space:]]*' | cut -c 9-)
+			log_dir=$(ps e $args | grep -o "$FLANK_ROOT""[^[:space:]]*/exec.sh" | xargs dirname)
 		    else
-			log_dir=$(ps $args | tail +2 | grep -o 'FLOGDIR=[^[:space:]]*' | cut -c 9-)
+			log_dir=$(ps $args | grep -o "$FLANK_ROOT""[^[:space:]]*/exec.sh" | xargs dirname)
 		    fi
-		    # echo 'args: '$args' log_dir: '$log_dir' ps tail: '$(ps $args | tail +2 | grep -o 'FLOGDIR=[^[:space]]*')
 		    cd $log_dir
 		    PAGE='LOG_DIR'
 
@@ -130,6 +128,7 @@ while true; do
 			    done
 			fi
 		    fi
+		    cp template.sh $flogdir/exec.sh
 		    if [ -z $PS_VERSION ]; then
 			if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
 			    PS_VERSION='procps'
@@ -139,13 +138,13 @@ while true; do
 		    fi
 		    if [ $PS_VERSION == 'procps' ]; then
 			# On procps, the prepended env variable actually shows up
-			nohup bash -c "FLOGDIR=$flogdir bash $(pwd)/template.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\n' $? > $flogdir/status" &
+			nohup bash -c "FLOGDIR=$flogdir bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\n' \$? > $flogdir/status" &
 		    else
 			# The ; after $FLOGDIR is there to make this a compound command
 			# For whatever reason that forces Mac `ps` to print the whole command
 			# Also the space before the semicolon keeps the text parsing consistent with
 			# parsing the env variables on the procps version
-			nohup bash -c "PSIGNORE=1; bash -c ""'""FLOGDIR=$flogdir; bash $(pwd)/template.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log""'""; printf 'ExitCode2:\t%d\n' $? > $flogdir/status" &
+			nohup bash -c "bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\n' \$? > $flogdir/status" &
 		    fi
 		    PAGE='CMD'
 		    ;;
