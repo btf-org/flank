@@ -113,16 +113,18 @@ while true; do
 	    read -rp "$PROMPT" choice
 	    case $choice in
 		R)
-		    datetime=$(date -Iseconds)
-		    flogdir=$(pwd)/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-16)
-		    if ! mkdir -p $flogdir 2> /dev/null; then
+		    datetime=$(date '+%Y-%m-%dT%Hh%Mm%Ss')
+		    flogdatedir=$(pwd)/runs/$(echo $datetime | cut -c -10)
+		    mkdir -p $flogdatedir
+		    flogdir=$(pwd)/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-17)
+		    if ! mkdir $flogdir 2> /dev/null; then
 			# include seconds
-			flogdir=$(pwd)/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-19)
-			if ! mkdir -p $flogdir 2> /dev/null; then
-			    i=1
+			flogdir=$(pwd)/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-20)
+			if ! mkdir $flogdir 2> /dev/null; then
+			    i=2
 			    flogdir_base=$flogdir
 			    flogdir=$flogdir_base'_'$i
-			    until mkdir -p $flogdir 2> /dev/null ; do
+			    until mkdir $flogdir 2> /dev/null ; do
 				i=$(($i + 1))
 				flogdir=$flogdir_base'_'$i
 			    done
@@ -137,13 +139,13 @@ while true; do
 		    fi
 		    if [ $PS_VERSION == 'procps' ]; then
 			# On procps, the prepended env variable actually shows up
-			FLOGDIR=$flogdir nohup bash -c "$(cat template.sh)" 1> $flogdir/stdout.log 2> $flogdir/stderr.log &
+			nohup bash -c "FLOGDIR=$flogdir bash $(pwd)/template.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\n' $? > $flogdir/status" &
 		    else
 			# The ; after $FLOGDIR is there to make this a compound command
 			# For whatever reason that forces Mac `ps` to print the whole command
 			# Also the space before the semicolon keeps the text parsing consistent with
 			# parsing the env variables on the procps version
-			nohup bash -c "FLOGDIR=$flogdir ; $(cat template.sh)" 1> $flogdir/stdout.log 2> $flogdir/stderr.log &
+			nohup bash -c "FLOGDIR=$flogdir ; bash $(pwd)/template.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode2:\t%d\n' $? > $flogdir/status" &
 		    fi
 		    PAGE='CMD'
 		    ;;
