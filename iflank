@@ -46,14 +46,14 @@ while true; do
 		    PS_VERSION='bsd'
 		fi
 	    fi
-	    # [F]LDT will match on FLDT but it won't match on itself
+	    # [F]LDT will match on FLOGDIR but it won't match on itself
 	    if [ $PS_VERSION == 'procps' ]; then 
-		ps e | grep [F]LDT 
+		ps e | grep [F]LOGDIR 
 	    else
-		ps | grep [F]LDT 
+		ps | grep [F]LOGDIR 
 	    fi
 	    echo ''
-	    echo '(B)ack / (K)ill <pid>'
+	    echo '(B)ack / (K)ill <pid> / (L)ogs <pid>'
 	    echo ''
 	    printf '\0'
 	    read -rp "$PROMPT" choice args
@@ -64,6 +64,17 @@ while true; do
 		K)
 		    kill $args 
 		    PAGE='PS'
+		    ;;
+		L)
+		    if [ $PS_VERSION == 'procps' ]; then 
+			log_dir=$(ps e $args | tail +2 | grep -o 'FLOGDIR=[^[:space:]]*' | cut -c 9-)
+		    else
+			log_dir=$(ps $args | tail +2 | grep -o 'FLOGDIR=[^[:space:]]*' | cut -c 9-)
+		    fi
+		    # echo 'args: '$args' log_dir: '$log_dir' ps tail: '$(ps $args | tail +2 | grep -o 'FLOGDIR=[^[:space]]*')
+		    cd $log_dir
+		    PAGE='LOG_DIR'
+
 		    ;;
 		*)
 		    read -rp "Invalid choice! Hit [Enter] to continue"
@@ -102,12 +113,21 @@ while true; do
 	    read -rp "$PROMPT" choice
 	    case $choice in
 		R)
-		    FLDT=$(date -Iseconds)
-		    RUN_DIR=./runs/$FLDT
-		    if [ -d $RUN_DIR ]; then
-			RUN_DIR=$(mktemp -u $RUN_DIR"_XXX")
+		    datetime=$(date -Iseconds)
+		    flogdir=$(pwd)/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-16)
+		    if ! mkdir -p $flogdir 2> /dev/null; then
+			# include seconds
+			flogdir=$(pwd)/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-19)
+			if ! mkdir -p $flogdir 2> /dev/null; then
+			    i=1
+			    flogdir_base=$flogdir
+			    flogdir=$flogdir_base'_'$i
+			    until mkdir -p $flogdir 2> /dev/null ; do
+				i=$(($i + 1))
+				flogdir=$flogdir_base'_'$i
+			    done
+			fi
 		    fi
-		    mkdir -p $RUN_DIR
 		    if [ -z $PS_VERSION ]; then
 			if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
 			    PS_VERSION='procps'
@@ -117,11 +137,13 @@ while true; do
 		    fi
 		    if [ $PS_VERSION == 'procps' ]; then
 			# On procps, the prepended env variable actually shows up
-			FLDT=$FLDT nohup bash -c "$(cat template.sh)" 1> $RUN_DIR/stdout.log 2> $RUN_DIR/stderr.log &
+			FLOGDIR=$flogdir nohup bash -c "$(cat template.sh)" 1> $flogdir/stdout.log 2> $flogdir/stderr.log &
 		    else
-			# The ; after $FLDT is there to make this a compound command
+			# The ; after $FLOGDIR is there to make this a compound command
 			# For whatever reason that forces Mac `ps` to print the whole command
-			nohup bash -c "FLDT=$FLDT; $(cat template.sh)" 1> $RUN_DIR/stdout.log 2> $RUN_DIR/stderr.log &
+			# Also the space before the semicolon keeps the text parsing consistent with
+			# parsing the env variables on the procps version
+			nohup bash -c "FLOGDIR=$flogdir ; $(cat template.sh)" 1> $flogdir/stdout.log 2> $flogdir/stderr.log &
 		    fi
 		    PAGE='CMD'
 		    ;;
@@ -169,11 +191,11 @@ while true; do
 	    case $choice in
 		O)
 		    cat stdout.log
-		    printf '\0'
+		    echo ''
 		    ;;
 		E) 
 		    cat stderr.log
-		    printf '\0'
+		    echo ''
 		    ;;
 		L)
 		    cd ..
