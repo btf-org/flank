@@ -139,6 +139,7 @@ while true; do
 		    # Subtle quoting things:
 		    #  - $? needs to be escaped as \$? in "" or it will immediately evaluate
 		    #  - $(date) needs to be single quoted or it will immediately evaluate
+		    #  - $? needs to be evaluated before $(date) or it will return the code of date
 		    if [ $PS_VERSION == 'procps' ]; then
 			nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" &
 		    else
