@@ -47,7 +47,7 @@ while true; do
 		fi
 	    fi
 	    if [ $PS_VERSION == 'procps' ]; then 
-		ps | grep "$FLANK_ROOT/.*/exec.sh" | grep -v "grep .*$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
+		ps -eo pid,args | grep "$FLANK_ROOT/.*/exec.sh" | grep -v "grep .*$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
 	    else
 		ps | grep "$FLANK_ROOT""/.*/exec.sh" | grep -v "grep .*""$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
 	    fi
