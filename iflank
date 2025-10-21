@@ -136,15 +136,13 @@ while true; do
 			    PS_VERSION='bsd'
 			fi
 		    fi
+		    # Subtle quoting things:
+		    #  - $? needs to be escaped as \$? in "" or it will immediately evaluate
+		    #  - $(date) needs to be single quoted or it will immediately evaluate
 		    if [ $PS_VERSION == 'procps' ]; then
-			# On procps, the prepended env variable actually shows up
-			nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'EndTime:\t%s\nExitCode:\t%d\n' "'$(date "+%s")'" \$? >> $flogdir/status" &
+			nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" &
 		    else
-			# The ; after $FLOGDIR is there to make this a compound command
-			# For whatever reason that forces Mac `ps` to print the whole command
-			# Also the space before the semicolon keeps the text parsing consistent with
-			# parsing the env variables on the procps version
-			nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'EndTime:\t%s\nExitCode:\t%d\n' "'$(date "+%s")'" \$? >> $flogdir/status" &
+			nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" &
 		    fi
 		    PAGE='CMD'
 		    ;;
