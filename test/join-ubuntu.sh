@@ -1,4 +1,4 @@
-count=$(docker ps --filter "ancestor=ubuntu:24.04" --format "{{.Names}}" | wc -l)
+count=$(docker ps --filter "ancestor=ubuntu-tester" --format "{{.Names}}" | wc -l)
 if [ $count -eq 0 ]; then 
     echo 'No containers running!'
     return
