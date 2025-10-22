@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
 
-function run() {
+function run_cmd {
+    if [ -n "$1" ]; then
+	local cmd_dir=$(dirname $(dirname "$1"))
+    else
+	local cmd_dir=$(pwd)
+    fi
 
+    echo $cmd_dir
     local datetime=$(date '+%Y-%m-%dT%Hh%Mm%Ss')
-    local flogdatedir=$(pwd)/runs/$(echo $datetime | cut -c -10)
+    local flogdatedir=$cmd_dir/runs/$(echo $datetime | cut -c -10)
     mkdir -p $flogdatedir
-    local flogdir=$(pwd)/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-17)
+    local flogdir=$cmd_dir/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-17)
     if ! mkdir $flogdir 2> /dev/null; then
 	# include seconds
-	flogdir=$(pwd)/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-20)
+	flogdir=$cmd_dir/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-20)
 	if ! mkdir $flogdir 2> /dev/null; then
 	    local i=2
 	    local flogdir_base=$flogdir
@@ -19,7 +25,14 @@ function run() {
 	    done
 	fi
     fi
-    cp template.sh $flogdir/exec.sh
+
+    echo $flogdir
+    if [ -n "$1" ]; then
+	echo $1
+	cp "$1" $flogdir/exec.sh
+    else
+	cp $cmd_dir/template.sh $flogdir/exec.sh
+    fi
 
     # Subtle quoting things:
     #  - $? needs to be escaped as \$? in "" or it will immediately evaluate
@@ -27,6 +40,22 @@ function run() {
     #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
     nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" &
 }
+
+if [ -n "$1" ]; then 
+    if [ "$1" == 'run' ]; then
+	if [ -z "$2" ]; then
+	    echo 'Missing path to saved config `iflank run <path>`'
+	    exit
+	fi
+
+	run_cmd "$2"
+	exit
+    else
+	echo 'Positional parameter not recognized. Valid: `iflank run <path>`'
+	exit
+    fi
+fi
+
 PAGE='HOME'
 PROMPT='iflank> '
 if [ -d /var/lib/flank ]; then
@@ -145,29 +174,7 @@ while true; do
 	    read -rp "$PROMPT" choice
 	    case $choice in
 		R)
-		    datetime=$(date '+%Y-%m-%dT%Hh%Mm%Ss')
-		    flogdatedir=$(pwd)/runs/$(echo $datetime | cut -c -10)
-		    mkdir -p $flogdatedir
-		    flogdir=$(pwd)/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-17)
-		    if ! mkdir $flogdir 2> /dev/null; then
-			# include seconds
-			flogdir=$(pwd)/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-20)
-			if ! mkdir $flogdir 2> /dev/null; then
-			    i=2
-			    flogdir_base=$flogdir
-			    flogdir=$flogdir_base'_'$i
-			    until mkdir $flogdir 2> /dev/null ; do
-				i=$(($i + 1))
-				flogdir=$flogdir_base'_'$i
-			    done
-			fi
-		    fi
-		    cp template.sh $flogdir/exec.sh
-		    # Subtle quoting things:
-		    #  - $? needs to be escaped as \$? in "" or it will immediately evaluate
-		    #  - $(date) needs to be single quoted or it will immediately evaluate
-		    #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
-		    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" &
+		    run_cmd
 		    PAGE='CMD'
 		    ;;
 		L)
