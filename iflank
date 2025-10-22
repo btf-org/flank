@@ -49,7 +49,7 @@ while true; do
 	    if [ $PS_VERSION == 'procps' ]; then 
 		ps -eo pid,args | grep "$FLANK_ROOT/.*/exec.sh" | grep -v "grep .*$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
 	    else
-		ps | grep "$FLANK_ROOT""/.*/exec.sh" | grep -v "grep .*""$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
+		ps -x | grep "$FLANK_ROOT""/.*/exec.sh" | grep -v "grep .*""$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
 	    fi
 	    echo ''
 	    echo '(B)ack / (K)ill <pid> / (L)ogs <pid>'
@@ -65,6 +65,13 @@ while true; do
 		    PAGE='PS'
 		    ;;
 		L)
+		    if [ -z $PS_VERSION ]; then
+			if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
+			    PS_VERSION='procps'
+			else
+			    PS_VERSION='bsd'
+			fi
+		    fi
 		    if [ $PS_VERSION == 'procps' ]; then 
 			log_dir=$(ps e $args | grep -o "$FLANK_ROOT""[^[:space:]]*/exec.sh" | xargs dirname)
 		    else
@@ -129,22 +136,11 @@ while true; do
 			fi
 		    fi
 		    cp template.sh $flogdir/exec.sh
-		    if [ -z $PS_VERSION ]; then
-			if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
-			    PS_VERSION='procps'
-			else
-			    PS_VERSION='bsd'
-			fi
-		    fi
 		    # Subtle quoting things:
 		    #  - $? needs to be escaped as \$? in "" or it will immediately evaluate
 		    #  - $(date) needs to be single quoted or it will immediately evaluate
-		    #  - $? needs to be evaluated before $(date) or it will return the code of date
-		    if [ $PS_VERSION == 'procps' ]; then
-			nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" &
-		    else
-			nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" &
-		    fi
+		    #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
+		    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" &
 		    PAGE='CMD'
 		    ;;
 		L)
