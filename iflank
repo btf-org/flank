@@ -37,14 +37,14 @@ run_cmd() {
     fi
 
     if [ -n "$2" ]; then
-	if [ $(basename "$2") == 'template.make' ]; then
-	    cp "$2" $flogdir/exec.make
+	if [ $(basename "$2") == 'template.mk' ]; then
+	    cp "$2" $flogdir/exec.mk
 	else
 	    cp "$2" $flogdir/exec.sh
 	fi
     else
-	if [ -f "$cmd_dir/template.make" ]; then
-	    cp $cmd_dir/template.make $flogdir/exec.make
+	if [ -f "$cmd_dir/template.mk" ]; then
+	    cp $cmd_dir/template.mk $flogdir/exec.mk
 	else
 	    cp $cmd_dir/template.sh $flogdir/exec.sh
 	fi
@@ -82,12 +82,12 @@ run_cmd() {
     #  - $? needs to be escaped as \$? in "" or it will immediately evaluate
     #  - $(date) needs to be single quoted or it will immediately evaluate
     #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
-    if [ -f "$flogdir/exec.make" ]; then
+    if [ -f "$flogdir/exec.mk" ]; then
 	if [ "$1" == 'bg' ]; then
-	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; make -j -f $flogdir/exec.make all 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" > testtest &
+	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; make -j -f $flogdir/exec.mk all 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" > testtest &
 	else
 	    printf 'StartTime:\t%s\n' $(date "+%s") > $flogdir/status
-	    make -j -f $flogdir/exec.make all 1> $flogdir/stdout.log 2> $flogdir/stderr.log & 
+	    make -j -f $flogdir/exec.mk all 1> $flogdir/stdout.log 2> $flogdir/stderr.log & 
 	    PID=$!
 	    wait $PID
 	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? $(date "+%s") >> $flogdir/status
@@ -198,9 +198,9 @@ while true; do
 			fi
 		    fi
 		    if [ $PS_VERSION == 'procps' ]; then 
-			log_dir=$(ps e $args | grep -o "$FLANK_ROOT""[^[:space:]]*/exec.sh" | xargs dirname)
+			log_dir=$(ps e $args | grep -o -e "$FLANK_ROOT""[^[:space:]]*/exec.sh" -e "$FLANK_ROOT""[^[:space:]]*/exec.mk" | xargs dirname)
 		    else
-			log_dir=$(ps $args | grep -o "$FLANK_ROOT""[^[:space:]]*/exec.sh" | xargs dirname)
+			log_dir=$(ps $args | grep -o -e "$FLANK_ROOT""[^[:space:]]*/exec.sh" -e "$FLANK_ROOT""[^[:space:]]*/exec.mk" | xargs dirname)
 		    fi
 		    cd $log_dir
 		    PAGE='LOG_DIR'
