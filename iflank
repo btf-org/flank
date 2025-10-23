@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 
-function run_cmd {
-    if [ -n "$1" ]; then
-	if [ ! -f "$1" ]; then
-	    echo "file: $1"' does not exist!'
+run_cmd() {
+    if [ "$1" != 'bg' ] && [ "$1" != 'fg' ]; then
+	echo "first parameter $1 must be 'fg' or 'bg'"
+	exit
+    fi
+    if [ -n "$2" ]; then
+	if [ ! -f "$2" ]; then
+	    echo "file: $2"' does not exist!'
 	    exit
 	fi
-	local cmd_dir=$(dirname $(dirname "$1"))
+	local cmd_dir=$(dirname "$2")
+	if [ $(basename "$cmd_dir") == 'saved_configs' ]; then
+	    local cmd_dir=$(dirname "$cmd_dir")
+	fi
     else
 	local cmd_dir=$(pwd)
     fi
@@ -29,27 +36,88 @@ function run_cmd {
 	fi
     fi
 
-    if [ -n "$1" ]; then
-	cp "$1" $flogdir/exec.sh
+    if [ -n "$2" ]; then
+	if [ $(basename "$2") == 'template.make' ]; then
+	    cp "$2" $flogdir/exec.make
+	else
+	    cp "$2" $flogdir/exec.sh
+	fi
     else
-	cp $cmd_dir/template.sh $flogdir/exec.sh
+	if [ -f "$cmd_dir/template.make" ]; then
+	    cp $cmd_dir/template.make $flogdir/exec.make
+	else
+	    cp $cmd_dir/template.sh $flogdir/exec.sh
+	fi
     fi
 
+    local PID=''
+    handle_int(){
+      if [ -n "$PID" ]; then
+        echo "hiiii $PID"
+        printf 'ExitCode:\t%d\nEndTime:\t%d' $((128 + $(kill -l SIGINT))) $(date '+%s') >> $flogdir/status
+	kill -s SIGINT $PID
+	exit
+      fi
+    }
+    handle_term(){
+      if [ -n "$PID" ]; then
+        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $((128 + $(kill -l SIGTERM))) $(date '+%s') >> $flogdir/status
+	kill -s SIGTERM $PID
+	exit
+      fi
+    }
+    handle_kill(){
+      if [ -n "$PID" ]; then
+        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $((128 + $(kill -l SIGKILL))) $(date '+%s') >> $flogdir/status
+	kill -s SIGKILL $PID
+	exit
+      fi
+    }
+    if [ "$1" == 'fg' ]; then
+	trap handle_int INT
+	trap handle_term TERM
+	trap handle_kill KILL
+    fi
     # Subtle quoting things:
     #  - $? needs to be escaped as \$? in "" or it will immediately evaluate
     #  - $(date) needs to be single quoted or it will immediately evaluate
     #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
-    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" &
+    if [ -f "$flogdir/exec.make" ]; then
+	if [ "$1" == 'bg' ]; then
+	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; make -j -f $flogdir/exec.make all 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" > testtest &
+	else
+	    printf 'StartTime:\t%s\n' $(date "+%s") > $flogdir/status
+	    make -j -f $flogdir/exec.make all 1> $flogdir/stdout.log 2> $flogdir/stderr.log & 
+	    PID=$!
+	    wait $PID
+	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? $(date "+%s") >> $flogdir/status
+	fi
+    else
+	if [ "$1" == 'bg' ]; then
+	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" > /dev/null &
+	else
+	    printf 'StartTime:\t%s\n' $(date "+%s") > $flogdir/status
+	    bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log & 
+	    PID=$!
+	    wait $PID
+	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? $(date "+%s") >> $flogdir/status
+	fi
+    fi
 }
 
 if [ -n "$1" ]; then 
-    if [ "$1" == 'run' ]; then
+    if [ "$1" == 'run_fg' ] || [ "$1" == 'run_bg' ]; then
 	if [ -z "$2" ]; then
-	    echo 'Missing path to saved config `iflank run <path>`'
+	    echo 'Missing path to saved config `iflank run_bg <path>` / iflank run_fg <path>'
 	    exit
 	fi
 
-	run_cmd "$2"
+	if [ "$1" == 'run_fg' ]; then
+	    run_cmd "fg" "$2"
+	else
+	    run_cmd "bg" "$2"
+	fi
+
 	exit
     else
 	echo 'Positional parameter not recognized. Valid: `iflank run <path>`'
@@ -104,9 +172,9 @@ while true; do
 		fi
 	    fi
 	    if [ $PS_VERSION == 'procps' ]; then 
-		ps -eo pid,args | grep "$FLANK_ROOT/.*/exec.sh" | grep -v "grep .*$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
+		ps -eo pid,args | grep "$FLANK_ROOT/.*/exec\." | grep -v "grep .*$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
 	    else
-		ps -x | grep "$FLANK_ROOT""/.*/exec.sh" | grep -v "grep .*""$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
+		ps -x | grep "$FLANK_ROOT""/.*/exec\." | grep -v "grep .*""$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
 	    fi
 	    echo ''
 	    echo '(B)ack / (K)ill <pid> / (L)ogs <pid>'
@@ -155,7 +223,7 @@ while true; do
 	    case $choice in
 		G)
 		    cd $arg
-		    if [ -f template.sh ]; then
+		    if [ -f template.* ]; then
 			PAGE='CMD'
 		    else
 			PAGE='FS'
@@ -175,7 +243,7 @@ while true; do
 	    read -rp "$PROMPT" choice
 	    case $choice in
 		R)
-		    run_cmd
+		    run_cmd 'bg'
 		    PAGE='CMD'
 		    ;;
 		L)
