@@ -117,8 +117,34 @@ if [ -n "$1" ] && [ "$1" == 'run' ]; then
     exit $exit_code
 fi
 
+
+
 PAGE='HOME'
 PROMPT='iflank> '
+MODE='TTY'
+
+help_msg(){
+    printf 'Usage: iflank [run <path>] [--http-mode | -h]\n'
+}
+
+while [ "$1" != "" ]; do
+    case $1 in
+        --http-mode )           
+	    MODE='HTTP'
+	    PROMPT=''
+	    PAGE='HTTP_INIT'
+            ;;
+        -h | --help ) 
+	    help_msg
+            exit
+	    ;;
+        * )              
+	    help_msg
+            exit 1
+    esac
+    shift
+done
+
 if [ -d /var/lib/flank ]; then
     FLANK_ROOT=/var/lib/flank
 elif [ -d /opt/homebrew/var/flank ]; then
@@ -136,6 +162,17 @@ PS_VERSION=''
 cd $FLANK_ROOT
 while true; do
     case "$PAGE" in
+	HTTP_INIT)
+	    read -rp "$PROMPT" choice
+	    case $choice in
+		refresh)
+		    PAGE='HOME'
+		    ;;
+		*)
+		    echo "Invalid input"
+		    ;;
+	    esac
+	    ;;
 	HOME)
 	    echo 'Welcome to Flank!'
 	    echo ''
@@ -149,6 +186,8 @@ while true; do
 		    ;;
 		P)
 		    PAGE='PS'
+		    ;;
+		refresh)
 		    ;;
 		*)
 		    read -rp "Invalid choice! Hit [Enter] to continue"
@@ -198,6 +237,8 @@ while true; do
 		    PAGE='LOG_DIR'
 
 		    ;;
+		refresh)
+		    ;;
 		*)
 		    read -rp "Invalid choice! Hit [Enter] to continue"
 		    ;;
@@ -220,6 +261,8 @@ while true; do
 		    else
 			PAGE='FS'
 		    fi
+		    ;;
+		refresh)
 		    ;;
 		*)
 		    read -rp "Invalid choice! Hit [Enter] to continue"
@@ -246,6 +289,8 @@ while true; do
 		    cd $FLANK_ROOT
 		    PAGE='HOME'
 		    ;;
+		refresh)
+		    ;;
 		*)
 		    read -rp "Invalid choice! Hit [Enter] to continue"
 		    ;;
@@ -267,6 +312,8 @@ while true; do
 		B)
 		    cd ..
 		    PAGE='CMD'
+		    ;;
+		refresh)
 		    ;;
 		*)
 		    read -rp "Invalid choice! Hit [Enter] to continue"
@@ -295,6 +342,8 @@ while true; do
 		B)
 		    cd ../..
 		    PAGE='CMD'
+		    ;;
+		refresh)
 		    ;;
 		*)
 		    read -rp "Invalid choice! Hit [Enter] to continue"
