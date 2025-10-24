@@ -9,8 +9,8 @@
 
 #define BUF_SIZE 4096
 
-int server_fd; // used in signal handlers
-int PORT = 8083; // doesn't need to be here unless I refactor and don't want to pass around
+int server_fd;			// used in signal handlers
+int PORT = 8083;		// doesn't need to be here unless I refactor and don't want to pass around
 
 void sigint_handler(int sig) {
      close(server_fd);		// free the listening socket
@@ -42,8 +42,8 @@ int main(int argc, char *argv[]) {
 
      char *iflank_path = "iflank";
      char *iflank_name = "iflank";
-     if (strstr(argv[0], "fsl") != NULL){
-          PORT = 8084;
+     if (strstr(argv[0], "fsl") != NULL) {
+	  PORT = 8084;
      }
      for (int i = 1; i + 1 < argc; ++i) {
 	  if (strcmp(argv[i], "--iflank-path") == 0) {
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
 		    iflank_name = last_slash;
 	       }
 	       break;
-       }
+	  }
      }
      int client_fd;
      struct sockaddr_in addr;
@@ -140,71 +140,69 @@ int main(int argc, char *argv[]) {
 	       printf("HTTP Input: %s\n", buffer);
 	       printf("HTTP Bytes read: %d\n", http_bytes_read);
 	       //for (int i = 0; i < http_bytes_read; i++) {
-		  //  printf("%d ", (unsigned char)buffer[i]);
+	       //  printf("%d ", (unsigned char)buffer[i]);
 	       //}
 	       printf("\n");
 	       char *body = parse_body(buffer);
 	       char path[1024];
-            char method[8];
+	       char method[8];
 	       parse_path(buffer, path, method);
 	       printf("path: %s\n", path);
 	       if (strcmp(path, "/iflank") == 0) {
-               if(strcmp(method, "POST") == 0){
-                   printf("remainder: %s\n", body);
-                   printf("about to write\n");
-                   write(to_iflank_pipe_rw[1], body,
-                      buffer + http_bytes_read - body);
-                   printf("just wrote: %s\n", body);
-               }
+		    printf("remainder: %s\n", body);
+		    printf("about to write\n");
+		    write(to_iflank_pipe_rw[1], body,
+			  buffer + http_bytes_read - body);
+		    printf("just wrote: %s\n", body);
 
 		    // flush if using FILE*, otherwise ensure child gets data
 		    // fflush(iflank_stdin); // if you wrap pipe with fdopen
 
 		    // read response from iflank
 		    // int iflank_bytes_read;
-              char *buf_head = buffer;
+		    char *buf_head = buffer;
 		    while ((iflank_bytes_read +=
 			    read(from_iflank_pipe_rw[0], buf_head,
 				 BUF_SIZE - 1)) > 0) {
-               buf_head = &buffer[iflank_bytes_read];
+			 buf_head = &buffer[iflank_bytes_read];
 			 // buffer[iflank_bytes_read] = '\0';
-                printf("iflank bytes read: %d\n", iflank_bytes_read);
+			 printf("iflank bytes read: %d\n", iflank_bytes_read);
 			 // printf("iflank's Output: %s\n", buffer);
-                 for (int i = 0; i < iflank_bytes_read; i++) {
-                   printf("%d ", (unsigned char)buffer[i]);
-                 }
-                 for (int i = 0; i < iflank_bytes_read; i++) {
-                   printf("%c ", (unsigned char)buffer[i]);
-                 }
-                 printf("\n");
+			 for (int i = 0; i < iflank_bytes_read; i++) {
+			      printf("%d ", (unsigned char)buffer[i]);
+			 }
+			 for (int i = 0; i < iflank_bytes_read; i++) {
+			      printf("%c ", (unsigned char)buffer[i]);
+			 }
+			 printf("\n");
 			 //if (iflank_bytes_read < BUF_SIZE) {
-			 if (buffer[iflank_bytes_read-1] == '\0') {
-                     printf("Full message %s\n", buffer);
-			 char header[256];
-			 int header_len;
-			 header_len =
-			     snprintf(header, sizeof(header),
-				      "HTTP/1.1 200 OK\r\n"
-				      "Content-Type: text/plain\r\n"
-				      "Content-Length: %d\r\n" "\r\n",
-				      iflank_bytes_read);
-			 write(client_fd, header, header_len);	// forward to client
-			 write(client_fd, buffer, iflank_bytes_read);	// forward to client
-                    iflank_bytes_read = 0;
+			 if (buffer[iflank_bytes_read - 1] == '\0') {
+			      printf("Full message %s\n", buffer);
+			      char header[256];
+			      int header_len;
+			      header_len =
+				  snprintf(header, sizeof(header),
+					   "HTTP/1.1 200 OK\r\n"
+					   "Content-Type: text/plain\r\n"
+					   "Content-Length: %d\r\n" "\r\n",
+					   iflank_bytes_read);
+			      write(client_fd, header, header_len);	// forward to client
+			      write(client_fd, buffer, iflank_bytes_read);	// forward to client
+			      iflank_bytes_read = 0;
 			      break;	// stop if child has no more data
 			 }
 		    }
 	       } else if (strcmp(path, "/") == 0) {
-               const char *index_html_path = NULL;
+		    const char *index_html_path = NULL;
 
-              if (access("./index.html", F_OK) == 0) {
-                  index_html_path = "./index.html";
-              } else if (access("/usr/share/flank/index.html", F_OK) == 0) {
-                  index_html_path = "/usr/share/flank/index.html";
-              } else {
-                  fprintf(stderr, "index.html not found\n");
-                  return 1;
-              }
+		    if (access("./index.html", F_OK) == 0) {
+			 index_html_path = "./index.html";
+		    } else if (access("/usr/share/flank/index.html", F_OK) == 0) {
+			 index_html_path = "/usr/share/flank/index.html";
+		    } else {
+			 fprintf(stderr, "index.html not found\n");
+			 return 1;
+		    }
 		    int fd = open(index_html_path, O_RDONLY);
 		    struct stat st;
 		    fstat(fd, &st);
