@@ -90,7 +90,7 @@ run_cmd() {
 	    make -j -f $flogdir/exec.mk all 1> $flogdir/stdout.log 2> $flogdir/stderr.log & 
 	    PID=$!
 	    wait $PID
-	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? $(date "+%s") >> $flogdir/status
+	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? "$(date '+%s')" >> $flogdir/status
 	fi
     else
 	if [ "$1" == 'bg' ]; then
@@ -100,29 +100,21 @@ run_cmd() {
 	    bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log & 
 	    PID=$!
 	    wait $PID
-	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? $(date "+%s") >> $flogdir/status
+	    local exit_code=$?
+	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >> $flogdir/status
+	    return $exit_code
 	fi
     fi
 }
 
-if [ -n "$1" ]; then 
-    if [ "$1" == 'run_fg' ] || [ "$1" == 'run_bg' ]; then
-	if [ -z "$2" ]; then
-	    echo 'Missing path to saved config `iflank run_bg <path>` / iflank run_fg <path>'
-	    exit
-	fi
-
-	if [ "$1" == 'run_fg' ]; then
-	    run_cmd "fg" "$2"
-	else
-	    run_cmd "bg" "$2"
-	fi
-
-	exit
-    else
-	echo 'Positional parameter not recognized. Valid: `iflank run <path>`'
-	exit
+if [ -n "$1" ] && [ "$1" == 'run' ]; then 
+    if [ -z "$2" ]; then
+	echo 'Missing path to template / saved config `iflank run <path>`'
+	exit 1
     fi
+
+    local exit_code=$(run_cmd "fg" "$2")
+    exit $exit_code
 fi
 
 PAGE='HOME'
