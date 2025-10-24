@@ -80,7 +80,7 @@
 	const output = container.children[container.children.length - 1];
 
       try {
-        const response = await fetch(window.location.origin + '/iflank', { method: 'GET' });
+        const response = await fetch(window.location.origin + '/iflank', { method: 'POST', body: 'refresh\n' });
         const responseText = await response.text();
         output.innerHTML = responseText;
       } catch (err) {
