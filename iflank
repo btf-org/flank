@@ -53,24 +53,26 @@ run_cmd() {
     local PID=''
     handle_int(){
       if [ -n "$PID" ]; then
-        echo "hiiii $PID"
-        printf 'ExitCode:\t%d\nEndTime:\t%d' $((128 + $(kill -l SIGINT))) $(date '+%s') >> $flogdir/status
+	exit_code=$((128 + $(kill -l SIGINT)))
+        printf 'ExitCode:\t%d\nEndTime:\t%d' $exit_code $(date '+%s') >> $flogdir/status
 	kill -s SIGINT $PID
-	exit
+	exit $exit_code
       fi
     }
     handle_term(){
       if [ -n "$PID" ]; then
-        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $((128 + $(kill -l SIGTERM))) $(date '+%s') >> $flogdir/status
+	exit_code=$((128 + $(kill -l SIGTERM)))
+        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code $(date '+%s') >> $flogdir/status
 	kill -s SIGTERM $PID
-	exit
+	exit $exit_code
       fi
     }
     handle_kill(){
       if [ -n "$PID" ]; then
-        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $((128 + $(kill -l SIGKILL))) $(date '+%s') >> $flogdir/status
+	exit_code=$((128 + $(kill -l SIGKILL)))
+        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code $(date '+%s') >> $flogdir/status
 	kill -s SIGKILL $PID
-	exit
+	exit $exit_code
       fi
     }
     if [ "$1" == 'fg' ]; then
