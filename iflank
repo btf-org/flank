@@ -21,6 +21,7 @@ run_cmd() {
     local datetime=$(date '+%Y-%m-%dT%Hh%Mm%Ss')
     local flogdatedir=$cmd_dir/runs/$(echo $datetime | cut -c -10)
     mkdir -p $flogdatedir
+    mkdir -p $FLANK_ROOT/$(echo $datetime | cut -c -10)
     local flogdir=$cmd_dir/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-17)
     if ! mkdir $flogdir 2> /dev/null; then
 	# include seconds
@@ -176,18 +177,97 @@ while true; do
 	    esac
 	    ;;
 	HOME)
-	    echo 'Welcome to Flank!'
+	    pwd
 	    echo ''
-	    echo '(C)ommands / (P)rocesses'
+	    if [ $MODE == 'TTY' ]; then
+		ls -1
+	    else
+		ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
+	    fi
 	    echo ''
 	    printf '\0'
-	    read -rp "$PROMPT" choice
+	    read -rp "$PROMPT" choice args
 	    case $choice in
-		C)
-		    PAGE='FS'
+		cd)
+		    cd $args
+		    if [ "$(pwd)" == $FLANK_ROOT/runs ]; then
+			PAGE='GLOBAL_RUN_DATES'
+		    else
+			PAGE='FS'
+		    fi
 		    ;;
-		P)
-		    PAGE='PS'
+		refresh)
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	GLOBAL_RUN_DATES)
+	    pwd
+	    echo ''
+	    if [ $MODE == 'TTY' ]; then
+		find -E $FLANK_ROOT/cmds -type d -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}' \
+		    | xargs basename | sort -nr | uniq
+	    else
+		find -E $FLANK_ROOT/cmds -type d -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}' \
+		    | xargs basename | sort -nr | uniq \
+		    | awk ' { print $0 } '
+	    fi
+	    printf '\0'
+	    read -rp "$PROMPT" choice args
+	    case $choice in
+		setdate)
+		    run_date=$args
+		    PAGE='GLOBAL_RUN_DATE'
+		    ;;
+		refresh)
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	GLOBAL_RUN_DATE)
+	    echo $(pwd)"?$run_date"
+	    echo ''
+	    find -E $FLANK_ROOT/cmds -type f -regex '.*/'$run_date'/.*/status' \
+		| xargs awk '
+		NR==1 { prev=FILENAME; } 
+		FNR==1 && NR!=1 { 
+		    cmd = "date -r " st " +\"%Y-%m-%d %H:%M:%S\""; 
+		    cmd | getline stf; 
+		    close(cmd)
+
+		    cmd = "date -r " et " +\"%Y-%m-%d %H:%M:%S\"";
+		    cmd | getline etf;
+		    close(cmd)
+
+		    print prev, stf, etf;
+
+		    prev=FILENAME; 
+		    st=""; 
+		    et=""; 
+		} 
+		/StartTime/ { st=$2; } 
+		/EndTime/ { et=$2 } 
+		END { 
+		    cmd = "date -r " st " +\"%Y-%m-%d %H:%M:%S\""; 
+		    cmd | getline stf; 
+		    close(cmd)
+
+		    cmd = "date -r " et " +\"%Y-%m-%d %H:%M:%S\"";
+		    cmd | getline etf;
+		    close(cmd)
+
+		    print prev, stf, etf; 
+		}'
+	    printf '\0'
+	    read -rp "$PROMPT" choice args
+	    case $choice in 
+		cd)
+		    cd $args
+		    PAGE='LOG_DIR'
 		    ;;
 		refresh)
 		    ;;
@@ -252,7 +332,7 @@ while true; do
 	    if [ $MODE == 'TTY' ]; then
 		ls -1
 	    else
-		ls -1 | awk ' { print "<a href=\"#\" onclick=\"runCommand(cd "$0")\">"$0"</a>" } '
+		ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
 	    fi
 	    echo ""
 	    echo "Next: cd [dir]"
@@ -289,7 +369,7 @@ while true; do
 		    ;;
 		L)
 		    cd runs
-		    PAGE='RUNS'
+		    PAGE='CMD_RUN_DATES'
 		    ;;
 		H)
 		    cd $FLANK_ROOT
@@ -302,7 +382,7 @@ while true; do
 		    ;;
 	    esac
 	    ;;
-	RUNS)
+	CMD_RUN_DATES)
 	    pwd
 	    echo ''
 	    ls -1
@@ -366,7 +446,7 @@ while true; do
 		cd)
 		    cd $args
 		    if [ "$args" == '..' ]; then
-			PAGE='RUNS'
+			PAGE='CMD_RUN_DATES'
 		    elif [ "$args" == '../..' ]; then
 			PAGE='CMD'
 		    fi
