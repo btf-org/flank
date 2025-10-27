@@ -19,35 +19,35 @@ run_cmd() {
     fi
 
     local datetime=$(date '+%Y-%m-%dT%Hh%Mm%Ss')
-    local flogdatedir=$cmd_dir/runs/$(echo $datetime | cut -c -10)
-    mkdir -p $flogdatedir
+    local cmd_run_date_dir=$cmd_dir/runs/$(echo $datetime | cut -c -10)
+    mkdir -p $cmd_run_date_dir
     mkdir -p $FLANK_ROOT/$(echo $datetime | cut -c -10)
-    local flogdir=$cmd_dir/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-17)
-    if ! mkdir $flogdir 2> /dev/null; then
+    local cmd_run_dir=$cmd_dir/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-17)
+    if ! mkdir $cmd_run_dir 2> /dev/null; then
 	# include seconds
-	flogdir=$cmd_dir/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-20)
-	if ! mkdir $flogdir 2> /dev/null; then
+	cmd_run_dir=$cmd_dir/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-20)
+	if ! mkdir $cmd_run_dir 2> /dev/null; then
 	    local i=2
-	    local flogdir_base=$flogdir
-	    flogdir=$flogdir_base'_'$i
-	    until mkdir $flogdir 2> /dev/null ; do
+	    local flogdir_base=$cmd_run_dir
+	    cmd_run_dir=$flogdir_base'_'$i
+	    until mkdir $cmd_run_dir 2> /dev/null ; do
 		i=$(($i + 1))
-		flogdir=$flogdir_base'_'$i
+		cmd_run_dir=$flogdir_base'_'$i
 	    done
 	fi
     fi
 
     if [ -n "$2" ]; then
 	if [ $(basename "$2") == 'template.mk' ]; then
-	    cp "$2" $flogdir/exec.mk
+	    cp "$2" $cmd_run_dir/exec.mk
 	else
-	    cp "$2" $flogdir/exec.sh
+	    cp "$2" $cmd_run_dir/exec.sh
 	fi
     else
 	if [ -f "$cmd_dir/template.mk" ]; then
-	    cp $cmd_dir/template.mk $flogdir/exec.mk
+	    cp $cmd_dir/template.mk $cmd_run_dir/exec.mk
 	else
-	    cp $cmd_dir/template.sh $flogdir/exec.sh
+	    cp $cmd_dir/template.sh $cmd_run_dir/exec.sh
 	fi
     fi
 
@@ -55,7 +55,7 @@ run_cmd() {
     handle_int(){
       if [ -n "$PID" ]; then
 	exit_code=$((128 + $(kill -l SIGINT)))
-        printf 'ExitCode:\t%d\nEndTime:\t%d' $exit_code $(date '+%s') >> $flogdir/status
+        printf 'ExitCode:\t%d\nEndTime:\t%d' $exit_code $(date '+%s') >> $cmd_run_dir/status
 	kill -s SIGINT $PID
 	exit $exit_code
       fi
@@ -63,7 +63,7 @@ run_cmd() {
     handle_term(){
       if [ -n "$PID" ]; then
 	exit_code=$((128 + $(kill -l SIGTERM)))
-        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code $(date '+%s') >> $flogdir/status
+        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code $(date '+%s') >> $cmd_run_dir/status
 	kill -s SIGTERM $PID
 	exit $exit_code
       fi
@@ -71,7 +71,7 @@ run_cmd() {
     handle_kill(){
       if [ -n "$PID" ]; then
 	exit_code=$((128 + $(kill -l SIGKILL)))
-        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code $(date '+%s') >> $flogdir/status
+        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code $(date '+%s') >> $cmd_run_dir/status
 	kill -s SIGKILL $PID
 	exit $exit_code
       fi
@@ -85,26 +85,26 @@ run_cmd() {
     #  - $? needs to be escaped as \$? in "" or it will immediately evaluate
     #  - $(date) needs to be single quoted or it will immediately evaluate
     #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
-    if [ -f "$flogdir/exec.mk" ]; then
+    if [ -f "$cmd_run_dir/exec.mk" ]; then
 	if [ "$1" == 'bg' ]; then
-	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; make -j -f $flogdir/exec.mk all 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" > testtest &
+	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $cmd_run_dir/status; make -j -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > testtest &
 	else
-	    printf 'StartTime:\t%s\n' $(date "+%s") > $flogdir/status
-	    make -j -f $flogdir/exec.mk all 1> $flogdir/stdout.log 2> $flogdir/stderr.log & 
+	    printf 'StartTime:\t%s\n' $(date "+%s") > $cmd_run_dir/status
+	    make -j -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log & 
 	    PID=$!
 	    wait $PID
-	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? "$(date '+%s')" >> $flogdir/status
+	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? "$(date '+%s')" >> $cmd_run_dir/status
 	fi
     else
 	if [ "$1" == 'bg' ]; then
-	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" > /dev/null &
+	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $cmd_run_dir/status; bash $cmd_run_dir/exec.sh 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
 	else
-	    printf 'StartTime:\t%s\n' $(date "+%s") > $flogdir/status
-	    bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log & 
+	    printf 'StartTime:\t%s\n' $(date "+%s") > $cmd_run_dir/status
+	    bash $cmd_run_dir/exec.sh 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log & 
 	    PID=$!
 	    wait $PID
 	    local exit_code=$?
-	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >> $flogdir/status
+	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >> $cmd_run_dir/status
 	    return $exit_code
 	fi
     fi
