@@ -249,16 +249,20 @@ while true; do
 	FS)
 	    pwd
 	    echo ""
-	    ls -1
+	    if [ $MODE == 'TTY' ]; then
+		ls -1
+	    else
+		ls -1 | awk ' { print "<a href=\"#\" onclick=\"runCommand(cd "$0")\">"$0"</a>" } '
+	    fi
 	    echo ""
-	    echo "Next: (G)oto <name>"
+	    echo "Next: cd [dir]"
 	    echo ""
 	    printf '\0'
 	    read -rp "$PROMPT" choice arg
 	    case $choice in
-		G)
+		cd)
 		    cd $arg
-		    if [ -f template.* ]; then
+		    if [ -f template.sh ] || [ -f template.mk ]; then
 			PAGE='CMD'
 		    else
 			PAGE='FS'
@@ -285,7 +289,7 @@ while true; do
 		    ;;
 		L)
 		    cd runs
-		    PAGE='LOGS'
+		    PAGE='RUNS'
 		    ;;
 		H)
 		    cd $FLANK_ROOT
@@ -298,22 +302,46 @@ while true; do
 		    ;;
 	    esac
 	    ;;
-	LOGS)
+	RUNS)
 	    pwd
 	    echo ''
 	    ls -1
 	    echo ''
-	    echo 'Next: (O)pen :name / (B)ack'
+	    echo 'Next: cd [dir]'
 	    printf '\0'
 	    read -rp "$PROMPT" choice args
 	    case $choice in
-		O)
+		cd)
 		    cd $args
-		    PAGE='LOG_DIR'
+		    if [ "$args" == '..' ]; then
+			PAGE='CMD'
+		    else
+			PAGE='LOG_DAY'
+		    fi
 		    ;;
-		B)
-		    cd ..
-		    PAGE='CMD'
+		refresh)
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	LOG_DAY)
+	    pwd
+	    echo ''
+	    ls -1
+	    echo ''
+	    echo 'Next: cd [dir]'
+	    printf '\0'
+	    read -rp "$PROMPT" choice args
+	    case $choice in
+		cd)
+		    cd $args
+		    if [ "$args" == '..' ]; then
+			PAGE='CMD'
+		    else
+			PAGE='LOG_DIR'
+		    fi
 		    ;;
 		refresh)
 		    ;;
@@ -325,25 +353,23 @@ while true; do
 	LOG_DIR)
 	    pwd
 	    echo ''
-	    echo 'Next: Std (O)ut / Std (E)rr / Other (L)ogs / (B)ack to Cmd'
+	    ls -1
+	    echo ''
+	    echo 'Next: cat [file] / cd [dir]'
 	    printf '\0'
 	    read -rp "$PROMPT" choice args
 	    case $choice in
-		O)
-		    cat stdout.log
+		cat)
+		    cat $args
 		    echo ''
 		    ;;
-		E) 
-		    cat stderr.log
-		    echo ''
-		    ;;
-		L)
-		    cd ..
-		    PAGE='LOGS'
-		    ;;
-		B)
-		    cd ../..
-		    PAGE='CMD'
+		cd)
+		    cd $args
+		    if [ "$args" == '..' ]; then
+			PAGE='RUNS'
+		    elif [ "$args" == '../..' ]; then
+			PAGE='CMD'
+		    fi
 		    ;;
 		refresh)
 		    ;;
