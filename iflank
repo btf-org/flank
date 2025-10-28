@@ -258,25 +258,25 @@ while true; do
 			etf = "";
 		    }
 
-		    n = split(prev, path_parts, "/")
+		    n = split(prev, path_parts, "/");
 		    
-		    pid=""
+		    pid="";
 		    if(code == ""){
-			logdir=""
+			logdir="";
 			for(i = 1; i < n; i++){
 			    logdir=logdir""path_parts[i];
 			    if(i < n - 1) {
-				logdir=logdir"/"
+				logdir=logdir"/";
 			    }
 			}
 			if(PS_VERSION=="procps"){
-			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1"
+			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1";
 			}
 			else {
-			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1"
+			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1";
 			}
-			cmd | getline pid
-			close(cmd)
+			cmd | getline pid;
+			close(cmd);
 		    }
 
 		    print prev, path_parts[n - 4], stf, etf, code, pid;
@@ -315,24 +315,25 @@ while true; do
 			etf = "";
 		    }
 
-		    n = split(prev, path_parts, "/")
-
+		    n = split(prev, path_parts, "/");
+		    
+		    pid="";
 		    if(code == ""){
-			logdir=""
+			logdir="";
 			for(i = 1; i < n; i++){
 			    logdir=logdir""path_parts[i];
 			    if(i < n - 1) {
-				logdir=logdir"/"
+				logdir=logdir"/";
 			    }
 			}
 			if(PS_VERSION=="procps"){
-			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1"
+			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1";
 			}
 			else {
-			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1"
+			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1";
 			}
-			cmd | getline pid
-			close(cmd)
+			cmd | getline pid;
+			close(cmd);
 		    }
 
 		    print prev, path_parts[n - 4], stf, etf, code, pid;
@@ -580,10 +581,22 @@ while true; do
 	    echo ''
 	    ls -1
 	    echo ''
-	    echo 'Next: cat [file] / cd [dir]'
+	    if [ "$PS_VERSION" == 'procps' ]; then
+		pid=$(ps -eo pid,args | grep $(pwd) | grep -v "grep .*"$(pwd) | grep -v "bash -c printf .*StartTime" | cut -d" " -f1)
+	    else
+		pid=$(ps -x | grep $(pwd) | grep -v "grep .*"$(pwd) | grep -v "bash -c printf .*StartTime" | cut -d" " -f1)
+	    fi
+	    if [ -z "$pid" ]; then
+		echo 'Next: cat [file] / cd [dir]'
+	    else
+		echo 'Next: cat [file] / cd [dir] / kill'
+	    fi
 	    printf '\0'
 	    read -rp "$PROMPT" choice args
 	    case $choice in
+		kill)
+		    kill $pid
+		    ;;
 		cat)
 		    cat $args
 		    echo ''
