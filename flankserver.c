@@ -162,10 +162,10 @@ int main(int argc, char *argv[]) {
 		    char *buf_head = buffer;
               int iflank_bytes_read = 0;
 		    while (1) {
-                iflank_bytes_read += read(from_iflank_pipe_rw[0], buf_head, BUF_SIZE - 1);
+                iflank_bytes_read += read(from_iflank_pipe_rw[0], buf_head, buffer + BUF_SIZE - buf_head - 1);
+			 printf("iflank bytes read: %d / %ld\n", iflank_bytes_read, buffer + BUF_SIZE - buf_head - 1);
 			 buf_head = &buffer[iflank_bytes_read];
 			 // buffer[iflank_bytes_read] = '\0';
-			 printf("iflank bytes read: %d\n", iflank_bytes_read);
 			 // printf("iflank's Output: %s\n", buffer);
 			 // for (int i = 0; i < iflank_bytes_read; i++) {
 			 //      printf("%d ", (unsigned char)buffer[i]);
