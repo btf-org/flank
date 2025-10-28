@@ -372,15 +372,20 @@ while true; do
 		    DATE_VERSION='bsd'
 		fi
 	    fi
+	    if [ "$(pwd)" == "$FLANK_ROOT/runs" ]; then
+		search_root=$FLANK_ROOT/cmds
+	    else
+		search_root=$(pwd)
+	    fi
 	    if [ $MODE == 'TTY' ]; then
 		if [ $FIND_VERSION == 'gnu' ]; then
-		    find $FLANK_ROOT/cmds -type f -regextype posix-extended -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
+		    find $search_root -type f -regextype posix-extended -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
 			| sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' \
 			| sort -nr \
 			| cut -f2 \
 			| xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns"
 		else
-		    find -E $FLANK_ROOT/cmds -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
+		    find -E $search_root -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
 			| sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' \
 			| sort -nr \
 			| cut -f2 \
@@ -388,14 +393,14 @@ while true; do
 		fi
 	    else
 		if [ $FIND_VERSION == 'gnu' ]; then
-		    find $FLANK_ROOT/cmds -type f -regextype posix-extended -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
+		    find $search_root -type f -regextype posix-extended -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
 			| sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' \
 			| sort -nr \
 			| cut -f2 \
 			| xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" \
 			| awk -v FS='\t' "$awk_tsv_to_html"
 		else
-		    find -E $FLANK_ROOT/cmds -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
+		    find -E $search_root -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
 			| sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' \
 			| sort -nr \
 			| cut -f2 \
@@ -515,59 +520,11 @@ while true; do
 		    ;;
 		L)
 		    cd runs
-		    PAGE='CMD_RUN_DATES'
+		    PAGE='GLOBAL_RUN_DATES'
 		    ;;
 		H)
 		    cd $FLANK_ROOT
 		    PAGE='HOME'
-		    ;;
-		refresh)
-		    ;;
-		*)
-		    read -rp "Invalid choice! Hit [Enter] to continue"
-		    ;;
-	    esac
-	    ;;
-	CMD_RUN_DATES)
-	    pwd
-	    echo ''
-	    ls -1
-	    echo ''
-	    echo 'Next: cd [dir]'
-	    printf '\0'
-	    read -rp "$PROMPT" choice args
-	    case $choice in
-		cd)
-		    cd $args
-		    if [ "$args" == '..' ]; then
-			PAGE='CMD'
-		    else
-			PAGE='LOG_DAY'
-		    fi
-		    ;;
-		refresh)
-		    ;;
-		*)
-		    read -rp "Invalid choice! Hit [Enter] to continue"
-		    ;;
-	    esac
-	    ;;
-	LOG_DAY)
-	    pwd
-	    echo ''
-	    ls -1
-	    echo ''
-	    echo 'Next: cd [dir]'
-	    printf '\0'
-	    read -rp "$PROMPT" choice args
-	    case $choice in
-		cd)
-		    cd $args
-		    if [ "$args" == '..' ]; then
-			PAGE='CMD'
-		    else
-			PAGE='LOG_DIR'
-		    fi
 		    ;;
 		refresh)
 		    ;;
@@ -604,7 +561,7 @@ while true; do
 		cd)
 		    cd $args
 		    if [ "$args" == '..' ]; then
-			PAGE='CMD_RUN_DATES'
+			PAGE='FS'
 		    elif [ "$args" == '../..' ]; then
 			PAGE='CMD'
 		    fi
