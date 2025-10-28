@@ -179,6 +179,8 @@ else
     exit
 fi
 PS_VERSION=''
+FIND_VERSION=''
+DATE_VERSION=''
 
 cd $FLANK_ROOT
 while true; do
@@ -233,7 +235,11 @@ while true; do
 		NR==1 { prev=FILENAME; } 
 		FNR==1 && NR!=1 { 
 		    if(st != ""){
-			cmd = "date -r " st " +\"%Y-%m-%d %H:%M:%S\""; 
+			if(DATE_VERSION == "gnu"){
+			    cmd = "date -d @"st" +\"%Y-%m-%d %H:%M:%S\""; 
+			} else {
+			    cmd = "date -r "st" +\"%Y-%m-%d %H:%M:%S\""; 
+			}
 			cmd | getline stf; 
 			close(cmd);
 		    } else {
@@ -241,7 +247,11 @@ while true; do
 		    }
 
 		    if(et != ""){
-			cmd = "date -r " et " +\"%Y-%m-%d %H:%M:%S\"";
+			if(DATE_VERSION == "gnu"){
+			    cmd = "date -d @"et" +\"%Y-%m-%d %H:%M:%S\""; 
+			} else {
+			    cmd = "date -r "et" +\"%Y-%m-%d %H:%M:%S\""; 
+			}
 			cmd | getline etf;
 			close(cmd);
 		    } else {
@@ -282,7 +292,11 @@ while true; do
 		/ExitCode/ { code=$2 } 
 		END { 
 		    if(st != ""){
-			cmd = "date -r " st " +\"%Y-%m-%d %H:%M:%S\""; 
+			if(DATE_VERSION == "gnu"){
+			    cmd = "date -d @"st" +\"%Y-%m-%d %H:%M:%S\""; 
+			} else {
+			    cmd = "date -r "st" +\"%Y-%m-%d %H:%M:%S\""; 
+			}
 			cmd | getline stf; 
 			close(cmd);
 		    } else {
@@ -290,7 +304,11 @@ while true; do
 		    }
 
 		    if(et != ""){
-			cmd = "date -r " et " +\"%Y-%m-%d %H:%M:%S\"";
+			if(DATE_VERSION == "gnu"){
+			    cmd = "date -d @"et" +\"%Y-%m-%d %H:%M:%S\""; 
+			} else {
+			    cmd = "date -r "et" +\"%Y-%m-%d %H:%M:%S\""; 
+			}
 			cmd | getline etf;
 			close(cmd);
 		    } else {
@@ -332,26 +350,57 @@ while true; do
 		    print "<tr onclick=\"run('\''cd "dir"'\'')\"><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td></tr>" }
 		END { print "</tbody></table>" }'
 
-	    if [ -z $PS_VERSION ]; then
+	    if [ -z "$PS_VERSION" ]; then
 		if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
 		    PS_VERSION='procps'
 		else
 		    PS_VERSION='bsd'
 		fi
 	    fi
+	    if [ -z "$FIND_VERSION" ]; then
+		if [ -n "$(find --version 2> /dev/null | grep GNU)" ]; then 
+		    FIND_VERSION='gnu'
+		else
+		    FIND_VERSION='bsd'
+		fi
+	    fi
+	    if [ -z "$DATE_VERSION" ]; then
+		if [ -n "$(date --version 2> /dev/null | grep GNU)" ]; then 
+		    DATE_VERSION='gnu'
+		else
+		    DATE_VERSION='bsd'
+		fi
+	    fi
 	    if [ $MODE == 'TTY' ]; then
-		find -E $FLANK_ROOT/cmds -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/.*/status' \
-		    | sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' \
-		    | sort -nr \
-		    | cut -f2 \
-		    | xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION "$awk_columns"
+		if [ $FIND_VERSION == 'gnu' ]; then
+		    find $FLANK_ROOT/cmds -type f -regextype posix-extended -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
+			| sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' \
+			| sort -nr \
+			| cut -f2 \
+			| xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns"
+		else
+		    find -E $FLANK_ROOT/cmds -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
+			| sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' \
+			| sort -nr \
+			| cut -f2 \
+			| xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns"
+		fi
 	    else
-		find -E $FLANK_ROOT/cmds -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/.*/status' \
-		    | sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' \
-		    | sort -nr \
-		    | cut -f2 \
-		    | xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION "$awk_columns" \
-		    | awk -v FS='\t' "$awk_tsv_to_html"
+		if [ $FIND_VERSION == 'gnu' ]; then
+		    find $FLANK_ROOT/cmds -type f -regextype posix-extended -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
+			| sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' \
+			| sort -nr \
+			| cut -f2 \
+			| xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" \
+			| awk -v FS='\t' "$awk_tsv_to_html"
+		else
+		    find -E $FLANK_ROOT/cmds -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9a-z]+/status' \
+			| sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' \
+			| sort -nr \
+			| cut -f2 \
+			| xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" \
+			| awk -v FS='\t' "$awk_tsv_to_html"
+		fi
 	    fi
 	    printf '\0'
 	    
@@ -373,7 +422,7 @@ while true; do
 	    esac
 	    ;;
 	PS)
-	    if [ -z $PS_VERSION ]; then
+	    if [ -z "$PS_VERSION" ]; then
 		if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
 		    PS_VERSION='procps'
 		else
@@ -399,7 +448,7 @@ while true; do
 		    PAGE='PS'
 		    ;;
 		L)
-		    if [ -z $PS_VERSION ]; then
+		    if [ -z "$PS_VERSION" ]; then
 			if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
 			    PS_VERSION='procps'
 			else
