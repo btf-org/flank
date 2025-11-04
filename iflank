@@ -110,7 +110,7 @@ run_cmd() {
     #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
     if [ -f "$cmd_run_dir/exec.mk" ]; then
 	if [ "$1" == 'bg' ]; then
-	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $cmd_run_dir/status; make -j -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > testtest &
+	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $cmd_run_dir/status; make -j -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
 	else
 	    printf 'StartTime:\t%s\n' $(date "+%s") > $cmd_run_dir/status
 	    make -j -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log & 
