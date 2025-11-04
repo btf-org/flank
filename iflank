@@ -351,14 +351,14 @@ while true; do
 	    awk_tsv_to_html='
 		BEGIN { 
 		    print "<table>"
-		    print "<thead><th>Command</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th></thead>"
+		    print "<thead><th></th><th>Command</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th></thead>"
 		    print "<tbody>"
 		}
 		{ 
 		    cmd = "dirname "$1;
 		    cmd | getline dir;
 		    close(cmd)
-		    print "<tr onclick=\"run('\''cd "dir"'\'')\"><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td></tr>" }
+		    print "<tr><td><a onclick=\"run('\''cd "dir"'\'')\">Logs</a></td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td></tr>" }
 		END { print "</tbody></table>" }'
 
 	    if [ -z "$PS_VERSION" ]; then
