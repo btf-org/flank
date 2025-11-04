@@ -3,12 +3,12 @@
 run_cmd() {
     if [ "$1" != 'bg' ] && [ "$1" != 'fg' ]; then
 	echo "first parameter $1 must be 'fg' or 'bg'"
-	exit
+	return 1
     fi
     if [ -n "$2" ]; then
 	if [ ! -f "$2" ]; then
-	    echo "file: $2"' does not exist!'
-	    exit
+	    echo "file \"$2\""' does not exist!'
+	    return 1
 	fi
 	local cmd_dir=$(dirname "$2")
 	if [ $(basename "$cmd_dir") == 'saved_configs' ]; then
@@ -69,12 +69,16 @@ run_cmd() {
 	fi
     fi
 
+    # These only get called when iflank itself is killed
+    # This _should_ only happen when a command is run through `iflank run`
+    # via a cronjob or pipeline
     local PID=''
     handle_int(){
       if [ -n "$PID" ]; then
 	exit_code=$((128 + $(kill -l SIGINT)))
         printf 'ExitCode:\t%d\nEndTime:\t%d' $exit_code $(date '+%s') >> $cmd_run_dir/status
 	kill -s SIGINT $PID
+	# By exiting here, the "wait / printf / return" sequence is not reached below
 	exit $exit_code
       fi
     }
@@ -99,6 +103,7 @@ run_cmd() {
 	trap handle_term TERM
 	trap handle_kill KILL
     fi
+
     # Subtle quoting things:
     #  - $? needs to be escaped as \$? in "" or it will immediately evaluate
     #  - $(date) needs to be single quoted or it will immediately evaluate
@@ -111,7 +116,9 @@ run_cmd() {
 	    make -j -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log & 
 	    PID=$!
 	    wait $PID
+	    local exit_code=$?
 	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? "$(date '+%s')" >> $cmd_run_dir/status
+	    return $exit_code
 	fi
     else
 	if [ "$1" == 'bg' ]; then
@@ -134,7 +141,10 @@ if [ -n "$1" ] && [ "$1" == 'run' ]; then
 	exit 1
     fi
 
-    exit_code=$(run_cmd "fg" "$2")
+    # Exits if a simple command exits with a non-zero status
+    set -e
+    run_cmd "fg" "$2"
+    exit_code=$?
     exit $exit_code
 fi
 
