@@ -1,5 +1,27 @@
 #!/usr/bin/env bash
 
+header_pwd(){
+    if [ "$MODE" == 'TTY' ]; then
+	pwd
+	return
+    fi
+
+    pwd | awk ' 
+	{ 
+	    line=""; 
+	    n = split($0, path_parts, "/"); 
+	    for (i = 2; i <= n; i++) { 
+		concat=""; 
+		ppi=path_parts[i]; 
+		for (j = 2; j <= i; j++) { 
+		    ppj=path_parts[j]; 
+		    concat=concat"/"ppj; 
+		} 
+		line=line"/<a onclick=\"run('\''cd "concat"'\'')\">"ppi"</a>";
+	    } 
+	    print line;
+	} '
+}
 run_cmd() {
     if [ "$1" != 'bg' ] && [ "$1" != 'fg' ]; then
 	echo "first parameter $1 must be 'fg' or 'bg'"
@@ -231,7 +253,7 @@ while true; do
 	    esac
 	    ;;
 	HOME)
-	    pwd
+	    header_pwd
 	    echo ''
 	    if [ $MODE == 'TTY' ]; then
 		ls -1
@@ -253,7 +275,7 @@ while true; do
 	    esac
 	    ;;
 	GLOBAL_RUN_DATES)
-	    pwd
+	    header_pwd
 	    echo ''
 	    # if [ $MODE == 'TTY' ]; then
 	    #     ls -1
@@ -454,7 +476,7 @@ while true; do
 	    esac
 	    ;;
 	FS)
-	    pwd
+	    header_pwd
 	    echo ""
 	    if [ $MODE == 'TTY' ]; then
 		ls -1
@@ -478,12 +500,12 @@ while true; do
 	    esac
 	    ;;
 	CMD)
-	    pwd
+	    header_pwd
 	    echo ''
 	    echo 'Next: (R)un / (L)ogs / (H)ome'
 	    echo ''
 	    printf '\0'
-	    read -rp "$PROMPT" choice
+	    read -rp "$PROMPT" choice args
 	    case $choice in
 		R)
 		    run_cmd 'bg'
@@ -494,6 +516,9 @@ while true; do
 		H)
 		    cd $FLANK_ROOT
 		    ;;
+		cd)
+		    cd $args
+		    ;;
 		refresh)
 		    ;;
 		*)
@@ -502,7 +527,7 @@ while true; do
 	    esac
 	    ;;
 	LOG_DIR)
-	    pwd
+	    header_pwd
 	    echo ''
 	    ls -1
 	    echo ''
