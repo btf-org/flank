@@ -110,13 +110,16 @@ run_cmd() {
     #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
     if [ -f "$cmd_run_dir/exec.mk" ]; then
 	if [ "$1" == 'bg' ]; then
-	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $cmd_run_dir/status; make -j -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
+	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $cmd_run_dir/status; make -j -i -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
 	else
 	    printf 'StartTime:\t%s\n' $(date "+%s") > $cmd_run_dir/status
-	    make -j -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log & 
+	    # Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
+	    set +e
+	    make -j -i -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log & 
 	    PID=$!
 	    wait $PID
 	    local exit_code=$?
+	    set -e
 	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? "$(date '+%s')" >> $cmd_run_dir/status
 	    return $exit_code
 	fi
@@ -125,10 +128,13 @@ run_cmd() {
 	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $cmd_run_dir/status; bash $cmd_run_dir/exec.sh 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
 	else
 	    printf 'StartTime:\t%s\n' $(date "+%s") > $cmd_run_dir/status
+	    # Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
+	    set +e
 	    bash $cmd_run_dir/exec.sh 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log & 
 	    PID=$!
 	    wait $PID
 	    local exit_code=$?
+	    set -e
 	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >> $cmd_run_dir/status
 	    return $exit_code
 	fi
