@@ -448,56 +448,6 @@ while true; do
 		    ;;
 	    esac
 	    ;;
-	PS)
-	    if [ -z "$PS_VERSION" ]; then
-		if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
-		    PS_VERSION='procps'
-		else
-		    PS_VERSION='bsd'
-		fi
-	    fi
-	    if [ $PS_VERSION == 'procps' ]; then 
-		ps -eo pid,args | grep "$FLANK_ROOT/.*/exec\." | grep -v "grep .*$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
-	    else
-		ps -x | grep "$FLANK_ROOT""/.*/exec\." | grep -v "grep .*""$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
-	    fi
-	    echo ''
-	    echo '(B)ack / (K)ill <pid> / (L)ogs <pid>'
-	    echo ''
-	    printf '\0'
-	    read -rp "$PROMPT" choice args
-	    case $choice in 
-		B)
-		    PAGE='HOME'
-		    ;;
-		K)
-		    kill $args 
-		    PAGE='PS'
-		    ;;
-		L)
-		    if [ -z "$PS_VERSION" ]; then
-			if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
-			    PS_VERSION='procps'
-			else
-			    PS_VERSION='bsd'
-			fi
-		    fi
-		    if [ $PS_VERSION == 'procps' ]; then 
-			log_dir=$(ps e $args | grep -o -e "$FLANK_ROOT""[^[:space:]]*/exec.sh" -e "$FLANK_ROOT""[^[:space:]]*/exec.mk" | xargs dirname)
-		    else
-			log_dir=$(ps $args | grep -o -e "$FLANK_ROOT""[^[:space:]]*/exec.sh" -e "$FLANK_ROOT""[^[:space:]]*/exec.mk" | xargs dirname)
-		    fi
-		    cd $log_dir
-		    PAGE='LOG_DIR'
-
-		    ;;
-		refresh)
-		    ;;
-		*)
-		    read -rp "Invalid choice! Hit [Enter] to continue"
-		    ;;
-	    esac
-	    ;;
 	FS)
 	    pwd
 	    echo ""
@@ -560,7 +510,7 @@ while true; do
 	    ls -1
 	    echo ''
 	    if [ "$PS_VERSION" == 'procps' ]; then
-		pid=$(ps -eo pid,args | grep $(pwd) | grep -v "grep .*"$(pwd) | grep -v "bash -c printf .*StartTime" | cut -d" " -f1)
+		pid=$(ps -eo pid,args | grep $(pwd) | grep -v "grep .*"$(pwd) | grep -v "bash -c printf .*StartTime" | sed 's/^[[:space:]]*//' | cut -d" " -f1)
 	    else
 		pid=$(ps -x | grep $(pwd) | grep -v "grep .*"$(pwd) | grep -v "bash -c printf .*StartTime" | cut -d" " -f1)
 	    fi
