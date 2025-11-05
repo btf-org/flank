@@ -289,7 +289,7 @@ while true; do
 			    }
 			}
 			if(PS_VERSION=="procps"){
-			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1";
+			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | sed '\''s/^[[:space:]]*//'\'' | cut -d\" \" -f1";
 			}
 			else {
 			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1";
@@ -348,7 +348,7 @@ while true; do
 			    }
 			}
 			if(PS_VERSION=="procps"){
-			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1";
+			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | sed '\''s/^[[:space:]]*//'\'' | cut -d\" \" -f1";
 			}
 			else {
 			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1";
