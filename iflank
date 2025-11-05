@@ -113,7 +113,7 @@ run_cmd() {
     #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
     if [ -f "$cmd_run_dir/exec.mk" ]; then
 	if [ "$1" == 'bg' ]; then
-	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""$nickname"" "'$(date "+%s")'" > $cmd_run_dir/status; make -j -i -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
+	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > $cmd_run_dir/status; make -j -i -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
 	else
 	    printf 'Nickname:\t%s\nStartTime:\t%s\n' "$nickname" $(date "+%s") > $cmd_run_dir/status
 	    # Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
@@ -128,7 +128,7 @@ run_cmd() {
 	fi
     else
 	if [ "$1" == 'bg' ]; then
-	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""$nickname"" "'$(date "+%s")'" > $cmd_run_dir/status; bash $cmd_run_dir/exec.sh 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
+	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > $cmd_run_dir/status; bash $cmd_run_dir/exec.sh 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
 	else
 	    printf 'Nickname:\t%s\nStartTime:\t%s\n' "$nickname" $(date "+%s") > $cmd_run_dir/status
 	    # Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
@@ -298,17 +298,19 @@ while true; do
 			close(cmd);
 		    }
 
-		    print prev, path_parts[n - 4], stf, etf, code, pid;
+		    print prev, path_parts[n - 4], nickname, stf, etf, code, pid;
 
 		    prev=FILENAME; 
 		    st=""; 
 		    et=""; 
 		    code="";
+		    nickname="";
 		    pid="";
 		} 
 		/StartTime/ { st=$2; } 
 		/EndTime/ { et=$2 } 
 		/ExitCode/ { code=$2 } 
+		/Nickname/ { nickname=$2 } 
 		END { 
 		    if(st != ""){
 			if(DATE_VERSION == "gnu"){
@@ -355,19 +357,19 @@ while true; do
 			close(cmd);
 		    }
 
-		    print prev, path_parts[n - 4], stf, etf, code, pid;
+		    print prev, path_parts[n - 4], nickname, stf, etf, code, pid;
 		}'
 	    awk_tsv_to_html='
 		BEGIN { 
 		    print "<table>"
-		    print "<thead><th></th><th>Command</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th></thead>"
+		    print "<thead><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th></thead>"
 		    print "<tbody>"
 		}
 		{ 
 		    cmd = "dirname "$1;
 		    cmd | getline dir;
 		    close(cmd)
-		    print "<tr><td><a onclick=\"run('\''cd "dir"'\'')\">Logs</a></td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td></tr>" }
+		    print "<tr><td><a onclick=\"run('\''cd "dir"'\'')\">Logs</a></td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td></tr>" }
 		END { print "</tbody></table>" }'
 
 	    if [ -z "$PS_VERSION" ]; then
