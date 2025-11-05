@@ -220,12 +220,34 @@ int main(int argc, char *argv[]) {
 		    }
 		    close(fd);
 	       } else {
-		    printf("path not supported: %s\n", path);
-		    // char header[256];
-		    // int header_len;
-		    char header[] = "HTTP/1.1 404 Not Found\r\n"
-			"Content-Length: 0\r\n\r\n";
-		    write(client_fd, header, sizeof(header) - 1);
+                 if(access("./index.html", F_OK) == 0){
+                   int fd = open(path, O_RDONLY);
+                   struct stat st;
+                   fstat(fd, &st);
+                   off_t filesize = st.st_size;
+                   char header[256];
+                   int header_len;
+                   header_len = snprintf(header, sizeof(header),
+                                "HTTP/1.1 200 OK\r\n"
+                                "Content-Type: text/html\r\n"
+                                "Content-Length: %lld\r\n"
+                                "\r\n", (long long)filesize);
+                   write(client_fd, header, header_len);	// forward to client
+                   ssize_t n;
+                   while ((n = read(fd, buffer, sizeof(buffer))) > 0) {
+                     write(client_fd, buffer, n);
+                   }
+                   close(fd);
+
+                 }
+                 else {
+                   printf("path not supported: %s\n", path);
+                   // char header[256];
+                   // int header_len;
+                   char header[] = "HTTP/1.1 404 Not Found\r\n"
+                    "Content-Length: 0\r\n\r\n";
+                   write(client_fd, header, sizeof(header) - 1);
+                 }
 	       }
 	  }
 

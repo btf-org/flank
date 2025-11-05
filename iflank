@@ -519,6 +519,9 @@ while true; do
 	    else
 		echo 'Next: cat [file] / cd [dir] / kill'
 	    fi
+	    if [ "$MODE" == 'HTTP' ]; then
+		echo '<a href="'"$PWD/stdout.log"'" download="stdout.log">Std Out</a>'
+	    fi
 	    printf '\0'
 	    read -rp "$PROMPT" choice args
 	    case $choice in
