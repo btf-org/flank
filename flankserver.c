@@ -220,7 +220,7 @@ int main(int argc, char *argv[]) {
 		    }
 		    close(fd);
 	       } else {
-                 if(access("./index.html", F_OK) == 0){
+                 if(access(path, F_OK) == 0){
                    int fd = open(path, O_RDONLY);
                    struct stat st;
                    fstat(fd, &st);
