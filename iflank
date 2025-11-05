@@ -113,12 +113,12 @@ run_cmd() {
     #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
     if [ -f "$cmd_run_dir/exec.mk" ]; then
 	if [ "$1" == 'bg' ]; then
-	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > $cmd_run_dir/status; make -j -i -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
+	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > $cmd_run_dir/status; make -j -i -f $cmd_run_dir/exec.mk all &> $cmd_run_dir/console.log; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
 	else
 	    printf 'Nickname:\t%s\nStartTime:\t%s\n' "$nickname" $(date "+%s") > $cmd_run_dir/status
 	    # Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
 	    set +e
-	    make -j -i -f $cmd_run_dir/exec.mk all 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log & 
+	    make -j -i -f $cmd_run_dir/exec.mk all &> $cmd_run_dir/console.log & 
 	    PID=$!
 	    wait $PID
 	    local exit_code=$?
@@ -128,12 +128,12 @@ run_cmd() {
 	fi
     else
 	if [ "$1" == 'bg' ]; then
-	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > $cmd_run_dir/status; bash $cmd_run_dir/exec.sh 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
+	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > $cmd_run_dir/status; bash $cmd_run_dir/exec.sh &> $cmd_run_dir/console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
 	else
 	    printf 'Nickname:\t%s\nStartTime:\t%s\n' "$nickname" $(date "+%s") > $cmd_run_dir/status
 	    # Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
 	    set +e
-	    bash $cmd_run_dir/exec.sh 1> $cmd_run_dir/stdout.log 2> $cmd_run_dir/stderr.log & 
+	    bash $cmd_run_dir/exec.sh &> $cmd_run_dir/console.log & 
 	    PID=$!
 	    wait $PID
 	    local exit_code=$?
@@ -520,7 +520,10 @@ while true; do
 		echo 'Next: cat [file] / cd [dir] / kill'
 	    fi
 	    if [ "$MODE" == 'HTTP' ]; then
-		echo '<a href="'"$PWD/stdout.log"'" download="stdout.log">Std Out</a>'
+		path_components=(${PWD//\// })
+		length=${#path_components[@]}
+		filename=${path_components[$((length-4))]}"-"${path_components[$((length-2))]}"_"${path_components[$((length-1))]}".log"
+		echo '<a href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
 	    fi
 	    printf '\0'
 	    read -rp "$PROMPT" choice args
