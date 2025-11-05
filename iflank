@@ -203,6 +203,21 @@ DATE_VERSION=''
 
 cd $FLANK_ROOT
 while true; do
+    if [ "$PAGE" == 'HTTP_INIT' ]; then
+	: # no-op
+    elif [ "$PWD" == "$FLANK_ROOT/runs" ]; then
+	PAGE='GLOBAL_RUN_DATES'
+    elif [ "$PWD" == "$FLANK_ROOT" ]; then
+	PAGE='HOME'
+    elif [ -f template.sh ] || [ -f template.mk ]; then
+	PAGE='CMD'
+    elif [ -f status ]; then
+	PAGE='LOG_DIR'
+    elif [ "$(basename $PWD)" == 'runs' ]; then
+	PAGE='GLOBAL_RUN_DATES'
+    else
+	PAGE='FS'
+    fi
     case "$PAGE" in
 	HTTP_INIT)
 	    read -rp "$PROMPT" choice
@@ -229,11 +244,6 @@ while true; do
 	    case $choice in
 		cd)
 		    cd $args
-		    if [ "$(pwd)" == $FLANK_ROOT/runs ]; then
-			PAGE='GLOBAL_RUN_DATES'
-		    else
-			PAGE='FS'
-		    fi
 		    ;;
 		refresh)
 		    ;;
@@ -435,11 +445,6 @@ while true; do
 	    case $choice in
 		cd)
 		    cd $args
-		    if [ "$args" == '..' ]; then
-			PAGE='HOME'
-		    else
-			PAGE='LOG_DIR'
-		    fi
 		    ;;
 		refresh)
 		    ;;
@@ -464,11 +469,6 @@ while true; do
 	    case $choice in
 		cd)
 		    cd $arg
-		    if [ -f template.sh ] || [ -f template.mk ]; then
-			PAGE='CMD'
-		    else
-			PAGE='FS'
-		    fi
 		    ;;
 		refresh)
 		    ;;
@@ -487,15 +487,12 @@ while true; do
 	    case $choice in
 		R)
 		    run_cmd 'bg'
-		    PAGE='CMD'
 		    ;;
 		L)
 		    cd runs
-		    PAGE='GLOBAL_RUN_DATES'
 		    ;;
 		H)
 		    cd $FLANK_ROOT
-		    PAGE='HOME'
 		    ;;
 		refresh)
 		    ;;
@@ -537,11 +534,6 @@ while true; do
 		    ;;
 		cd)
 		    cd $args
-		    if [ "$args" == '..' ]; then
-			PAGE='FS'
-		    elif [ "$args" == '../..' ]; then
-			PAGE='CMD'
-		    fi
 		    ;;
 		refresh)
 		    ;;
