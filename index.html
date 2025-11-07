@@ -64,6 +64,7 @@
 	const container = button.parentElement;
 	const [input, btn, output] = container.children;
 
+	output.innerHTML = "Loading...";
       try {
         const response = await fetch(window.location.origin + '/iflank', {
           method: 'POST',
