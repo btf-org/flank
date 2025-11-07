@@ -340,8 +340,12 @@ while true; do
 			cmd | getline pid;
 			close(cmd);
 		    }
+		    cmd = "dirname "prev;
+		    cmd | getline dir;
+		    close(cmd)
+		    link = "<a onclick=\"run('\''cd "dir"'\'')\">Logs</a>"
 
-		    print prev, path_parts[n - 4], nickname, stf, etf, code, pid;
+		    print link, path_parts[n - 4], nickname, stf, etf, code, pid;
 
 		    prev=FILENAME; 
 		    st=""; 
@@ -399,8 +403,12 @@ while true; do
 			cmd | getline pid;
 			close(cmd);
 		    }
+		    cmd = "dirname "prev;
+		    cmd | getline dir;
+		    close(cmd)
+		    link = "<a onclick=\"run('\''cd "dir"'\'')\">Logs</a>"
 
-		    print prev, path_parts[n - 4], nickname, stf, etf, code, pid;
+		    print link, path_parts[n - 4], nickname, stf, etf, code, pid;
 		}'
 	    awk_tsv_to_html='
 		BEGIN { 
@@ -412,7 +420,7 @@ while true; do
 		    cmd = "dirname "$1;
 		    cmd | getline dir;
 		    close(cmd)
-		    print "<tr><td><a onclick=\"run('\''cd "dir"'\'')\">Logs</a></td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td></tr>" }
+		    print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td></tr>" }
 		END { print "</tbody></table>" }'
 
 	    if [ -z "$PS_VERSION" ]; then
