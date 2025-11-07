@@ -25,6 +25,7 @@ echo "Da New Tag: $new_tag"
 echo "Annotation: $1"
 echo ""
 read -rp "Hit enter to replace in iflank" choice
+sed -i '' 's/ v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/ '$new_tag'/' iflank
 git status
 read -rp "Hit enter to add in working tree and push" choice
 git commit -am 'update to '$new_tag
