@@ -253,12 +253,23 @@ while true; do
 	    esac
 	    ;;
 	HOME)
-	    header_pwd
+	    # header_pwd
+	    # echo ''
+	    echo 'Welcome to Flank! v0.1.31'
 	    echo ''
 	    if [ $MODE == 'TTY' ]; then
 		ls -1
 	    else
-		ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
+		ls -1 | awk ' 
+		    { 
+			content=$0;
+			if(content == "runs"){
+			    content="History";
+			} else if(content == "cmds"){
+			    content="Commands";
+			}
+			print "<a onclick=\"run('\''cd "$0"'\'')\">"content"</a>" 
+		    } '
 	    fi
 	    echo ''
 	    printf '\0'
