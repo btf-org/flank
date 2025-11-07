@@ -343,7 +343,11 @@ while true; do
 		    cmd = "dirname "prev;
 		    cmd | getline dir;
 		    close(cmd)
-		    link = "<a onclick=\"run('\''cd "dir"'\'')\">Logs</a>"
+		    filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
+		    if(nickname != ""){
+			filename=nickname"-"filename;
+		    }
+		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
 
 		    print link, path_parts[n - 4], nickname, stf, etf, code, pid;
 
@@ -405,8 +409,12 @@ while true; do
 		    }
 		    cmd = "dirname "prev;
 		    cmd | getline dir;
-		    close(cmd)
-		    link = "<a onclick=\"run('\''cd "dir"'\'')\">Logs</a>"
+		    close(cmd);
+		    filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
+		    if(nickname != ""){
+			filename=nickname"-"filename;
+		    }
+		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
 
 		    print link, path_parts[n - 4], nickname, stf, etf, code, pid;
 		}'
@@ -417,9 +425,6 @@ while true; do
 		    print "<tbody>"
 		}
 		{ 
-		    cmd = "dirname "$1;
-		    cmd | getline dir;
-		    close(cmd)
 		    print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td></tr>" }
 		END { print "</tbody></table>" }'
 
