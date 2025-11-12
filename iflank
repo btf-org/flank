@@ -391,7 +391,7 @@ while true; do
 		    }
 		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
 
-		    print link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRssBytes;
+		    print link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRSSGiB;
 
 		    prev=FILENAME; 
 		    st=""; 
@@ -399,13 +399,13 @@ while true; do
 		    code="";
 		    nickname="";
 		    pid="";
-		    maxRssBytes="";
+		    maxRSSGiB="";
 		} 
 		/StartTime/ { st=$2; } 
 		/EndTime/ { et=$2 } 
 		/ExitCode/ { code=$2 } 
 		/Nickname/ { nickname=$2 } 
-		/MaxRSSBytes/ { maxRssBytes=$2 }
+		/MaxRSSBytes/ { maxRSSGiB= sprintf("%.3f", $2 / 1073741824); }
 		END { 
 		    if(st != ""){
 			if(DATE_VERSION == "gnu"){
@@ -460,12 +460,12 @@ while true; do
 		    }
 		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
 
-		    print link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRssBytes;
+		    print link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRSSGiB;
 		}'
 	    awk_tsv_to_html='
 		BEGIN { 
 		    print "<table>"
-		    print "<thead><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th><th>Max RAM</th></thead>"
+		    print "<thead><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th><th>Max RAM (GiB)</th></thead>"
 		    print "<tbody>"
 		}
 		{ 
