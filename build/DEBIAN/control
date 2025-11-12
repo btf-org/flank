@@ -5,4 +5,4 @@ Priority: optional
 Architecture: amd64
 Maintainer: Angus Mitchell <anguspmitchell@gmail.com>
 Description: A CLI wrapper for building and sharing tools
-
+Depends: awk, time
