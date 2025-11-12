@@ -81,17 +81,9 @@ run_cmd() {
     
 
     if [ -n "$2" ]; then
-	if [ $(basename "$2") == 'template.mk' ]; then
-	    cp "$2" $cmd_run_dir/exec.mk
-	else
-	    cp "$2" $cmd_run_dir/exec.sh
-	fi
+	cp "$2" $cmd_run_dir/exec.sh
     else
-	if [ -f "$cmd_dir/template.mk" ]; then
-	    cp $cmd_dir/template.mk $cmd_run_dir/exec.mk
-	else
-	    cp $cmd_dir/template.sh $cmd_run_dir/exec.sh
-	fi
+	cp $cmd_dir/template.sh $cmd_run_dir/exec.sh
     fi
 
     # These only get called when iflank itself is killed
@@ -250,7 +242,7 @@ while true; do
 	PAGE='GLOBAL_RUN_DATES'
     elif [ "$PWD" == "$FLANK_ROOT" ]; then
 	PAGE='HOME'
-    elif [ -f template.sh ] || [ -f template.mk ]; then
+    elif [ -f template.sh ]; then
 	PAGE='CMD'
     elif [ -f status ]; then
 	PAGE='LOG_DIR'
