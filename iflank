@@ -155,22 +155,23 @@ run_cmd() {
 	    local time_filename='time.bsd.out'
     fi
     if [ "$1" == 'bg' ]; then
-	nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > $cmd_run_dir/status; CMD_RUN_DIR=$cmd_run_dir /usr/bin/time $time_flag -o $cmd_run_dir/$time_filename bash $cmd_run_dir/exec.sh &> $cmd_run_dir/console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status; if [ -f $cmd_run_dir/time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" $cmd_run_dir/time.gnu.out >> $cmd_run_dir/status; elif [ -f $cmd_run_dir/time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" $cmd_run_dir/time.bsd.out >> $cmd_run_dir/status; fi
+	nohup bash -c "cd $cmd_run_dir; printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > status; /usr/bin/time $time_flag -o $time_filename bash exec.sh &> console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> status; if [ -f time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" time.gnu.out >> status; elif [ -f time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" time.bsd.out >> status; fi
 " > /dev/null &
 	    else
-	printf 'Nickname:\t%s\nStartTime:\t%s\n' "$nickname" $(date "+%s") > $cmd_run_dir/status
+	cd $cmd_run_dir
+	printf 'Nickname:\t%s\nStartTime:\t%s\n' "$nickname" $(date "+%s") > status
 	# Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
 	set +e
-	CMD_RUN_DIR=$cmd_run_dir /usr/bin/time $time_flag -o $cmd_run_dir/$time_filename bash $cmd_run_dir/exec.sh &> $cmd_run_dir/console.log & 
+	/usr/bin/time $time_flag -o $time_filename bash exec.sh &> console.log & 
 	PID=$!
 	wait $PID
 	local exit_code=$?
 	set -e
-	printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >> $cmd_run_dir/status
-	if [ -f $cmd_run_dir/time.gnu.out ]; then
-	    awk -F: ' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' $cmd_run_dir/time.gnu.out >> $cmd_run_dir/status
-	elif [ -f $cmd_run_dir/time.bsd.out ]; then
-	    awk ' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } ' $cmd_run_dir/time.bsd.out >> $cmd_run_dir/status
+	printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >> status
+	if [ -f time.gnu.out ]; then
+	    awk -F: ' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' time.gnu.out >> status
+	elif [ -f time.bsd.out ]; then
+	    awk ' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } ' time.bsd.out >> status
 	fi
 	return $exit_code
     fi
