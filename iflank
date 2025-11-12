@@ -102,6 +102,11 @@ run_cmd() {
       if [ -n "$PID" ]; then
 	exit_code=$((128 + $(kill -l SIGINT)))
         printf 'ExitCode:\t%d\nEndTime:\t%d' $exit_code $(date '+%s') >> $cmd_run_dir/status
+	if [ -f $cmd_run_dir/time.gnu.out ]; then
+	    awk ' /Maximum resident set size (kbytes)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' $cmd_run_dir/time.gnu.out >> $cmd_run_dir/status
+	elif [ -f $cmd_run_dir/time.bsd.out ]; then
+	    awk ' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } ' $cmd_run_dir/time.bsd.out >> $cmd_run_dir/status
+	fi
 	kill -s SIGINT $PID
 	# By exiting here, the "wait / printf / return" sequence is not reached below
 	exit $exit_code
@@ -111,6 +116,11 @@ run_cmd() {
       if [ -n "$PID" ]; then
 	exit_code=$((128 + $(kill -l SIGTERM)))
         printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code $(date '+%s') >> $cmd_run_dir/status
+	if [ -f $cmd_run_dir/time.gnu.out ]; then
+	    awk ' /Maximum resident set size (kbytes)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' $cmd_run_dir/time.gnu.out >> $cmd_run_dir/status
+	elif [ -f $cmd_run_dir/time.bsd.out ]; then
+	    awk ' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } ' $cmd_run_dir/time.bsd.out >> $cmd_run_dir/status
+	fi
 	kill -s SIGTERM $PID
 	exit $exit_code
       fi
@@ -119,6 +129,11 @@ run_cmd() {
       if [ -n "$PID" ]; then
 	exit_code=$((128 + $(kill -l SIGKILL)))
         printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code $(date '+%s') >> $cmd_run_dir/status
+	if [ -f $cmd_run_dir/time.gnu.out ]; then
+	    awk ' /Maximum resident set size (kbytes)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' $cmd_run_dir/time.gnu.out >> $cmd_run_dir/status
+	elif [ -f $cmd_run_dir/time.bsd.out ]; then
+	    awk ' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } ' $cmd_run_dir/time.bsd.out >> $cmd_run_dir/status
+	fi
 	kill -s SIGKILL $PID
 	exit $exit_code
       fi
@@ -133,34 +148,60 @@ run_cmd() {
     #  - $? needs to be escaped as \$? in "" or it will immediately evaluate
     #  - $(date) needs to be single quoted or it will immediately evaluate
     #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
+    if [ -z "$TIME_VERSION" ]; then
+	if [ -n "$(/usr/bin/time --version 2> /dev/null | grep GNU)" ]; then 
+	    TIME_VERSION='GNU'
+	else
+	    TIME_VERSION='BSD'
+	fi
+    fi
+    if [ "$TIME_VERSION" == 'GNU' ]; then
+	    local time_flag='-v';
+	    local time_filename='time.gnu.out'
+    else
+	    local time_flag='-l'
+	    local time_filename='time.bsd.out'
+    fi
     if [ -f "$cmd_run_dir/exec.mk" ]; then
 	if [ "$1" == 'bg' ]; then
-	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > $cmd_run_dir/status; CMD_RUN_DIR=$cmd_run_dir make -j -i -f $cmd_run_dir/exec.mk all &> $cmd_run_dir/console.log; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
+	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > $cmd_run_dir/status; CMD_RUN_DIR=$cmd_run_dir /usr/bin/time $time_flag -o $cmd_run_dir/$time_filename make -j -i -f $cmd_run_dir/exec.mk all &> $cmd_run_dir/console.log; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status; if [ -f $cmd_run_dir/time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" $cmd_run_dir/time.gnu.out >> $cmd_run_dir/status; elif [ -f $cmd_run_dir/time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" $cmd_run_dir/time.bsd.out >> $cmd_run_dir/status; fi
+" > /dev/null &
 	else
 	    printf 'Nickname:\t%s\nStartTime:\t%s\n' "$nickname" $(date "+%s") > $cmd_run_dir/status
 	    # Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
 	    set +e
-	    CMD_RUN_DIR=$cmd_run_dir make -j -i -f $cmd_run_dir/exec.mk all &> $cmd_run_dir/console.log & 
+	    CMD_RUN_DIR=$cmd_run_dir /usr/bin/time $time_flag -o $cmd_run_dir/$time_filename make -j -i -f $cmd_run_dir/exec.mk all &> $cmd_run_dir/console.log & 
 	    PID=$!
 	    wait $PID
 	    local exit_code=$?
 	    set -e
 	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? "$(date '+%s')" >> $cmd_run_dir/status
+	    if [ -f $cmd_run_dir/time.gnu.out ]; then
+		awk -F: ' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' $cmd_run_dir/time.gnu.out >> $cmd_run_dir/status
+	    elif [ -f $cmd_run_dir/time.bsd.out ]; then
+		awk ' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } ' $cmd_run_dir/time.bsd.out >> $cmd_run_dir/status
+	    fi
 	    return $exit_code
 	fi
     else
 	if [ "$1" == 'bg' ]; then
-	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > $cmd_run_dir/status; CMD_RUN_DIR=$cmd_run_dir bash $cmd_run_dir/exec.sh &> $cmd_run_dir/console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status" > /dev/null &
-	else
+	    nohup bash -c "printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > $cmd_run_dir/status; CMD_RUN_DIR=$cmd_run_dir /usr/bin/time $time_flag -o $cmd_run_dir/$time_filename bash $cmd_run_dir/exec.sh &> $cmd_run_dir/console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $cmd_run_dir/status; if [ -f $cmd_run_dir/time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" $cmd_run_dir/time.gnu.out >> $cmd_run_dir/status; elif [ -f $cmd_run_dir/time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" $cmd_run_dir/time.bsd.out >> $cmd_run_dir/status; fi
+" > /dev/null &
+	    	else
 	    printf 'Nickname:\t%s\nStartTime:\t%s\n' "$nickname" $(date "+%s") > $cmd_run_dir/status
 	    # Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
 	    set +e
-	    CMD_RUN_DIR=$cmd_run_dir bash $cmd_run_dir/exec.sh &> $cmd_run_dir/console.log & 
+	    CMD_RUN_DIR=$cmd_run_dir /usr/bin/time $time_flag -o $cmd_run_dir/$time_filename bash $cmd_run_dir/exec.sh &> $cmd_run_dir/console.log & 
 	    PID=$!
 	    wait $PID
 	    local exit_code=$?
 	    set -e
 	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >> $cmd_run_dir/status
+	    if [ -f $cmd_run_dir/time.gnu.out ]; then
+		awk -F: ' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' $cmd_run_dir/time.gnu.out >> $cmd_run_dir/status
+	    elif [ -f $cmd_run_dir/time.bsd.out ]; then
+		awk ' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } ' $cmd_run_dir/time.bsd.out >> $cmd_run_dir/status
+	    fi
 	    return $exit_code
 	fi
     fi
@@ -222,6 +263,7 @@ fi
 PS_VERSION=''
 FIND_VERSION=''
 DATE_VERSION=''
+TIME_VERSION=''
 
 cd $FLANK_ROOT
 while true; do
@@ -349,7 +391,7 @@ while true; do
 		    }
 		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
 
-		    print link, path_parts[n - 4], nickname, stf, etf, code, pid;
+		    print link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRssBytes;
 
 		    prev=FILENAME; 
 		    st=""; 
@@ -357,11 +399,13 @@ while true; do
 		    code="";
 		    nickname="";
 		    pid="";
+		    maxRssBytes="";
 		} 
 		/StartTime/ { st=$2; } 
 		/EndTime/ { et=$2 } 
 		/ExitCode/ { code=$2 } 
 		/Nickname/ { nickname=$2 } 
+		/MaxRSSBytes/ { maxRssBytes=$2 }
 		END { 
 		    if(st != ""){
 			if(DATE_VERSION == "gnu"){
@@ -416,16 +460,16 @@ while true; do
 		    }
 		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
 
-		    print link, path_parts[n - 4], nickname, stf, etf, code, pid;
+		    print link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRssBytes;
 		}'
 	    awk_tsv_to_html='
 		BEGIN { 
 		    print "<table>"
-		    print "<thead><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th></thead>"
+		    print "<thead><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th><th>Max RAM</th></thead>"
 		    print "<tbody>"
 		}
 		{ 
-		    print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td></tr>" }
+		    print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td><td>"$8"</td></tr>" }
 		END { print "</tbody></table>" }'
 
 	    if [ -z "$PS_VERSION" ]; then
