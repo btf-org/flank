@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <signal.h>
 
-#define BUF_SIZE 200000
+#define BUF_SIZE 600000
 
 int server_fd;			// used in signal handlers
 int PORT = 8083;		// doesn't need to be here unless I refactor and don't want to pass around
