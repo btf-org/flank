@@ -155,14 +155,14 @@ run_cmd() {
 	    local time_filename='time.bsd.out'
     fi
     if [ "$1" == 'bg' ]; then
-	nohup bash -c "cd $cmd_run_dir; printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > status; /usr/bin/time $time_flag -o $time_filename bash exec.sh &> console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> status; if [ -f time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" time.gnu.out >> status; elif [ -f time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" time.bsd.out >> status; fi
+	nohup bash -c "cd $cmd_run_dir; printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > status; /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &> console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> status; if [ -f time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" time.gnu.out >> status; elif [ -f time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" time.bsd.out >> status; fi
 " > /dev/null &
 	    else
 	cd $cmd_run_dir
 	printf 'Nickname:\t%s\nStartTime:\t%s\n' "$nickname" $(date "+%s") > status
 	# Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
 	set +e
-	/usr/bin/time $time_flag -o $time_filename bash exec.sh &> console.log & 
+	/usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &> console.log & 
 	PID=$!
 	wait $PID
 	local exit_code=$?
@@ -344,10 +344,10 @@ while true; do
 			    }
 			}
 			if(PS_VERSION=="procps"){
-			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | sed '\''s/^[[:space:]]*//'\'' | cut -d\" \" -f1";
+			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
 			}
 			else {
-			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1";
+			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
 			}
 			cmd | getline pid;
 			close(cmd);
@@ -414,10 +414,10 @@ while true; do
 			    }
 			}
 			if(PS_VERSION=="procps"){
-			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | sed '\''s/^[[:space:]]*//'\'' | cut -d\" \" -f1";
+			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
 			}
 			else {
-			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c printf .*StartTime\" | cut -d\" \" -f1";
+			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
 			}
 			cmd | getline pid;
 			close(cmd);
@@ -437,7 +437,7 @@ while true; do
 	    awk_tsv_to_html='
 		BEGIN { 
 		    print "<table>"
-		    print "<thead><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th><th>Max RAM (GiB)</th></thead>"
+		    print "<thead><th></th><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th><th>Max RAM (GiB)</th></thead>"
 		    print "<tbody>"
 		}
 		{ 
@@ -570,9 +570,9 @@ while true; do
 	    ls -1
 	    echo ''
 	    if [ "$PS_VERSION" == 'procps' ]; then
-		pid=$(ps -eo pid,args | grep $(pwd) | grep -v "grep .*"$(pwd) | grep -v "bash -c printf .*StartTime" | sed 's/^[[:space:]]*//' | cut -d" " -f1)
+		pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e  's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 	    else
-		pid=$(ps -x | grep $(pwd) | grep -v "grep .*"$(pwd) | grep -v "bash -c printf .*StartTime" | cut -d" " -f1)
+		pid=$(ps -x | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e  's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 	    fi
 	    if [ -z "$pid" ]; then
 		echo 'Next: cat [file] / cd [dir]'
