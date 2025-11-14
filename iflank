@@ -360,8 +360,9 @@ while true; do
 			filename=nickname"-"filename;
 		    }
 		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
+		    linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
 
-		    print link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRSSGiB;
+		    print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRSSGiB;
 
 		    prev=FILENAME; 
 		    st=""; 
@@ -429,8 +430,9 @@ while true; do
 			filename=nickname"-"filename;
 		    }
 		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
+		    linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
 
-		    print link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRSSGiB;
+		    print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRSSGiB;
 		}'
 	    awk_tsv_to_html='
 		BEGIN { 
@@ -439,7 +441,7 @@ while true; do
 		    print "<tbody>"
 		}
 		{ 
-		    print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td><td>"$8"</td></tr>" }
+		    print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td><td>"$8"</td><td>"$9"</td></tr>" }
 		END { print "</tbody></table>" }'
 
 	    if [ -z "$PS_VERSION" ]; then
