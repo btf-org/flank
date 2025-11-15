@@ -1,7 +1,7 @@
 # Flank
-At a lot of companies, after you've written a Python script or SQL query, the business problem is far from solved. There is often a lot of work left to either 1) safely expose whatever you built to a non-engineer, or 2) automatically run it on some sort of trigger.
+At a lot of companies, once you've written a Python script or SQL query, the business problem is far from solved. Oftentimes, you still need to 1) safely expose whatever you built to a non-engineer, or 2) set up yoru script to run in response to some trigger. (Not to mention the ongoing work of maintenance/debugging.)
 
-Flank is a CLI wrapper that allows engineers to incrementally "scale up" solutions by providing UI, guardrails, and permissioning around solutions that work on the CLI. It allows a single engineer to solve a problem end-to-end in the programming language of their choice, without necessitating meetings with designers, cloud engineers, etc.
+Flank is a CLI wrapper that allows engineers to incrementally "scale up" solutions by providing UI, guardrails, and permissioning around solutions that work on the CLI. The idea is to allow a single engineer to solve a problem end-to-end in the programming language of their choice, without necessitating meetings with designers, cloud engineers, etc.
 
 ## Mac / Homebrew
 
