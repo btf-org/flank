@@ -73,15 +73,22 @@
           },
           body: input.value + '\n'
         });
+	let completeResponse = '';
+	let thisResponse = '';
+      while (thisResponse[thisResponse.length - 1] !== '\0'){
         const response = await fetch(window.location.origin + '/iflank', {
           method: 'GET',
         });
 
-        const responseText = await response.text();
-	  console.log(responseText);
-	  console.log(output.innerHTML);
-        output.innerHTML = responseText;
-	  console.log(output.innerHTML);
+        thisResponse = await response.text();
+	      if (thisResponse[thisResponse.length - 1] === '\0') {
+		      console.log("END OF MESSAGE");
+	      } else {
+		      console.log("NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1]);
+	      }
+	completeResponse += thisResponse;
+      }
+        output.innerHTML = completeResponse;
       } catch (err) {
         output.textContent = 'Error reaching server: ' + err.message;
 	  return;
@@ -96,9 +103,26 @@
 	console.log("init POST");
         await fetch(window.location.origin + '/iflank', { method: 'POST', body: 'refresh\n' });
 	console.log("init GET");
-        const response = await fetch(window.location.origin + '/iflank', { method: 'GET' });
-        const responseText = await response.text();
-        output.innerHTML = responseText;
+	let completeResponse = '';
+	let thisResponse = '';
+	      while (thisResponse[thisResponse.length - 1] !== '\0'){
+	      console.log("LOOP");
+        const response = await fetch(window.location.origin + '/iflank', {
+          method: 'GET',
+        });
+
+	      console.log("response done");
+        thisResponse = await response.text();
+	      console.log("response.text done");
+	      console.log(thisResponse);
+	      if (thisResponse[thisResponse.length - 1] === '\0') {
+		      console.log("END OF MESSAGE");
+	      } else {
+		      console.log("NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1]);
+	      }
+	completeResponse += thisResponse;
+      }
+        output.innerHTML = completeResponse;
       } catch (err) {
 	      console.error(err);
         output.textContent = 'Error reaching server: ' + err.message;

@@ -6,6 +6,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <errno.h>
+
 
 #define BUF_SIZE 600000
 
@@ -86,6 +88,10 @@ int main(int argc, char *argv[]) {
 	  close(to_iflank_pipe_rw[0]);	// close the "read" end of the "to" pipe (it's for the child)
 	  close(from_iflank_pipe_rw[1]);	// close the "write" end of the "from" pipe (it's for the child) 
      }
+
+     int flags = fcntl(from_iflank_pipe_rw[0], F_GETFL, 0);
+     fcntl(from_iflank_pipe_rw[0], F_SETFL, flags | O_NONBLOCK);
+
      // Create socket
      server_fd = socket(AF_INET, SOCK_STREAM, 0);	// AF_NET = Address Family IPv4 / SOCK_STREAM = Socket Type TCP / 0 = Protocol = Let OS decide
      if (server_fd < 0) {
@@ -143,27 +149,40 @@ int main(int argc, char *argv[]) {
               write(client_fd, header, sizeof(header) - 1);
             }
             else if (strcmp(path, "/iflank") == 0 && strcmp(method, "GET") == 0) {
-		    char *buf_head = buffer;
-              int iflank_bytes_read = 0;
-		    while (1) {
-                iflank_bytes_read += read(from_iflank_pipe_rw[0], buf_head, buffer + BUF_SIZE - buf_head - 1);
-			 printf("iflank bytes read: %d / %ld\n", iflank_bytes_read, buffer + BUF_SIZE - buf_head - 1);
-			 buf_head = &buffer[iflank_bytes_read];
-			 if (buffer[iflank_bytes_read - 1] == '\0') {
-			      char header[256];
-			      int header_len;
-			      header_len =
-				  snprintf(header, sizeof(header),
-					   "HTTP/1.1 200 OK\r\n"
-					   "Content-Type: text/plain\r\n"
-					   "Content-Length: %d\r\n" "\r\n",
-					   iflank_bytes_read);
-			      write(client_fd, header, header_len);	// forward to client
-			      write(client_fd, buffer, iflank_bytes_read);	// forward to client
-			      iflank_bytes_read = 0;
-			      break;	// stop if child has no more data
-			 }
-		    }
+                 printf("about to non-block read\n");
+                int iflank_bytes_read = read(from_iflank_pipe_rw[0], buffer, BUF_SIZE - 1);
+			 printf("iflank bytes read: %d / %d\n", iflank_bytes_read, BUF_SIZE - 1);
+                printf("buffer:\n%s\n", buffer);
+                char header[256];
+                int header_len;
+               if (iflank_bytes_read == -1) {
+                  if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                      printf("No input available\n");
+                header_len =
+                 snprintf(header, sizeof(header),
+                       "HTTP/1.1 200 OK\r\n"
+                       "Content-Type: text/plain\r\n"
+                       "Content-Length: 0\r\n\r\n");
+                  } else {
+                header_len =
+                 snprintf(header, sizeof(header),
+                       "HTTP/1.1 500 Internal Server Error\r\n"
+                       "Content-Type: text/plain\r\n"
+                       "Content-Length: 0\r\n\r\n");
+                      perror("read");
+                  }
+              }  else {
+                header_len =
+                 snprintf(header, sizeof(header),
+                       "HTTP/1.1 200 OK\r\n"
+                       "Content-Type: text/plain\r\n"
+                       "Content-Length: %d\r\n\r\n",
+                       iflank_bytes_read);
+              }
+                write(client_fd, header, header_len);	// forward to client
+               if(iflank_bytes_read != -1){
+                     write(client_fd, buffer, iflank_bytes_read);	// forward to client
+               }
 	       } else if (strcmp(path, "/") == 0) {
 		    const char *index_html_path = NULL;
 
