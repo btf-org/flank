@@ -66,12 +66,15 @@
 
 	output.innerHTML = "Loading...";
       try {
-        const response = await fetch(window.location.origin + '/iflank', {
+        await fetch(window.location.origin + '/iflank', {
           method: 'POST',
           headers: {
             'Content-Type': 'text/plain'
           },
           body: input.value + '\n'
+        });
+        const response = await fetch(window.location.origin + '/iflank', {
+          method: 'GET',
         });
 
         const responseText = await response.text();
@@ -90,10 +93,14 @@
 	const output = container.children[container.children.length - 1];
 
       try {
-        const response = await fetch(window.location.origin + '/iflank', { method: 'POST', body: 'refresh\n' });
+	console.log("init POST");
+        await fetch(window.location.origin + '/iflank', { method: 'POST', body: 'refresh\n' });
+	console.log("init GET");
+        const response = await fetch(window.location.origin + '/iflank', { method: 'GET' });
         const responseText = await response.text();
         output.innerHTML = responseText;
       } catch (err) {
+	      console.error(err);
         output.textContent = 'Error reaching server: ' + err.message;
 	  return;
       }
