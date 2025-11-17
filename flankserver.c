@@ -124,59 +124,32 @@ int main(int argc, char *argv[]) {
 	       continue;
 	  }
 
-	  // while ((iflank_bytes_read = read(from_iflank_pipe_rw[0], buffer, BUF_SIZE)) > 0) {
-	  //      write(client_fd, buffer, iflank_bytes_read); // forward to client
-	  //      printf("iflank_bytes_read < BUF_SIZE? %d <? %d \n", iflank_bytes_read, BUF_SIZE);
-	  //      if (iflank_bytes_read < BUF_SIZE){
-	  //              printf("break\n");
-	  //              break; // stop if child has no more data
-	  //      }
-	  // }
 	  // read() returns 0 at EOF, when the other side closes the connection
 	  while ((http_bytes_read = read(client_fd, buffer, BUF_SIZE - 1)) > 0) {
 	       // send input to iflank
 	       buffer[http_bytes_read] = '\0';
-	       // printf("HTTP Input: %s\n", buffer);
-	       // printf("HTTP Bytes read: %d\n", http_bytes_read);
-	       //for (int i = 0; i < http_bytes_read; i++) {
-	       //  printf("%d ", (unsigned char)buffer[i]);
-	       //}
-	       // printf("\n");
 	       char *body = parse_body(buffer);
 	       char path[1024];
 	       char method[8];
 	       parse_path(buffer, path, method);
-	       printf("path: %s\n", path);
-	       if (strcmp(path, "/iflank") == 0) {
-		    // printf("remainder: %s\n", body);
-		    // printf("about to write\n");
+	       // printf("path: %s\n", path);
+	       if (strcmp(path, "/iflank") == 0 && strcmp(method, "POST") == 0) {
+                 printf("about to write\n");
 		    write(to_iflank_pipe_rw[1], body,
 			  buffer + http_bytes_read - body);
-		    // printf("just wrote: %s\n", body);
-
-		    // flush if using FILE*, otherwise ensure child gets data
-		    // fflush(iflank_stdin); // if you wrap pipe with fdopen
-
-		    // read response from iflank
-		    // int iflank_bytes_read;
+                 printf("done writing\n");
+              char header[] = "HTTP/1.1 200 OK\r\n"
+               "Content-Length: 0\r\n\r\n";
+              write(client_fd, header, sizeof(header) - 1);
+            }
+            else if (strcmp(path, "/iflank") == 0 && strcmp(method, "GET") == 0) {
 		    char *buf_head = buffer;
               int iflank_bytes_read = 0;
 		    while (1) {
                 iflank_bytes_read += read(from_iflank_pipe_rw[0], buf_head, buffer + BUF_SIZE - buf_head - 1);
 			 printf("iflank bytes read: %d / %ld\n", iflank_bytes_read, buffer + BUF_SIZE - buf_head - 1);
 			 buf_head = &buffer[iflank_bytes_read];
-			 // buffer[iflank_bytes_read] = '\0';
-			 // printf("iflank's Output: %s\n", buffer);
-			 // for (int i = 0; i < iflank_bytes_read; i++) {
-			 //      printf("%d ", (unsigned char)buffer[i]);
-			 // }
-			 // for (int i = 0; i < iflank_bytes_read; i++) {
-			 //      printf("%c ", (unsigned char)buffer[i]);
-			 // }
-			 // printf("\n");
-			 //if (iflank_bytes_read < BUF_SIZE) {
 			 if (buffer[iflank_bytes_read - 1] == '\0') {
-			      // printf("Full message %s\n", buffer);
 			      char header[256];
 			      int header_len;
 			      header_len =
@@ -249,6 +222,7 @@ int main(int argc, char *argv[]) {
                    write(client_fd, header, sizeof(header) - 1);
                  }
 	       }
+            printf("request done\n");
 	  }
 
 	  close(client_fd);
