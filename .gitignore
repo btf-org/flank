@@ -2,3 +2,4 @@ ifl
 fsl
 .env
 .DS_Store
+/node_modules
