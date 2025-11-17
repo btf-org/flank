@@ -1,144 +1,167 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flank</title>
-  <style>
-    .font-family-monospace { font-family: monospace }
-    .white-space-pre { white-space: pre-line; }
-    .p-1_25 { padding: 1.25rem; }
-    .my-0_75 { margin-top: 0.75rem; margin-bottom: 0.75rem; }
-    .border-1 { border: 1px solid; }
-    .border-color-black { border-color: black; }
-    .font-size-1 { font-size: 1rem; }
-    td { padding: 0px 1rem; }
-    /* #display { margin-top: 20px; padding: 10px; border: 1px solid #ccc; } */
-    a {
-      color: #0000EE; /* unvisited links */
-      text-decoration:underline;
-      cursor:pointer;
-    }
-    a:visited {
-      color: #551A8B; /* visited links */
-    }
-  </style>
-</head>
-<body class="p-1_25 font-family-monospace font-size-1">
-
-  <!-- <h1>Send Text to Server</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flank</title>
+    <style>
+      .font-family-monospace {
+        font-family: monospace;
+      }
+      .white-space-pre {
+        white-space: pre-line;
+      }
+      .p-1_25 {
+        padding: 1.25rem;
+      }
+      .my-0_75 {
+        margin-top: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+      .border-1 {
+        border: 1px solid;
+      }
+      .border-color-black {
+        border-color: black;
+      }
+      .font-size-1 {
+        font-size: 1rem;
+      }
+      td {
+        padding: 0px 1rem;
+      }
+      /* #display { margin-top: 20px; padding: 10px; border: 1px solid #ccc; } */
+      a {
+        color: #0000ee; /* unvisited links */
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      a:visited {
+        color: #551a8b; /* visited links */
+      }
+    </style>
+  </head>
+  <body class="p-1_25 font-family-monospace font-size-1">
+    <!-- <h1>Send Text to Server</h1>
 
   <input type="text" id="inputBox" placeholder="Type something..." />
   <button id="sendBtn">Send</button>
 
   <div id="display">Response will appear here</div> -->
 
-  <script>
-    function run(cmd){
-	console.log(cmd);
-	const lastContainer = document.body.children[document.body.children.length - 1];
-	const lastInput = lastContainer.children[0]
-	lastInput.value = cmd;
-	const lastBtn = lastContainer.children[1];
-	lastBtn.click();
-    }
-    function makeCommand(outputOnly=false) {
-	const container = document.createElement('div');
-	if(!outputOnly){
-	    const input = document.createElement('input');
-	    const button = document.createElement('button');
-	    input.className = "font-family-monospace";
-	    button.textContent = 'Send';
-		button.addEventListener('click', sendCommand);
-	    container.appendChild(input);
-	    container.appendChild(button);
-	}
-	const output = document.createElement('div');
-	output.className = "white-space-pre p-1_25 my-0_75 border-1 border-color-black";
-	container.appendChild(output);
-
-	document.body.appendChild(container);
-    };
-    async function sendCommand(event) {
-	const button = event.target;	
-	const container = button.parentElement;
-	const [input, btn, output] = container.children;
-
-	output.innerHTML = "Loading...";
-      try {
-        await fetch(window.location.origin + '/iflank', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain'
-          },
-          body: input.value + '\n'
-        });
-	let completeResponse = '';
-	let thisResponse = '';
-      while (thisResponse[thisResponse.length - 1] !== '\0'){
-        const response = await fetch(window.location.origin + '/iflank', {
-          method: 'GET',
-        });
-
-        thisResponse = await response.text();
-	      if (thisResponse[thisResponse.length - 1] === '\0') {
-		      console.log("END OF MESSAGE");
-	      } else {
-		      console.log("NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1]);
-	      }
-	completeResponse += thisResponse;
+    <script>
+      function run(cmd) {
+        console.log(cmd);
+        const lastContainer =
+          document.body.children[document.body.children.length - 1];
+        const lastInput = lastContainer.children[0];
+        lastInput.value = cmd;
+        const lastBtn = lastContainer.children[1];
+        lastBtn.click();
       }
-        output.innerHTML = completeResponse;
-      } catch (err) {
-        output.textContent = 'Error reaching server: ' + err.message;
-	  return;
+      function makeCommand(outputOnly = false) {
+        const container = document.createElement("div");
+        if (!outputOnly) {
+          const input = document.createElement("input");
+          const button = document.createElement("button");
+          input.className = "font-family-monospace";
+          button.textContent = "Send";
+          button.addEventListener("click", sendCommand);
+          container.appendChild(input);
+          container.appendChild(button);
+        }
+        const output = document.createElement("div");
+        output.className =
+          "white-space-pre p-1_25 my-0_75 border-1 border-color-black";
+        container.appendChild(output);
+
+        document.body.appendChild(container);
       }
-    makeCommand();
-    }
-    async function getInitialOutput(){
-	const container = document.body.children[document.body.children.length - 1];
-	const output = container.children[container.children.length - 1];
+      async function sendCommand(event) {
+        const button = event.target;
+        const container = button.parentElement;
+        const [input, btn, output] = container.children;
 
-      try {
-	console.log("init POST");
-        await fetch(window.location.origin + '/iflank', { method: 'POST', body: 'refresh\n' });
-	console.log("init GET");
-	let completeResponse = '';
-	let thisResponse = '';
-	      while (thisResponse[thisResponse.length - 1] !== '\0'){
-	      console.log("LOOP");
-        const response = await fetch(window.location.origin + '/iflank', {
-          method: 'GET',
-        });
+        output.innerHTML = "Loading...";
+        try {
+          await fetch(window.location.origin + "/iflank", {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain",
+            },
+            body: input.value + "\n",
+          });
+          let completeResponse = "";
+          let thisResponse = "";
+          while (thisResponse[thisResponse.length - 1] !== "\0") {
+            const response = await fetch(window.location.origin + "/iflank", {
+              method: "GET",
+            });
 
-	      console.log("response done");
-        thisResponse = await response.text();
-	      console.log("response.text done");
-	      console.log(thisResponse);
-	      if (thisResponse[thisResponse.length - 1] === '\0') {
-		      console.log("END OF MESSAGE");
-	      } else {
-		      console.log("NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1]);
-	      }
-	completeResponse += thisResponse;
+            thisResponse = await response.text();
+            if (thisResponse[thisResponse.length - 1] === "\0") {
+              console.log("END OF MESSAGE");
+            } else {
+              console.log(
+                "NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1],
+              );
+            }
+            completeResponse += thisResponse;
+          }
+          output.innerHTML = completeResponse;
+        } catch (err) {
+          output.textContent = "Error reaching server: " + err.message;
+          return;
+        }
+        makeCommand();
       }
-        output.innerHTML = completeResponse;
-      } catch (err) {
-	      console.error(err);
-        output.textContent = 'Error reaching server: ' + err.message;
-	  return;
+      async function getInitialOutput() {
+        const container =
+          document.body.children[document.body.children.length - 1];
+        const output = container.children[container.children.length - 1];
+
+        try {
+          console.log("init POST");
+          await fetch(window.location.origin + "/iflank", {
+            method: "POST",
+            body: "refresh\n",
+          });
+          console.log("init GET");
+          let completeResponse = "";
+          let thisResponse = "";
+          while (thisResponse[thisResponse.length - 1] !== "\0") {
+            console.log("LOOP");
+            const response = await fetch(window.location.origin + "/iflank", {
+              method: "GET",
+            });
+
+            console.log("response done");
+            thisResponse = await response.text();
+            console.log("response.text done");
+            console.log(thisResponse);
+            if (thisResponse[thisResponse.length - 1] === "\0") {
+              console.log("END OF MESSAGE");
+            } else {
+              console.log(
+                "NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1],
+              );
+            }
+            completeResponse += thisResponse;
+          }
+          output.innerHTML = completeResponse;
+        } catch (err) {
+          console.error(err);
+          output.textContent = "Error reaching server: " + err.message;
+          return;
+        }
       }
-    }
-    async function setup(){
-	makeCommand(true);
-	await getInitialOutput();
-	makeCommand(false);
-    }
+      async function setup() {
+        makeCommand(true);
+        await getInitialOutput();
+        makeCommand(false);
+      }
 
-    setup();
-
-  </script>
-
-</body>
+      setup();
+    </script>
+  </body>
 </html>
-
