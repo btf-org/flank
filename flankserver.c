@@ -157,6 +157,7 @@ int main(int argc, char *argv[])
 #error "Unsupported platform"
 #endif
 
+    int active_client_fd;
 	while (1) {
 		// Accept a client
 		// Creates a new FD whose file description points at send/receive buffers in kernel space
@@ -187,6 +188,7 @@ int main(int argc, char *argv[])
 			} else if (strcmp(path, "/iflank") == 0
 				   && strcmp(method, "GET") == 0) {
 				printf("about to non-block read\n");
+                active_client_fd = client_fd;
 
 #ifdef __linux__
 				struct epoll_event events[1];
@@ -233,9 +235,9 @@ int main(int argc, char *argv[])
 						     "Content-Length: %d\r\n\r\n",
 						     iflank_bytes_read);
 				}
-				write(client_fd, header, header_len);	// forward to client
+				write(active_client_fd, header, header_len);	// forward to client
 				if (iflank_bytes_read != -1) {
-					write(client_fd, buffer, iflank_bytes_read);	// forward to client
+					write(active_client_fd, buffer, iflank_bytes_read);	// forward to client
 				}
 			} else if (strcmp(path, "/") == 0) {
 				const char *index_html_path = NULL;
