@@ -7,6 +7,9 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
 
 #define BUF_SIZE 600000
 
@@ -124,6 +127,11 @@ int main(int argc, char *argv[])
 	}
 	printf("Echo server listening on port %d...\n", PORT);
 
+    int kq = kqueue();
+    struct kevent ev;
+    EV_SET(&ev, from_iflank_pipe_rw[0], EVFILT_READ, EV_ADD, 0, 0, NULL);
+    kevent(kq, &ev, 1, NULL, 0, NULL);  // register
+
 	while (1) {
 		// Accept a client
 		// Creates a new FD whose file description points at send/receive buffers in kernel space
@@ -154,6 +162,11 @@ int main(int argc, char *argv[])
 			} else if (strcmp(path, "/iflank") == 0
 				   && strcmp(method, "GET") == 0) {
 				printf("about to non-block read\n");
+
+                struct kevent events[1];
+                int n = kevent(kq, NULL, 0, events, 1, NULL);  // NULL timeout = block
+
+
 				int iflank_bytes_read =
 				    read(from_iflank_pipe_rw[0], buffer,
 					 BUF_SIZE - 1);
