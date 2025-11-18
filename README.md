@@ -5,7 +5,7 @@ With it, you can solve a business problem by writing code in your favorite langu
 
 How does it work:
 - You write a script that solves the problem
-- You run `flank my-script` (roughly) and Flank moves it to a part of your computer where it can be run through a website
+- You run `$ flank my-script` (roughly) and Flank moves it to a part of your computer where it can be run through a website
 - From there, Flank makes it easy to add guardrails, permissioning, run it on a schedule, move it to a remote machine, and so on.
 
 ## Mac / Homebrew
