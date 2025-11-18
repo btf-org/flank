@@ -169,187 +169,188 @@ int main(int argc, char *argv[])
 		printf("LOOP\n");
 		printf("BLOCKING...\n");
 #ifdef __linux__
-		struct epoll_event events[1];
-		int n = epoll_wait(ep, events, 1, -1);	// -1 = block indefinitely
+		struct epoll_event events[64];
+		int n = epoll_wait(ep, events, 64, -1);	// -1 = block indefinitely
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 		struct kevent events[1];
-		int n = kevent(kq, NULL, 0, events, 1, NULL);	// NULL timeout = block
+		int n = kevent(kq, NULL, 0, events, 64, NULL);	// NULL timeout = block
 #else
 #error "Unsupported platform"
 #endif
 
-		printf("EVENT\n");
+        for(int i = 0; i < n; i++){
+            printf("EVENT %d\n", i);
+#ifdef __linux__
+            int event_fd = events[i].data.fd;
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+            int event_fd = events[i].ident;
+#else
+#error "Unsupported platform"
+#endif
+
+            if (event_fd == server_fd) {
+                client_fd = accept(event_fd, NULL, NULL);
+                if (client_fd < 0) {
+                    perror("accept");
+                    continue;
+                }
+                // read() returns 0 at EOF, when the other side closes the connection
+                http_bytes_read = read(client_fd, buffer, BUF_SIZE - 1);
+                // send input to iflank
+                buffer[http_bytes_read] = '\0';
+                char *body = parse_body(buffer);
+                char path[1024];
+                char method[8];
+                parse_path(buffer, path, method);
+                // printf("path: %s\n", path);
+                if (strcmp(path, "/iflank") == 0
+                    && strcmp(method, "POST") == 0) {
+                    printf("about to write\n");
+                    write(to_iflank_pipe_rw[1], body,
+                          buffer + http_bytes_read - body);
+                    printf("done writing\n");
+                    char header[] = "HTTP/1.1 200 OK\r\n"
+                        "Content-Length: 0\r\n\r\n";
+                    write(client_fd, header, sizeof(header) - 1);
+                } else if (strcmp(path, "/iflank") == 0
+                       && strcmp(method, "GET") == 0) {
+                    active_client_fd = client_fd;
+                    // Register the read end of the iflank pipe
+#ifdef __linux__
+                    struct epoll_event iflank_ev;
+                    iflank_ev.events = EPOLLIN;
+                    iflank_ev.data.fd = from_iflank_pipe_rw[0];
+                    if (epoll_ctl
+                        (ep, EPOLL_CTL_ADD, from_iflank_pipe_rw[0],
+                         &iflank_ev) == -1) {
+                        perror("epoll_ctl");
+                        exit(1);
+                    }
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+                    struct kevent iflank_ev;
+                    EV_SET(&iflank_ev, from_iflank_pipe_rw[0],
+                           EVFILT_READ, EV_ADD, 0, 0, NULL);
+                    kevent(kq, &iflank_ev, 1, NULL, 0, NULL);	// register
+#else
+#error "Unsupported platform"
+#endif
+                    continue;
+                } else if (strcmp(path, "/") == 0) {
+                    const char *index_html_path = NULL;
+
+                    if (access("./index.html", F_OK) == 0) {
+                        index_html_path = "./index.html";
+                    } else
+                        if (access
+                        ("/usr/share/flank/index.html",
+                         F_OK) == 0) {
+                        index_html_path =
+                            "/usr/share/flank/index.html";
+                    } else {
+                        fprintf(stderr,
+                            "index.html not found\n");
+                        return 1;
+                    }
+                    int fd = open(index_html_path, O_RDONLY);
+                    struct stat st;
+                    fstat(fd, &st);
+                    off_t filesize = st.st_size;
+                    char header[256];
+                    int header_len;
+                    header_len = snprintf(header, sizeof(header),
+                                  "HTTP/1.1 200 OK\r\n"
+                                  "Content-Type: text/html\r\n"
+                                  "Content-Length: %lld\r\n"
+                                  "\r\n",
+                                  (long long)filesize);
+                    write(client_fd, header, header_len);	// forward to client
+                    ssize_t n;
+                    while ((n =
+                        read(fd, buffer, sizeof(buffer))) > 0) {
+                        write(client_fd, buffer, n);
+                    }
+                    close(fd);
+                } else {
+                    if (access(path, F_OK) == 0) {
+                        int fd = open(path, O_RDONLY);
+                        struct stat st;
+                        fstat(fd, &st);
+                        off_t filesize = st.st_size;
+                        char header[256];
+                        int header_len;
+                        header_len =
+                            snprintf(header, sizeof(header),
+                                 "HTTP/1.1 200 OK\r\n"
+                                 "Content-Type: text/html\r\n"
+                                 "Content-Length: %lld\r\n"
+                                 "\r\n",
+                                 (long long)filesize);
+                        write(client_fd, header, header_len);	// forward to client
+                        ssize_t n;
+                        while ((n =
+                            read(fd, buffer,
+                                 sizeof(buffer))) > 0) {
+                            write(client_fd, buffer, n);
+                        }
+                        close(fd);
+
+                    } else {
+                        printf("path not supported: %s\n",
+                               path);
+                        // char header[256];
+                        // int header_len;
+                        char header[] =
+                            "HTTP/1.1 404 Not Found\r\n"
+                            "Content-Length: 0\r\n\r\n";
+                        write(client_fd, header,
+                              sizeof(header) - 1);
+                    }
+                }
+                printf("request done\n");
+                close(client_fd);
+            } else {
+                int iflank_bytes_read = read(event_fd, buffer,
+                                 BUF_SIZE - 1);
+                printf("iflank bytes read: %d / %d\n",
+                       iflank_bytes_read, BUF_SIZE - 1);
+                printf("buffer:\n%s\n", buffer);
+                char header[256];
+                int header_len;
+                if (iflank_bytes_read == -1) {
+                    printf("No input available\n");
+                    header_len =
+                        snprintf(header,
+                             sizeof(header),
+                             "HTTP/1.1 200 OK\r\n"
+                             "Content-Type: text/plain\r\n"
+                             "Content-Length: 0\r\n\r\n");
+                    write(active_client_fd, header, header_len);	// forward to client
+                } else {
+                    header_len =
+                        snprintf(header, sizeof(header),
+                             "HTTP/1.1 200 OK\r\n"
+                             "Content-Type: text/plain\r\n"
+                             "Content-Length: %d\r\n\r\n",
+                             iflank_bytes_read);
+                    write(active_client_fd, header, header_len);	// forward to client
+                    write(active_client_fd, buffer, iflank_bytes_read);	// forward to client
+                }
+                close(active_client_fd);
+                active_client_fd = 0;
 
 #ifdef __linux__
-		int event_fd = events[0].data.fd;
+                epoll_ctl(ep, EPOLL_CTL_DEL, event_fd,
+                      NULL);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
-		int event_fd = events[0].ident;
+                struct kevent ev;
+                EV_SET(&ev, event_fd, EVFILT_READ,
+                       EV_DELETE, 0, 0, NULL);
+                kevent(kq, &ev, 1, NULL, 0, NULL);
 #else
 #error "Unsupported platform"
 #endif
-
-		if (event_fd == server_fd) {
-			client_fd = accept(event_fd, NULL, NULL);
-			if (client_fd < 0) {
-				perror("accept");
-				continue;
-			}
-			// read() returns 0 at EOF, when the other side closes the connection
-			http_bytes_read = read(client_fd, buffer, BUF_SIZE - 1);
-			// send input to iflank
-			buffer[http_bytes_read] = '\0';
-			char *body = parse_body(buffer);
-			char path[1024];
-			char method[8];
-			parse_path(buffer, path, method);
-			// printf("path: %s\n", path);
-			if (strcmp(path, "/iflank") == 0
-			    && strcmp(method, "POST") == 0) {
-				printf("about to write\n");
-				write(to_iflank_pipe_rw[1], body,
-				      buffer + http_bytes_read - body);
-				printf("done writing\n");
-				char header[] = "HTTP/1.1 200 OK\r\n"
-				    "Content-Length: 0\r\n\r\n";
-				write(client_fd, header, sizeof(header) - 1);
-			} else if (strcmp(path, "/iflank") == 0
-				   && strcmp(method, "GET") == 0) {
-				active_client_fd = client_fd;
-				// Register the read end of the iflank pipe
-#ifdef __linux__
-				struct epoll_event iflank_ev;
-				iflank_ev.events = EPOLLIN;
-				iflank_ev.data.fd = from_iflank_pipe_rw[0];
-				if (epoll_ctl
-				    (ep, EPOLL_CTL_ADD, from_iflank_pipe_rw[0],
-				     &iflank_ev) == -1) {
-					perror("epoll_ctl");
-					exit(1);
-				}
-#elif defined(__APPLE__) || defined(__FreeBSD__)
-				struct kevent iflank_ev;
-				EV_SET(&iflank_ev, from_iflank_pipe_rw[0],
-				       EVFILT_READ, EV_ADD, 0, 0, NULL);
-				kevent(kq, &iflank_ev, 1, NULL, 0, NULL);	// register
-#else
-#error "Unsupported platform"
-#endif
-				continue;
-			} else if (strcmp(path, "/") == 0) {
-				const char *index_html_path = NULL;
-
-				if (access("./index.html", F_OK) == 0) {
-					index_html_path = "./index.html";
-				} else
-				    if (access
-					("/usr/share/flank/index.html",
-					 F_OK) == 0) {
-					index_html_path =
-					    "/usr/share/flank/index.html";
-				} else {
-					fprintf(stderr,
-						"index.html not found\n");
-					return 1;
-				}
-				int fd = open(index_html_path, O_RDONLY);
-				struct stat st;
-				fstat(fd, &st);
-				off_t filesize = st.st_size;
-				char header[256];
-				int header_len;
-				header_len = snprintf(header, sizeof(header),
-						      "HTTP/1.1 200 OK\r\n"
-						      "Content-Type: text/html\r\n"
-						      "Content-Length: %lld\r\n"
-						      "\r\n",
-						      (long long)filesize);
-				write(client_fd, header, header_len);	// forward to client
-				ssize_t n;
-				while ((n =
-					read(fd, buffer, sizeof(buffer))) > 0) {
-					write(client_fd, buffer, n);
-				}
-				close(fd);
-			} else {
-				if (access(path, F_OK) == 0) {
-					int fd = open(path, O_RDONLY);
-					struct stat st;
-					fstat(fd, &st);
-					off_t filesize = st.st_size;
-					char header[256];
-					int header_len;
-					header_len =
-					    snprintf(header, sizeof(header),
-						     "HTTP/1.1 200 OK\r\n"
-						     "Content-Type: text/html\r\n"
-						     "Content-Length: %lld\r\n"
-						     "\r\n",
-						     (long long)filesize);
-					write(client_fd, header, header_len);	// forward to client
-					ssize_t n;
-					while ((n =
-						read(fd, buffer,
-						     sizeof(buffer))) > 0) {
-						write(client_fd, buffer, n);
-					}
-					close(fd);
-
-				} else {
-					printf("path not supported: %s\n",
-					       path);
-					// char header[256];
-					// int header_len;
-					char header[] =
-					    "HTTP/1.1 404 Not Found\r\n"
-					    "Content-Length: 0\r\n\r\n";
-					write(client_fd, header,
-					      sizeof(header) - 1);
-				}
-			}
-			printf("request done\n");
-			close(client_fd);
-		} else {
-			int iflank_bytes_read = read(event_fd, buffer,
-						     BUF_SIZE - 1);
-			printf("iflank bytes read: %d / %d\n",
-			       iflank_bytes_read, BUF_SIZE - 1);
-			printf("buffer:\n%s\n", buffer);
-			char header[256];
-			int header_len;
-			if (iflank_bytes_read == -1) {
-				printf("No input available\n");
-				header_len =
-				    snprintf(header,
-					     sizeof(header),
-					     "HTTP/1.1 200 OK\r\n"
-					     "Content-Type: text/plain\r\n"
-					     "Content-Length: 0\r\n\r\n");
-				write(active_client_fd, header, header_len);	// forward to client
-			} else {
-				header_len =
-				    snprintf(header, sizeof(header),
-					     "HTTP/1.1 200 OK\r\n"
-					     "Content-Type: text/plain\r\n"
-					     "Content-Length: %d\r\n\r\n",
-					     iflank_bytes_read);
-				write(active_client_fd, header, header_len);	// forward to client
-				write(active_client_fd, buffer, iflank_bytes_read);	// forward to client
-			}
-			close(active_client_fd);
-			active_client_fd = 0;
-
-#ifdef __linux__
-			epoll_ctl(ep, EPOLL_CTL_DEL, event_fd,
-				  NULL);
-#elif defined(__APPLE__) || defined(__FreeBSD__)
-			struct kevent ev;
-			EV_SET(&ev, event_fd, EVFILT_READ,
-			       EV_DELETE, 0, 0, NULL);
-			kevent(kq, &ev, 1, NULL, 0, NULL);
-#else
-#error "Unsupported platform"
-#endif
-		}
+            }
+        }
 	}
 
 
