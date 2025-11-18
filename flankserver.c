@@ -7,9 +7,16 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <errno.h>
+#include <unistd.h>
+#ifdef __linux__
+#include <sys/epoll.h>
+#elif defined(__APPLE__) || defined(__FreeBSD__)
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
+#else
+#error "Unsupported platform"
+#endif
 
 #define BUF_SIZE 600000
 
@@ -127,10 +134,28 @@ int main(int argc, char *argv[])
 	}
 	printf("Echo server listening on port %d...\n", PORT);
 
-    int kq = kqueue();
-    struct kevent ev;
-    EV_SET(&ev, from_iflank_pipe_rw[0], EVFILT_READ, EV_ADD, 0, 0, NULL);
-    kevent(kq, &ev, 1, NULL, 0, NULL);  // register
+#ifdef __linux__
+	int ep = epoll_create1(0);
+	if (ep == -1) {
+		perror("epoll_create1");
+		exit(1);
+	}
+
+	struct epoll_event ev;
+	ev.events = EPOLLIN;
+	ev.data.fd = from_iflank_pipe_rw[0];
+	if (epoll_ctl(ep, EPOLL_CTL_ADD, from_iflank_pipe_rw[0], &ev) == -1) {
+		perror("epoll_ctl");
+		exit(1);
+	}
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+	int kq = kqueue();
+	struct kevent ev;
+	EV_SET(&ev, from_iflank_pipe_rw[0], EVFILT_READ, EV_ADD, 0, 0, NULL);
+	kevent(kq, &ev, 1, NULL, 0, NULL);	// register
+#else
+#error "Unsupported platform"
+#endif
 
 	while (1) {
 		// Accept a client
@@ -163,9 +188,15 @@ int main(int argc, char *argv[])
 				   && strcmp(method, "GET") == 0) {
 				printf("about to non-block read\n");
 
-                struct kevent events[1];
-                int n = kevent(kq, NULL, 0, events, 1, NULL);  // NULL timeout = block
-
+#ifdef __linux__
+				struct epoll_event events[1];
+				int n = epoll_wait(ep, events, 1, -1);	// -1 = block indefinitely
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+				struct kevent events[1];
+				int n = kevent(kq, NULL, 0, events, 1, NULL);	// NULL timeout = block
+#else
+#error "Unsupported platform"
+#endif
 
 				int iflank_bytes_read =
 				    read(from_iflank_pipe_rw[0], buffer,
