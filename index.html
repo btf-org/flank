@@ -30,14 +30,13 @@
       td {
         padding: 0px 1rem;
       }
-      /* #display { margin-top: 20px; padding: 10px; border: 1px solid #ccc; } */
       a {
-        color: #0000ee; /* unvisited links */
+        color: #0000ee; 
         text-decoration: underline;
         cursor: pointer;
       }
       a:visited {
-        color: #551a8b; /* visited links */
+        color: #551a8b;
       }
     </style>
   </head>
@@ -105,24 +104,6 @@
             },
             body: input.value + "\n",
           });
-          // let completeResponse = "";
-          // let thisResponse = "";
-          // while (thisResponse[thisResponse.length - 1] !== "\0") {
-          //   const response = await fetch(window.location.origin + "/iflank", {
-          //     method: "GET",
-          //   });
-
-          //   thisResponse = await response.text();
-          //   if (thisResponse[thisResponse.length - 1] === "\0") {
-          //     console.log("END OF MESSAGE");
-          //   } else {
-          //     console.log(
-          //       "NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1],
-          //     );
-          //   }
-          //   completeResponse += thisResponse;
-          // }
-          // output.innerHTML = completeResponse;
         } catch (err) {
           lastOutput.textContent = "Error reaching server: " + err.message;
           return;
@@ -132,7 +113,6 @@
       async function sendInitialRefresh() {
         const container =
           document.body.children[document.body.children.length - 1];
-        // const output = container.children[container.children.length - 1];
 
         try {
           console.log("init POST");
@@ -140,29 +120,6 @@
             method: "POST",
             body: "refresh\n",
           });
-          // console.log("init GET");
-          // let completeResponse = "";
-          // let thisResponse = "";
-          // while (thisResponse[thisResponse.length - 1] !== "\0") {
-          //   console.log("LOOP");
-          //   const response = await fetch(window.location.origin + "/iflank", {
-          //     method: "GET",
-          //   });
-
-          //   console.log("response done");
-          //   thisResponse = await response.text();
-          //   console.log("response.text done");
-          //   console.log(thisResponse);
-          //   if (thisResponse[thisResponse.length - 1] === "\0") {
-          //     console.log("END OF MESSAGE");
-          //   } else {
-          //     console.log(
-          //       "NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1],
-          //     );
-          //   }
-          //   completeResponse += thisResponse;
-          // }
-          // output.innerHTML = completeResponse;
         } catch (err) {
           console.error(err);
           lastOutput.textContent = "Error reaching server: " + err.message;
@@ -172,7 +129,6 @@
       async function setup() {
         makeCommand(true);
         await sendInitialRefresh();
-        // makeCommand(false);
         longPoll();
       }
 
