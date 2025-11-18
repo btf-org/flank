@@ -42,14 +42,10 @@
     </style>
   </head>
   <body class="p-1_25 font-family-monospace font-size-1">
-    <!-- <h1>Send Text to Server</h1>
-
-  <input type="text" id="inputBox" placeholder="Type something..." />
-  <button id="sendBtn">Send</button>
-
-  <div id="display">Response will appear here</div> -->
-
     <script>
+      let accumulatingResponse = "";
+      let lastOutput = null;
+
       function run(cmd) {
         console.log(cmd);
         const lastContainer =
@@ -59,6 +55,23 @@
         const lastBtn = lastContainer.children[1];
         lastBtn.click();
       }
+
+      async function longPoll(){
+        const response = await fetch(window.location.origin + "/iflank", {
+          method: "GET",
+        });
+        const thisText = await response.text();
+        accumulatingResponse += thisText;
+
+        if (thisText[thisText.length - 1] === "\0") {
+          lastOutput.innerHTML = accumulatingResponse;
+          accumulatingResponse = '';
+          makeCommand();
+        } 
+
+        longPoll();
+      }
+
       function makeCommand(outputOnly = false) {
         const container = document.createElement("div");
         if (!outputOnly) {
@@ -76,13 +89,14 @@
         container.appendChild(output);
 
         document.body.appendChild(container);
+        lastOutput = output;
       }
       async function sendCommand(event) {
         const button = event.target;
         const container = button.parentElement;
         const [input, btn, output] = container.children;
 
-        output.innerHTML = "Loading...";
+        lastOutput.innerHTML = "Loading...";
         try {
           await fetch(window.location.origin + "/iflank", {
             method: "POST",
@@ -91,34 +105,34 @@
             },
             body: input.value + "\n",
           });
-          let completeResponse = "";
-          let thisResponse = "";
-          while (thisResponse[thisResponse.length - 1] !== "\0") {
-            const response = await fetch(window.location.origin + "/iflank", {
-              method: "GET",
-            });
+          // let completeResponse = "";
+          // let thisResponse = "";
+          // while (thisResponse[thisResponse.length - 1] !== "\0") {
+          //   const response = await fetch(window.location.origin + "/iflank", {
+          //     method: "GET",
+          //   });
 
-            thisResponse = await response.text();
-            if (thisResponse[thisResponse.length - 1] === "\0") {
-              console.log("END OF MESSAGE");
-            } else {
-              console.log(
-                "NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1],
-              );
-            }
-            completeResponse += thisResponse;
-          }
-          output.innerHTML = completeResponse;
+          //   thisResponse = await response.text();
+          //   if (thisResponse[thisResponse.length - 1] === "\0") {
+          //     console.log("END OF MESSAGE");
+          //   } else {
+          //     console.log(
+          //       "NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1],
+          //     );
+          //   }
+          //   completeResponse += thisResponse;
+          // }
+          // output.innerHTML = completeResponse;
         } catch (err) {
-          output.textContent = "Error reaching server: " + err.message;
+          lastOutput.textContent = "Error reaching server: " + err.message;
           return;
         }
-        makeCommand();
+        // makeCommand();
       }
-      async function getInitialOutput() {
+      async function sendInitialRefresh() {
         const container =
           document.body.children[document.body.children.length - 1];
-        const output = container.children[container.children.length - 1];
+        // const output = container.children[container.children.length - 1];
 
         try {
           console.log("init POST");
@@ -126,39 +140,40 @@
             method: "POST",
             body: "refresh\n",
           });
-          console.log("init GET");
-          let completeResponse = "";
-          let thisResponse = "";
-          while (thisResponse[thisResponse.length - 1] !== "\0") {
-            console.log("LOOP");
-            const response = await fetch(window.location.origin + "/iflank", {
-              method: "GET",
-            });
+          // console.log("init GET");
+          // let completeResponse = "";
+          // let thisResponse = "";
+          // while (thisResponse[thisResponse.length - 1] !== "\0") {
+          //   console.log("LOOP");
+          //   const response = await fetch(window.location.origin + "/iflank", {
+          //     method: "GET",
+          //   });
 
-            console.log("response done");
-            thisResponse = await response.text();
-            console.log("response.text done");
-            console.log(thisResponse);
-            if (thisResponse[thisResponse.length - 1] === "\0") {
-              console.log("END OF MESSAGE");
-            } else {
-              console.log(
-                "NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1],
-              );
-            }
-            completeResponse += thisResponse;
-          }
-          output.innerHTML = completeResponse;
+          //   console.log("response done");
+          //   thisResponse = await response.text();
+          //   console.log("response.text done");
+          //   console.log(thisResponse);
+          //   if (thisResponse[thisResponse.length - 1] === "\0") {
+          //     console.log("END OF MESSAGE");
+          //   } else {
+          //     console.log(
+          //       "NON TERMINATING MSG: " + thisResponse[thisResponse.length - 1],
+          //     );
+          //   }
+          //   completeResponse += thisResponse;
+          // }
+          // output.innerHTML = completeResponse;
         } catch (err) {
           console.error(err);
-          output.textContent = "Error reaching server: " + err.message;
+          lastOutput.textContent = "Error reaching server: " + err.message;
           return;
         }
       }
       async function setup() {
         makeCommand(true);
-        await getInitialOutput();
-        makeCommand(false);
+        await sendInitialRefresh();
+        // makeCommand(false);
+        longPoll();
       }
 
       setup();
