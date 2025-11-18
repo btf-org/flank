@@ -4,7 +4,7 @@ Flank is a CLI wrapper that lets you take a script/query and turn into a self-se
 With Flank, an engineer can single-handedly ship a solution by just writing code in their favorite language. The benefit is not having to think about all the other stuff: ~~what programming language to use, where your code is running, scheduling, Docker, a website with logins, user guardrails, CSS rules, audit trails, connecting API calls, building frontends, analytics, compliance.~~
 
 How does it work:
-- You write a script that solves the problem
+- You write a script that solves some problem
 - You run `$ flank my-script` (roughly) and Flank moves it to a part of your computer where it can be run through a website
 - From there, Flank makes it easy to add guardrails, permissioning, run it on a schedule, move it to a remote machine, and so on.
 
