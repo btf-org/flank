@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 #error "Unsupported platform"
 #endif
 
-    // Register Read End of Pipe
+    // Register the read end of the iflank pipe
 #ifdef __linux__
 	struct epoll_event ev;
 	ev.events = EPOLLIN;
@@ -163,6 +163,23 @@ int main(int argc, char *argv[])
 #else
 #error "Unsupported platform"
 #endif
+
+//     // Register the server FD
+// #ifdef __linux__
+// 	struct epoll_event ev;
+// 	ev.events = EPOLLIN;
+// 	ev.data.fd = server_fd;
+// 	if (epoll_ctl(ep, EPOLL_CTL_ADD, server_fd, &ev) == -1) {
+// 		perror("epoll_ctl");
+// 		exit(1);
+// 	}
+// #elif defined(__APPLE__) || defined(__FreeBSD__)
+// 	struct kevent ev;
+// 	EV_SET(&ev, server_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+// 	kevent(kq, &ev, 1, NULL, 0, NULL);	// register
+// #else
+// #error "Unsupported platform"
+// #endif
 
     int active_client_fd;
 	while (1) {
@@ -207,8 +224,15 @@ int main(int argc, char *argv[])
 #error "Unsupported platform"
 #endif
 
+#ifdef __linux__
+                int iflank_read_fd = events[0].data.fd;
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+                int iflank_read_fd = events[0].ident;
+#else
+#error "Unsupported platform"
+#endif
 				int iflank_bytes_read =
-				    read(from_iflank_pipe_rw[0], buffer,
+				    read(iflank_read_fd, buffer,
 					 BUF_SIZE - 1);
 				printf("iflank bytes read: %d / %d\n",
 				       iflank_bytes_read, BUF_SIZE - 1);
