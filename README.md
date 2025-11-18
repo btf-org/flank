@@ -1,7 +1,9 @@
 # Flank
-Flank is a CLI wrapper that lets you solve business problems by just writing code.
+Flank is a CLI wrapper allows to solve a business problem by just writing a script/query. 
 
-First, you write something that is runnable from the CLI (script or SQL query). Then, you run `flank my-script` (roughly) and Flank moves it to a part of your computer where it can be run through a website. From there, Flank makes it easy to add guardrails, permissioning, run it on a schedule, move it to a remote machine, and so on.
+It saves you from having to think about everything else: ~~what programming language to use, where your code is running, scheduling, a website with logins, user guardrails, CSS rules, audit trails, connecting API calls, building frontends, analytics, compliance.~~
+
+First, you write something a script that solves the problem. Then, you run `flank my-script` (roughly) and Flank moves it to a part of your computer where it can be run through a website. From there, Flank makes it easy to add guardrails, permissioning, run it on a schedule, move it to a remote machine, and so on.
 
 ## Mac / Homebrew
 
