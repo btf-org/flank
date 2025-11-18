@@ -1,10 +1,10 @@
 # Flank
-Flank is a CLI wrapper allows engineers to solve a business problem by just writing code. 
+Flank is a CLI wrapper allows you to solve a business problem by just writing code. 
 
-It saves engineers from having to think about everything else: ~~what programming language to use, where your code is running, scheduling, Docker, a website with logins, user guardrails, CSS rules, audit trails, connecting API calls, building frontends, analytics, compliance.~~
+It saves you from having to think about everything else: ~~what programming language to use, where your code is running, scheduling, Docker, a website with logins, user guardrails, CSS rules, audit trails, connecting API calls, building frontends, analytics, compliance.~~
 
 How does it work:
-- You write something a script that solves the problem
+- You write a script that solves the problem
 - You run `flank my-script` (roughly) and Flank moves it to a part of your computer where it can be run through a website
 - From there, Flank makes it easy to add guardrails, permissioning, run it on a schedule, move it to a remote machine, and so on.
 
