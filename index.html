@@ -56,7 +56,7 @@
         lastBtn.click();
       }
 
-      async function longPoll(){
+      async function longPoll() {
         const response = await fetch(window.location.origin + "/iflank", {
           method: "GET",
         });
@@ -65,9 +65,9 @@
 
         if (thisText[thisText.length - 1] === "\0") {
           lastOutput.innerHTML = accumulatingResponse;
-          accumulatingResponse = '';
+          accumulatingResponse = "";
           makeCommand();
-        } 
+        }
 
         longPoll();
       }
