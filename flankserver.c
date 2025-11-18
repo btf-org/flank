@@ -339,11 +339,11 @@ int main(int argc, char *argv[])
 			active_client_fd = 0;
 
 #ifdef __linux__
-			epoll_ctl(ep, EPOLL_CTL_DEL, from_iflank_pipe_rw[0],
+			epoll_ctl(ep, EPOLL_CTL_DEL, event_fd,
 				  NULL);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 			struct kevent ev;
-			EV_SET(&ev, from_iflank_pipe_rw[0], EVFILT_READ,
+			EV_SET(&ev, event_fd, EVFILT_READ,
 			       EV_DELETE, 0, 0, NULL);
 			kevent(kq, &ev, 1, NULL, 0, NULL);
 #else
