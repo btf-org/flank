@@ -134,13 +134,21 @@ int main(int argc, char *argv[])
 	}
 	printf("Echo server listening on port %d...\n", PORT);
 
+    // Create Queue
 #ifdef __linux__
 	int ep = epoll_create1(0);
 	if (ep == -1) {
 		perror("epoll_create1");
 		exit(1);
 	}
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+	int kq = kqueue();
+#else
+#error "Unsupported platform"
+#endif
 
+    // Register Read End of Pipe
+#ifdef __linux__
 	struct epoll_event ev;
 	ev.events = EPOLLIN;
 	ev.data.fd = from_iflank_pipe_rw[0];
@@ -149,7 +157,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 #elif defined(__APPLE__) || defined(__FreeBSD__)
-	int kq = kqueue();
 	struct kevent ev;
 	EV_SET(&ev, from_iflank_pipe_rw[0], EVFILT_READ, EV_ADD, 0, 0, NULL);
 	kevent(kq, &ev, 1, NULL, 0, NULL);	// register
