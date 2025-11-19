@@ -1,5 +1,12 @@
 # Flank
-Flank is a user-friendly CLI wrapper that, in certain circumstances, can shortcut the need for "dashboards", "internal tools", "BI", and cloud services. It allows backend engineers, database developers, and data scientists to solve problems end-to-end, in the language of their choice, without the usual mess of JIRA tickets, product managers, Slack messages, and DSLs.
+Flank is an easy-to-use web interface on top of the CLI.
+
+With Flank, an engineer can single-handedly ship a solution by just writing code in their favorite language. The benefit is not having to think about all the other stuff: ~~what programming language to use, where your code is running, scheduling, Docker, a website with logins, user guardrails, CSS rules, audit trails, connecting API calls, building frontends, analytics, compliance.~~
+
+How does it work:
+- You write a script that solves some problem
+- You run `$ flank my-script` (roughly) and Flank moves it to a part of your computer where it can be run through a website
+- From there, Flank makes it easy to add guardrails, permissioning, run it on a schedule, move it to a remote machine, and so on.
 
 ## Mac / Homebrew
 
@@ -21,22 +28,24 @@ $ brew update # should update all your "taps", including btf-org/flank
 $ brew install btf-org/flank/flank
 ```
 
-## Ubuntu / apt 
+## Linux / Ubuntu / apt
 
 #### Installation
 
 ```bash
-$ wget https://github.com/btf-org/flank/releases/download/v0.1.12/flank_0.1.12_amd64.deb
-$ sudo apt install ./flank_0.1.12_amd64.deb
+# From any directory
+$ wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
+$ sudo apt install ./flank_0.1.36_amd64.deb
 ```
 
 #### Usage
 ```bash
-$ flank
+# From any directory
+$ . flank
 ```
 
 #### Getting updates
-Same as installation process, but for new release
+Same as installation process, but replace the version numbers with the new one
 
 ## Windows / Other Linux Distros
 
