@@ -30,31 +30,32 @@ void sigint_handler(int sig)
 	close(server_fd);	// free the listening socket
 	exit(0);
 }
-static char ts_buf[32];               // "YYYY‑MM‑DD HH:MM:SS"
+
+static char ts_buf[32];		// "YYYY‑MM‑DD HH:MM:SS"
 
 /* Return a static timestamp string, e.g. "2025-10-06 14:23:45" */
 static const char *timestamp(void)
 {
-    time_t now = time(NULL);
-    struct tm *t = localtime(&now);
-    strftime(ts_buf, sizeof(ts_buf), "%Y-%m-%dT%H:%M:%S", t);
-    return ts_buf;
+	time_t now = time(NULL);
+	struct tm *t = localtime(&now);
+	strftime(ts_buf, sizeof(ts_buf), "%Y-%m-%dT%H:%M:%S", t);
+	return ts_buf;
 }
 
 int tsprintf(const char *fmt, ...)
 {
-    va_list ap;
-    int n;
+	va_list ap;
+	int n;
 
-    /* Print the timestamp first */
-    fprintf(stderr, "[%s] ", timestamp());
+	/* Print the timestamp first */
+	fprintf(stderr, "[%s] ", timestamp());
 
-    /* Then the user‑supplied formatted text */
-    va_start(ap, fmt);
-    n = vfprintf(stdout, fmt, ap);
-    va_end(ap);
+	/* Then the user‑supplied formatted text */
+	va_start(ap, fmt);
+	n = vfprintf(stdout, fmt, ap);
+	va_end(ap);
 
-    return n;
+	return n;
 }
 
 char *parse_body(char *request_buf)
@@ -273,33 +274,40 @@ int main(int argc, char *argv[])
 						    "./index.html";
 						found = 1;
 					} else if (access
-						("/usr/share/flank/index.html",
-						 F_OK) == 0) {
+						   ("/usr/share/flank/index.html",
+						    F_OK) == 0) {
 						index_html_path =
 						    "/usr/share/flank/index.html";
 						found = 1;
 					} else {
-						tsprintf("ERROR: index.html not found\n");
+						tsprintf
+						    ("ERROR: index.html not found\n");
 					}
-					if(found){
+					if (found) {
 						int fd =
-							open(index_html_path, O_RDONLY);
+						    open(index_html_path,
+							 O_RDONLY);
 						struct stat st;
 						fstat(fd, &st);
 						off_t filesize = st.st_size;
 						char header[256];
 						int header_len;
 						header_len =
-							snprintf(header, sizeof(header),
-								 "HTTP/1.1 200 OK\r\n"
-								 "Content-Type: text/html\r\n"
-								 "Content-Length: %lld\r\n"
-								 "\r\n",
-								 (long long)filesize);
+						    snprintf(header,
+							     sizeof(header),
+							     "HTTP/1.1 200 OK\r\n"
+							     "Content-Type: text/html\r\n"
+							     "Content-Length: %lld\r\n"
+							     "\r\n",
+							     (long long)
+							     filesize);
 						write(client_fd, header, header_len);	// forward to client
 						ssize_t n;
-						while ((n = read(fd, buffer, BUF_SIZE)) > 0) {
-							write(client_fd, buffer, n);
+						while ((n =
+							read(fd, buffer,
+							     BUF_SIZE)) > 0) {
+							write(client_fd, buffer,
+							      n);
 							tsprintf("%d\n", n);
 						}
 						close(fd);
@@ -324,12 +332,13 @@ int main(int argc, char *argv[])
 							     "HTTP/1.1 200 OK\r\n"
 							     "Content-Type: text/html\r\n"
 							     "Content-Length: %lld\r\n"
-							     "\r\n",
-							     (long long)
+							     "\r\n", (long long)
 							     filesize);
 						write(client_fd, header, header_len);	// forward to client
 						ssize_t n;
-						while ((n = read(fd, buffer, BUF_SIZE)) > 0) {
+						while ((n =
+							read(fd, buffer,
+							     BUF_SIZE)) > 0) {
 							write(client_fd, buffer,
 							      n);
 							tsprintf("%d\n", n);
@@ -350,8 +359,9 @@ int main(int argc, char *argv[])
 					}
 				}
 				close(client_fd);
-			} else { // event_fd != server_fd
-				int iflank_bytes_read = read(event_fd, buffer, BUF_SIZE);
+			} else {	// event_fd != server_fd
+				int iflank_bytes_read =
+				    read(event_fd, buffer, BUF_SIZE);
 				char header[256];
 				int header_len;
 				if (iflank_bytes_read == -1) {
