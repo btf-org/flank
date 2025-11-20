@@ -8,12 +8,14 @@
 #include <signal.h>
 #include <errno.h>
 #include <unistd.h>
+#include <stdarg.h>
+#include <time.h>
+
 #ifdef __linux__
 #include <sys/epoll.h>
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 #include <sys/types.h>
 #include <sys/event.h>
-#include <sys/time.h>
 #else
 #error "Unsupported platform"
 #endif
@@ -27,6 +29,32 @@ void sigint_handler(int sig)
 {
 	close(server_fd);	// free the listening socket
 	exit(0);
+}
+static char ts_buf[32];               // "YYYY‑MM‑DD HH:MM:SS"
+
+/* Return a static timestamp string, e.g. "2025-10-06 14:23:45" */
+static const char *timestamp(void)
+{
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    strftime(ts_buf, sizeof(ts_buf), "%Y-%m-%dT%H:%M:%S", t);
+    return ts_buf;
+}
+
+int tsprintf(const char *fmt, ...)
+{
+    va_list ap;
+    int n;
+
+    /* Print the timestamp first */
+    fprintf(stderr, "[%s] ", timestamp());
+
+    /* Then the user‑supplied formatted text */
+    va_start(ap, fmt);
+    n = vfprintf(stdout, fmt, ap);
+    va_end(ap);
+
+    return n;
 }
 
 char *parse_body(char *request_buf)
@@ -42,12 +70,11 @@ void parse_path(char *request_buf, char *path_out, char *method_out)
 {
 	char version[16];
 
-	// Parse the first line: METHOD PATH VERSION
+	// sscanf params have one less character than fixed arrays
+	// (e.g. %7s versus method[8]) to leave room for null terminator)
 	sscanf(request_buf, "%7s %1023s %15s", method_out, path_out, version);
 
-	printf("Method: %s\n", method_out);
-	printf("Path: %s\n", path_out);
-	printf("Version: %s\n", version);
+	tsprintf("%s %s %s\n", method_out, path_out, version);
 }
 
 int main(int argc, char *argv[])
@@ -132,7 +159,7 @@ int main(int argc, char *argv[])
 		perror("listen");
 		exit(1);
 	}
-	printf("Echo server listening on port %d...\n", PORT);
+	tsprintf("Server listening on port %d...\n", PORT);
 
 	// Create Queue
 #ifdef __linux__
@@ -166,8 +193,6 @@ int main(int argc, char *argv[])
 
 	int active_client_fd;
 	while (1) {
-		printf("LOOP\n");
-		printf("BLOCKING...\n");
 #ifdef __linux__
 		struct epoll_event events[64];
 		int n = epoll_wait(ep, events, 64, -1);	// -1 = block indefinitely
@@ -179,7 +204,6 @@ int main(int argc, char *argv[])
 #endif
 
 		for (int i = 0; i < n; i++) {
-			printf("EVENT %d\n", i);
 #ifdef __linux__
 			int event_fd = events[i].data.fd;
 #elif defined(__APPLE__) || defined(__FreeBSD__)
@@ -194,7 +218,8 @@ int main(int argc, char *argv[])
 					perror("accept");
 					continue;
 				}
-				// read() returns 0 at EOF, when the other side closes the connection
+				// Leave an extra character so that 
+				// string can be null terminated
 				http_bytes_read =
 				    read(client_fd, buffer, BUF_SIZE - 1);
 				// send input to iflank
@@ -206,14 +231,13 @@ int main(int argc, char *argv[])
 				// printf("path: %s\n", path);
 				if (strcmp(path, "/iflank") == 0
 				    && strcmp(method, "POST") == 0) {
-					printf("about to write\n");
 					write(to_iflank_pipe_rw[1], body,
 					      buffer + http_bytes_read - body);
-					printf("done writing\n");
 					char header[] = "HTTP/1.1 200 OK\r\n"
 					    "Content-Length: 0\r\n\r\n";
 					write(client_fd, header,
 					      sizeof(header) - 1);
+					tsprintf("%s\n", body);
 				} else if (strcmp(path, "/iflank") == 0
 					   && strcmp(method, "GET") == 0) {
 					active_client_fd = client_fd;
@@ -243,42 +267,49 @@ int main(int argc, char *argv[])
 				} else if (strcmp(path, "/") == 0) {
 					const char *index_html_path = NULL;
 
+					int found = 0;
 					if (access("./index.html", F_OK) == 0) {
 						index_html_path =
 						    "./index.html";
-					} else
-					    if (access
+						found = 1;
+					} else if (access
 						("/usr/share/flank/index.html",
 						 F_OK) == 0) {
 						index_html_path =
 						    "/usr/share/flank/index.html";
+						found = 1;
 					} else {
-						fprintf(stderr,
-							"index.html not found\n");
-						return 1;
+						tsprintf("ERROR: index.html not found\n");
 					}
-					int fd =
-					    open(index_html_path, O_RDONLY);
-					struct stat st;
-					fstat(fd, &st);
-					off_t filesize = st.st_size;
-					char header[256];
-					int header_len;
-					header_len =
-					    snprintf(header, sizeof(header),
-						     "HTTP/1.1 200 OK\r\n"
-						     "Content-Type: text/html\r\n"
-						     "Content-Length: %lld\r\n"
-						     "\r\n",
-						     (long long)filesize);
-					write(client_fd, header, header_len);	// forward to client
-					ssize_t n;
-					while ((n =
-						read(fd, buffer,
-						     sizeof(buffer))) > 0) {
-						write(client_fd, buffer, n);
+					if(found){
+						int fd =
+							open(index_html_path, O_RDONLY);
+						struct stat st;
+						fstat(fd, &st);
+						off_t filesize = st.st_size;
+						char header[256];
+						int header_len;
+						header_len =
+							snprintf(header, sizeof(header),
+								 "HTTP/1.1 200 OK\r\n"
+								 "Content-Type: text/html\r\n"
+								 "Content-Length: %lld\r\n"
+								 "\r\n",
+								 (long long)filesize);
+						write(client_fd, header, header_len);	// forward to client
+						ssize_t n;
+						while ((n = read(fd, buffer, BUF_SIZE)) > 0) {
+							write(client_fd, buffer, n);
+							tsprintf("%d\n", n);
+						}
+						close(fd);
+					} else {
+						char header[] =
+						    "HTTP/1.1 404 Not Found\r\n"
+						    "Content-Length: 0\r\n\r\n";
+						write(client_fd, header,
+						      sizeof(header) - 1);
 					}
-					close(fd);
 				} else {
 					if (access(path, F_OK) == 0) {
 						int fd = open(path, O_RDONLY);
@@ -298,18 +329,16 @@ int main(int argc, char *argv[])
 							     filesize);
 						write(client_fd, header, header_len);	// forward to client
 						ssize_t n;
-						while ((n =
-							read(fd, buffer,
-							     sizeof(buffer))) >
-						       0) {
+						while ((n = read(fd, buffer, BUF_SIZE)) > 0) {
 							write(client_fd, buffer,
 							      n);
+							tsprintf("%d\n", n);
 						}
 						close(fd);
 
 					} else {
-						printf
-						    ("path not supported: %s\n",
+						tsprintf
+						    ("ERROR: path not supported: %s\n",
 						     path);
 						// char header[256];
 						// int header_len;
@@ -320,18 +349,12 @@ int main(int argc, char *argv[])
 						      sizeof(header) - 1);
 					}
 				}
-				printf("request done\n");
 				close(client_fd);
-			} else {
-				int iflank_bytes_read = read(event_fd, buffer,
-							     BUF_SIZE - 1);
-				printf("iflank bytes read: %d / %d\n",
-				       iflank_bytes_read, BUF_SIZE - 1);
-				printf("buffer:\n%s\n", buffer);
+			} else { // event_fd != server_fd
+				int iflank_bytes_read = read(event_fd, buffer, BUF_SIZE);
 				char header[256];
 				int header_len;
 				if (iflank_bytes_read == -1) {
-					printf("No input available\n");
 					header_len =
 					    snprintf(header,
 						     sizeof(header),
@@ -348,10 +371,12 @@ int main(int argc, char *argv[])
 						     iflank_bytes_read);
 					write(active_client_fd, header, header_len);	// forward to client
 					write(active_client_fd, buffer, iflank_bytes_read);	// forward to client
+					tsprintf("%d\n", iflank_bytes_read);
 				}
 				close(active_client_fd);
 				active_client_fd = 0;
 
+				// Clear the iflank pipe from the queue until a new GET comes in
 #ifdef __linux__
 				epoll_ctl(ep, EPOLL_CTL_DEL, event_fd, NULL);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
