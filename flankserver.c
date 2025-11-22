@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
 #error "Unsupported platform"
 #endif
 
-	int active_client_fd;
+	int long_poll_request_fd = -1;
 	while (1) {
 #ifdef __linux__
 		struct epoll_event events[64];
@@ -229,7 +229,6 @@ int main(int argc, char *argv[])
 				char path[1024];
 				char method[8];
 				parse_path(buffer, path, method);
-				// printf("path: %s\n", path);
 				if (strcmp(path, "/iflank") == 0
 				    && strcmp(method, "POST") == 0) {
 					write(to_iflank_pipe_rw[1], body,
@@ -241,7 +240,7 @@ int main(int argc, char *argv[])
 					tsprintf("%s\n", body);
 				} else if (strcmp(path, "/iflank") == 0
 					   && strcmp(method, "GET") == 0) {
-					active_client_fd = client_fd;
+					long_poll_request_fd = client_fd;
 					// Register the read end of the iflank pipe
 #ifdef __linux__
 					struct epoll_event iflank_ev;
@@ -284,6 +283,22 @@ int main(int argc, char *argv[])
 						    ("ERROR: index.html not found\n");
 					}
 					if (found) {
+						if(long_poll_request_fd != -1){
+							close(long_poll_request_fd);
+							long_poll_request_fd = -1;
+
+							// Clear the iflank pipe from the queue until a new GET comes in
+#ifdef __linux__
+							epoll_ctl(ep, EPOLL_CTL_DEL, from_iflank_pipe_rw[0], NULL);
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+							struct kevent ev;
+							EV_SET(&ev, from_iflank_pipe_rw[0], EVFILT_READ,
+								   EV_DELETE, 0, 0, NULL);
+							kevent(kq, &ev, 1, NULL, 0, NULL);
+#else
+#error "Unsupported platform"
+#endif
+						}
 						int fd =
 						    open(index_html_path,
 							 O_RDONLY);
@@ -308,7 +323,7 @@ int main(int argc, char *argv[])
 							     BUF_SIZE)) > 0) {
 							write(client_fd, buffer,
 							      n);
-							tsprintf("%d\n", n);
+							tsprintf("/ n %d\n", n);
 						}
 						close(fd);
 					} else {
@@ -341,7 +356,7 @@ int main(int argc, char *argv[])
 							     BUF_SIZE)) > 0) {
 							write(client_fd, buffer,
 							      n);
-							tsprintf("%d\n", n);
+							tsprintf("path %d\n", n);
 						}
 						close(fd);
 
@@ -371,7 +386,7 @@ int main(int argc, char *argv[])
 						     "HTTP/1.1 200 OK\r\n"
 						     "Content-Type: text/plain\r\n"
 						     "Content-Length: 0\r\n\r\n");
-					write(active_client_fd, header, header_len);	// forward to client
+					write(long_poll_request_fd, header, header_len);	// forward to client
 				} else {
 					header_len =
 					    snprintf(header, sizeof(header),
@@ -379,19 +394,19 @@ int main(int argc, char *argv[])
 						     "Content-Type: text/plain\r\n"
 						     "Content-Length: %d\r\n\r\n",
 						     iflank_bytes_read);
-					write(active_client_fd, header, header_len);	// forward to client
-					write(active_client_fd, buffer, iflank_bytes_read);	// forward to client
-					tsprintf("%d\n", iflank_bytes_read);
+					write(long_poll_request_fd, header, header_len);	// forward to client
+					int n = write(long_poll_request_fd, buffer, iflank_bytes_read);	// forward to client
+					tsprintf("get %d\n", iflank_bytes_read);
 				}
-				close(active_client_fd);
-				active_client_fd = 0;
+				close(long_poll_request_fd);
+				long_poll_request_fd = -1;
 
 				// Clear the iflank pipe from the queue until a new GET comes in
 #ifdef __linux__
-				epoll_ctl(ep, EPOLL_CTL_DEL, event_fd, NULL);
+				epoll_ctl(ep, EPOLL_CTL_DEL, from_iflank_pipe_rw[0], NULL);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 				struct kevent ev;
-				EV_SET(&ev, event_fd, EVFILT_READ,
+				EV_SET(&ev, from_iflank_pipe_rw[0], EVFILT_READ,
 				       EV_DELETE, 0, 0, NULL);
 				kevent(kq, &ev, 1, NULL, 0, NULL);
 #else
