@@ -283,25 +283,33 @@ int main(int argc, char *argv[])
 						    ("ERROR: index.html not found\n");
 					}
 					if (found) {
-						if(long_poll_request_fd != -1){
-							close(long_poll_request_fd);
-							long_poll_request_fd = -1;
+						if (long_poll_request_fd != -1) {
+							close
+							    (long_poll_request_fd);
+							long_poll_request_fd =
+							    -1;
 
 							// Clear the iflank pipe from the queue until a new GET comes in
 #ifdef __linux__
-							epoll_ctl(ep, EPOLL_CTL_DEL, from_iflank_pipe_rw[0], NULL);
+							epoll_ctl(ep,
+								  EPOLL_CTL_DEL,
+								  from_iflank_pipe_rw
+								  [0], NULL);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 							struct kevent ev;
-							EV_SET(&ev, from_iflank_pipe_rw[0], EVFILT_READ,
-								   EV_DELETE, 0, 0, NULL);
-							kevent(kq, &ev, 1, NULL, 0, NULL);
+							EV_SET(&ev,
+							       from_iflank_pipe_rw
+							       [0], EVFILT_READ,
+							       EV_DELETE, 0, 0,
+							       NULL);
+							kevent(kq, &ev, 1, NULL,
+							       0, NULL);
 #else
 #error "Unsupported platform"
 #endif
 						}
-						int fd =
-						    open(index_html_path,
-							 O_RDONLY);
+						int fd = open(index_html_path,
+							      O_RDONLY);
 						struct stat st;
 						fstat(fd, &st);
 						off_t filesize = st.st_size;
@@ -313,8 +321,7 @@ int main(int argc, char *argv[])
 							     "HTTP/1.1 200 OK\r\n"
 							     "Content-Type: text/html\r\n"
 							     "Content-Length: %lld\r\n"
-							     "\r\n",
-							     (long long)
+							     "\r\n", (long long)
 							     filesize);
 						write(client_fd, header, header_len);	// forward to client
 						ssize_t n;
@@ -356,7 +363,8 @@ int main(int argc, char *argv[])
 							     BUF_SIZE)) > 0) {
 							write(client_fd, buffer,
 							      n);
-							tsprintf("path %d\n", n);
+							tsprintf("path %d\n",
+								 n);
 						}
 						close(fd);
 
@@ -403,7 +411,8 @@ int main(int argc, char *argv[])
 
 				// Clear the iflank pipe from the queue until a new GET comes in
 #ifdef __linux__
-				epoll_ctl(ep, EPOLL_CTL_DEL, from_iflank_pipe_rw[0], NULL);
+				epoll_ctl(ep, EPOLL_CTL_DEL,
+					  from_iflank_pipe_rw[0], NULL);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 				struct kevent ev;
 				EV_SET(&ev, from_iflank_pipe_rw[0], EVFILT_READ,
