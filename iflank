@@ -275,7 +275,7 @@ while true; do
 	HOME)
 		# header_pwd
 		# echo ''
-		echo 'Welcome to Flank! v0.1.38'
+		echo 'Welcome to Flank! v0.1.39'
 		echo ''
 		if [ $MODE == 'TTY' ]; then
 			ls -1
