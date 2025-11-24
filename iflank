@@ -189,6 +189,15 @@ if [ -n "$1" ] && [ "$1" == 'run' ]; then
 	exit $exit_code
 fi
 
+# This traps SIGPIPE, which would get sent if this program tried to write to a broken pipe
+trap "echo 'server disconnected (write pipe)'; exit 1" PIPE
+
+# This function gets called whenever `read` fails, which happens if OS sends EOF, which happens if pipe is closed
+readerr(){
+	echo 'Error on read, server => iflank pipe is probably closed'
+	exit 1
+}
+
 PAGE='HOME'
 PROMPT='iflank> '
 MODE='TTY'
@@ -252,13 +261,14 @@ while true; do
 	fi
 	case "$PAGE" in
 	HTTP_INIT)
-		read -rp "$PROMPT" choice
+		read -rp "$PROMPT" choice || readerr
 		case $choice in
 		refresh)
 			PAGE='HOME'
 			;;
 		*)
-			echo "Invalid input"
+			echo "ERROR: Invalid input to HTTP_INIT: $choice" 1>&2
+			PAGE='HOME'
 			;;
 		esac
 		;;
@@ -283,14 +293,14 @@ while true; do
 		fi
 		echo ''
 		printf '\0'
-		read -rp "$PROMPT" choice args
+		read -rp "$PROMPT" choice args || readerr
 		case $choice in
 		cd)
 			cd $args
 			;;
 		refresh) ;;
 		*)
-			read -rp "Invalid choice! Hit [Enter] to continue"
+			read -rp "Invalid choice! Hit [Enter] to continue" || readerr
 			;;
 		esac
 		;;
@@ -500,14 +510,14 @@ while true; do
 		fi
 		printf '\0'
 
-		read -rp "$PROMPT" choice args
+		read -rp "$PROMPT" choice args || readerr
 		case $choice in
 		cd)
 			cd $args
 			;;
 		refresh) ;;
 		*)
-			read -rp "Invalid choice! Hit [Enter] to continue"
+			read -rp "Invalid choice! Hit [Enter] to continue" || readerr
 			;;
 		esac
 		;;
@@ -521,14 +531,14 @@ while true; do
 		fi
 		echo ""
 		printf '\0'
-		read -rp "$PROMPT" choice arg
+		read -rp "$PROMPT" choice arg || readerr
 		case $choice in
 		cd)
 			cd $arg
 			;;
 		refresh) ;;
 		*)
-			read -rp "Invalid choice! Hit [Enter] to continue"
+			read -rp "Invalid choice! Hit [Enter] to continue" || readerr
 			;;
 		esac
 		;;
@@ -538,7 +548,7 @@ while true; do
 		echo 'Next: (R)un / (L)ogs / (H)ome'
 		echo ''
 		printf '\0'
-		read -rp "$PROMPT" choice args
+		read -rp "$PROMPT" choice args || readerr
 		case $choice in
 		R)
 			run_cmd 'bg'
@@ -554,7 +564,7 @@ while true; do
 			;;
 		refresh) ;;
 		*)
-			read -rp "Invalid choice! Hit [Enter] to continue"
+			read -rp "Invalid choice! Hit [Enter] to continue" || readerr
 			;;
 		esac
 		;;
@@ -580,7 +590,7 @@ while true; do
 			echo '<a href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
 		fi
 		printf '\0'
-		read -rp "$PROMPT" choice args
+		read -rp "$PROMPT" choice args || readerr
 		case $choice in
 		kill)
 			kill $pid
@@ -594,7 +604,7 @@ while true; do
 			;;
 		refresh) ;;
 		*)
-			read -rp "Invalid choice! Hit [Enter] to continue"
+			read -rp "Invalid choice! Hit [Enter] to continue" || readerr
 			;;
 		esac
 		;;
