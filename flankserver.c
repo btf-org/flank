@@ -48,7 +48,7 @@ int tsprintf(const char *fmt, ...)
 	int n;
 
 	/* Print the timestamp first */
-	fprintf(stderr, "[%s] ", timestamp());
+	fprintf(stdout, "[%s] ", timestamp());
 
 	/* Then the user‑supplied formatted text */
 	va_start(ap, fmt);
