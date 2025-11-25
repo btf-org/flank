@@ -82,6 +82,22 @@ void parse_sid(char *request_buf, char *sid_out)
 	sid_out[11] = '\0';
 }
 
+struct session {
+	char sid[12];
+	int r_fd;
+	int w_fd;
+};
+int find_session(struct session *sessions, int n_sessions, char *sid)
+{
+	for (int i = 0; i < n_sessions; i++) {
+		if (sessions[i].sid[0] != '\0'
+		    && strcmp(sessions[i].sid, sid) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 void parse_path(char *request_buf, char *path_out, char *method_out)
 {
 	char version[16];
@@ -100,6 +116,7 @@ int main(int argc, char *argv[])
 
 	char *iflank_path = "iflank";
 	char *iflank_name = "iflank";
+	struct session sessions[64] = { 0 };
 	if (strstr(argv[0], "fsl") != NULL) {
 		PORT = 8084;
 	}
@@ -246,6 +263,23 @@ int main(int argc, char *argv[])
 				char sid[12];
 				parse_path(buffer, path, method);
 				parse_sid(buffer, sid);
+
+				int s_idx = find_session(sessions, 64, sid);
+				if (s_idx >= 0) {
+					struct session s = sessions[s_idx];
+					printf("Session Found: %s %d %d\n",
+					       s.sid, s.r_fd, s.w_fd);
+				} else {
+					printf("Session NOT found: %s\n", sid);
+					for (int i = 0; i < 64; i++) {
+						if (sessions[i].sid[0] == '\0') {
+							strcpy(sessions[i].sid,
+							       sid);
+							sessions[i].r_fd = -1;
+							sessions[i].w_fd = -1;
+						}
+					}
+				}
 				if (strcmp(path, "/iflank") == 0
 				    && strcmp(method, "POST") == 0) {
 					write(to_iflank_pipe_rw[1], body,
