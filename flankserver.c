@@ -139,7 +139,6 @@ int main(int argc, char *argv[])
 	char buffer[BUF_SIZE];
 	int http_bytes_read;
 
-
 	// Create socket
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);	// AF_NET = Address Family IPv4 / SOCK_STREAM = Socket Type TCP / 0 = Protocol = Let OS decide
 	if (server_fd < 0) {
@@ -239,24 +238,35 @@ int main(int argc, char *argv[])
 				parse_path(buffer, path, method);
 				parse_sid(buffer, sid);
 
-				if(strcmp(path, "/iflank") == 0 && strcmp(sid, "") != 0){
-					int s_idx = find_session(sessions, 64, sid);
+				if (strcmp(path, "/iflank") == 0
+				    && strcmp(sid, "") != 0) {
+					int s_idx =
+					    find_session(sessions, 64, sid);
 					if (s_idx >= 0) {
 						sesh = sessions[s_idx];
-						printf("Session Found: %s %d %d\n",
-							   sesh.sid, sesh.r_fd, sesh.w_fd);
+						printf
+						    ("Session Found: %s %d %d\n",
+						     sesh.sid, sesh.r_fd,
+						     sesh.w_fd);
 					} else {
-						printf("Session NOT found: %s\n", sid);
+						printf
+						    ("Session NOT found: %s\n",
+						     sid);
 						int j = 0;
 						for (; j < 64; j++) {
-							if (sessions[j].sid[0] == '\0') {
-								printf("break sid %d: %s\n", j, sessions[j].sid);
+							if (sessions[j].
+							    sid[0] == '\0') {
+								printf
+								    ("break sid %d: %s\n",
+								     j,
+								     sessions
+								     [j].sid);
 								break;
 							}
 						}
 						printf("session j :%d\n", j);
 						int to_iflank_pipe_rw[2],
-							from_iflank_pipe_rw[2];
+						    from_iflank_pipe_rw[2];
 						pid_t pid;
 
 						pipe(to_iflank_pipe_rw);	// creates pipe, fills `to_iflank_pipe_rw[0]` with read FD and `to_iflank_pipe_rw[1]` with write FD
@@ -282,16 +292,22 @@ int main(int argc, char *argv[])
 						}
 
 						int flags =
-							fcntl(from_iflank_pipe_rw[0],
+						    fcntl(from_iflank_pipe_rw
+							  [0],
 							  F_GETFL, 0);
-						fcntl(from_iflank_pipe_rw[0], F_SETFL,
-							  flags | O_NONBLOCK);
+						fcntl(from_iflank_pipe_rw[0],
+						      F_SETFL,
+						      flags | O_NONBLOCK);
 						strcpy(sessions[j].sid, sid);
-						printf("sessions[j].sid : %d : %s\n", j, sessions[j].sid);
+						printf
+						    ("sessions[j].sid : %d : %s\n",
+						     j, sessions[j].sid);
 						sessions[j].r_fd =
-							from_iflank_pipe_rw[0];
-						sessions[j].w_fd = to_iflank_pipe_rw[1];
-						sessions[j].long_poll_req_fd = -1;
+						    from_iflank_pipe_rw[0];
+						sessions[j].w_fd =
+						    to_iflank_pipe_rw[1];
+						sessions[j].long_poll_req_fd =
+						    -1;
 						sesh = sessions[j];
 						printf("session created\n");
 					}
@@ -351,7 +367,8 @@ int main(int argc, char *argv[])
 					if (found) {
 						if (sesh.long_poll_req_fd != -1) {
 							close
-							    (sesh.long_poll_req_fd);
+							    (sesh.
+							     long_poll_req_fd);
 							sesh.long_poll_req_fd =
 							    -1;
 
