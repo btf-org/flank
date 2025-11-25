@@ -193,7 +193,7 @@ fi
 trap "echo 'server disconnected (write pipe)'; exit 1" PIPE
 
 # This function gets called whenever `read` fails, which happens if OS sends EOF, which happens if pipe is closed
-readerr(){
+readerr() {
 	echo 'Error on read, server => iflank pipe is probably closed'
 	exit 1
 }
