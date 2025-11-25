@@ -139,33 +139,6 @@ int main(int argc, char *argv[])
 	char buffer[BUF_SIZE];
 	int http_bytes_read;
 
-	// int to_iflank_pipe_rw[2], from_iflank_pipe_rw[2];
-	// pid_t pid;
-
-	// pipe(to_iflank_pipe_rw);     // creates pipe, fills `to_iflank_pipe_rw[0]` with read FD and `to_iflank_pipe_rw[1]` with write FD
-	// pipe(from_iflank_pipe_rw);   // parent reads from child stdout
-
-	// pid = fork();
-	// if (pid == 0) {
-	//      // Child process 
-	//      dup2(to_iflank_pipe_rw[0], STDIN_FILENO);       // in file descriptor table,
-	//      // point 0 at whatever file description 
-	//      // is specified by the FD in to_iflank_pipe_rw[0]
-	//      dup2(from_iflank_pipe_rw[1], STDOUT_FILENO);    // in file descriptor table,
-	//      // point 1 at whatever FD is write end of pipe
-	//      close(to_iflank_pipe_rw[1]);    // close the "write" end of the "to" pipe (it's for the parent)
-	//      close(from_iflank_pipe_rw[0]);  // close the "read" end of the "from" pipe (it's for the parent)
-	//      execlp(iflank_path, iflank_name, "--http-mode", NULL);  // filename, argv[0] the name the program sees itself as, end of arg list
-	//      perror("execlp");
-	//      exit(1);
-	// } else {
-	//      // Parent process
-	//      close(to_iflank_pipe_rw[0]);    // close the "read" end of the "to" pipe (it's for the child)
-	//      close(from_iflank_pipe_rw[1]);  // close the "write" end of the "from" pipe (it's for the child) 
-	// }
-
-	// int flags = fcntl(from_iflank_pipe_rw[0], F_GETFL, 0);
-	// fcntl(from_iflank_pipe_rw[0], F_SETFL, flags | O_NONBLOCK);
 
 	// Create socket
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);	// AF_NET = Address Family IPv4 / SOCK_STREAM = Socket Type TCP / 0 = Protocol = Let OS decide
