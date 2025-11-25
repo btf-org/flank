@@ -52,6 +52,48 @@
     <script>
       let accumulatingResponse = "";
       let lastOutput = null;
+      let sid = sessionStorage.getItem("sid");
+      if (!sid) {
+        sid = randomBase62Id();
+        sessionStorage.setItem("sid", sid);
+      }
+
+      function randomBase62Id() {
+        const bytes = new Uint8Array(8);
+        crypto.getRandomValues(bytes);
+
+        // Split into two 32-bit numbers: hi and lo
+        let hi =
+          ((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3]) >>>
+          0;
+
+        let lo =
+          ((bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7]) >>>
+          0;
+
+        const alphabet =
+          "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        let out = "";
+
+        // Manual 64-bit division by 62
+        for (let i = 0; i < 11; i++) {
+          // Combine hi + lo as a 64-bit value and divide by 62
+          const rem = (((hi % 62) * (2 ** 32 % 62)) % 62) + (lo % 62);
+          const digit = rem % 62;
+          out = alphabet[digit] + out;
+
+          // Compute new 64-bit value = floor((hi<<32 | lo) / 62)
+          const newHi = Math.floor(hi / 62);
+          const carry = hi % 62;
+          const mid = carry * 2 ** 32 + lo;
+          const newLo = Math.floor(mid / 62);
+
+          hi = newHi;
+          lo = newLo;
+        }
+
+        return out;
+      }
 
       function run(cmd) {
         console.log(cmd);
@@ -66,6 +108,7 @@
       async function longPoll() {
         const response = await fetch(window.location.origin + "/iflank", {
           method: "GET",
+          headers: { "X-Session-ID": sid },
         });
         const thisText = await response.text();
         accumulatingResponse += thisText;
@@ -109,6 +152,7 @@
             method: "POST",
             headers: {
               "Content-Type": "text/plain",
+              "X-Session-ID": sid,
             },
             body: input.value + "\n",
           });
@@ -126,6 +170,7 @@
           console.log("init POST");
           await fetch(window.location.origin + "/iflank", {
             method: "POST",
+            headers: { "X-Session-ID": sid },
             body: "refresh\n",
           });
         } catch (err) {

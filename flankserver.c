@@ -67,6 +67,21 @@ char *parse_body(char *request_buf)
 	return start + 4;
 }
 
+void parse_sid(char *request_buf, char *sid_out)
+{
+	char header[] = "X-Session-ID:";
+	char *header_ptr = strstr(request_buf, header);
+	if (header_ptr == NULL) {
+		return;
+	}
+	header_ptr += sizeof(header) - 1;
+	while (*header_ptr == ' ') {
+		header_ptr += 1;
+	}
+	strncpy(sid_out, header_ptr, 11);
+	sid_out[11] = '\0';
+}
+
 void parse_path(char *request_buf, char *path_out, char *method_out)
 {
 	char version[16];
@@ -228,7 +243,9 @@ int main(int argc, char *argv[])
 				char *body = parse_body(buffer);
 				char path[1024];
 				char method[8];
+				char sid[12];
 				parse_path(buffer, path, method);
+				parse_sid(buffer, sid);
 				if (strcmp(path, "/iflank") == 0
 				    && strcmp(method, "POST") == 0) {
 					write(to_iflank_pipe_rw[1], body,
