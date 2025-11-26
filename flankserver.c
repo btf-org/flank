@@ -329,6 +329,8 @@ int main(int argc, char *argv[])
 #else
 #error "Unsupported platform"
 #endif
+					// tsprintf("    => registered r_fd=%d\n", sessions[s_idx].r_fd);
+					// tsprintf("    => will write back to lpr_fd=%d\n", sessions[s_idx].long_poll_req_fd);
 					continue;
 				} else if (strcmp(path, "/") == 0) {
 					const char *index_html_path = NULL;
@@ -453,10 +455,11 @@ int main(int argc, char *argv[])
 				}
 				close(client_fd);
 			} else {	// event_fd != server_fd
+				// tsprintf("    <= change on r_fd=%d\n", event_fd);
 				for(int i = 0; i < 64; i++){
 					if(sessions[i].r_fd == event_fd){
 						s_idx = i;
-						tsprintf("    LONG POLL s_idx %d event_fd %d\n", s_idx, event_fd);
+						// tsprintf("    <= will write back to lpr_fd=%d\n", sessions[s_idx].long_poll_req_fd);
 						break;
 					}
 				}
