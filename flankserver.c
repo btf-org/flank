@@ -204,6 +204,7 @@ int main(int argc, char *argv[])
 		int n = epoll_wait(ep, events, 64, -1);	// -1 = block indefinitely
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 		struct kevent events[64];
+		printf("blocked\n");
 		int n = kevent(kq, NULL, 0, events, 64, NULL);	// NULL timeout = block
 #else
 #error "Unsupported platform"
@@ -219,7 +220,6 @@ int main(int argc, char *argv[])
 #endif
 
 			int s_idx = -1;
-			struct session sesh;
 			if (event_fd == server_fd) {
 				client_fd = accept(event_fd, NULL, NULL);
 				if (client_fd < 0) {
@@ -241,26 +241,18 @@ int main(int argc, char *argv[])
 
 				s_idx = find_session(sessions, 64, sid);
 				if (s_idx >= 0) {
-					sesh = sessions[s_idx];
-					printf
-					    ("Session Found: %s %d %d\n",
-					     sesh.sid, sesh.r_fd, sesh.w_fd);
+					tsprintf
+					    ("    Session Found: s_idx=%d sid=%s r/w=%d/%d\n", s_idx,
+					     sessions[s_idx].sid, sessions[s_idx].r_fd, sessions[s_idx].w_fd);
 				}
 				if (strcmp(path, "/iflank") == 0
 				    && strcmp(sid, "") != 0 && s_idx == -1) {
-					printf("Session NOT found: %s\n", sid);
-					int j = 0;
-					for (; j < 64; j++) {
+					for (int j = 0; j < 64; j++) {
 						if (sessions[j].sid[0] == '\0') {
-							printf
-							    ("break sid %d: %s\n",
-							     j,
-							     sessions[j].sid);
 							s_idx = j;
 							break;
 						}
 					}
-					printf("session j :%d\n", j);
 					int to_iflank_pipe_rw[2],
 					    from_iflank_pipe_rw[2];
 					pid_t pid;
@@ -292,27 +284,22 @@ int main(int argc, char *argv[])
 						  F_GETFL, 0);
 					fcntl(from_iflank_pipe_rw[0],
 					      F_SETFL, flags | O_NONBLOCK);
-					strcpy(sessions[j].sid, sid);
-					printf
-					    ("sessions[j].sid : %d : %s\n",
-					     j, sessions[j].sid);
-					sessions[j].r_fd =
+					strcpy(sessions[s_idx].sid, sid);
+					sessions[s_idx].r_fd =
 					    from_iflank_pipe_rw[0];
-					sessions[j].w_fd = to_iflank_pipe_rw[1];
-					sessions[j].long_poll_req_fd = -1;
-					sesh = sessions[j];
-					printf("session created\n");
+					sessions[s_idx].w_fd = to_iflank_pipe_rw[1];
+					sessions[s_idx].long_poll_req_fd = -1;
+					tsprintf("    Session Created: s_idx=%d sid=%s r/w=%d/%d\n", s_idx, sessions[s_idx].sid, sessions[s_idx].r_fd, sessions[s_idx].w_fd);
 				}
 				if (strcmp(path, "/iflank") == 0
 				    && strcmp(method, "POST") == 0) {
-					printf("sesh.w_fd: %d\n", sesh.w_fd);
-					write(sesh.w_fd, body,
+					write(sessions[s_idx].w_fd, body,
 					      buffer + http_bytes_read - body);
 					char header[] = "HTTP/1.1 200 OK\r\n"
 					    "Content-Length: 0\r\n\r\n";
 					write(client_fd, header,
 					      sizeof(header) - 1);
-					tsprintf("%s\n", body);
+					tsprintf("    Body: %s\n", body);
 				} else if (strcmp(path, "/iflank") == 0
 					   && strcmp(method, "GET") == 0) {
 					sessions[s_idx].long_poll_req_fd =
@@ -321,17 +308,17 @@ int main(int argc, char *argv[])
 #ifdef __linux__
 					struct epoll_event iflank_ev;
 					iflank_ev.events = EPOLLIN;
-					iflank_ev.data.fd = sesh.r_fd;
+					iflank_ev.data.fd = sessions[s_idx].r_fd;
 					if (epoll_ctl
 					    (ep, EPOLL_CTL_ADD,
-					     sesh.r_fd, &iflank_ev) == -1) {
+					     sessions[s_idx].r_fd, &iflank_ev) == -1) {
 						perror("epoll_ctl");
 						exit(1);
 					}
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 					struct kevent iflank_ev;
 					EV_SET(&iflank_ev,
-					       sesh.r_fd,
+					       sessions[s_idx].r_fd,
 					       EVFILT_READ, EV_ADD, 0, 0, NULL);
 					kevent(kq, &iflank_ev, 1, NULL, 0, NULL);	// register
 #else
@@ -354,7 +341,7 @@ int main(int argc, char *argv[])
 						found = 1;
 					} else {
 						tsprintf
-						    ("ERROR: index.html not found\n");
+						    ("    ERROR: index.html not found\n");
 					}
 					if (found) {
 						if (s_idx > -1
@@ -370,12 +357,12 @@ int main(int argc, char *argv[])
 #ifdef __linux__
 							epoll_ctl(ep,
 								  EPOLL_CTL_DEL,
-								  sesh.r_fd,
+								  sessions[s_idx].r_fd,
 								  NULL);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 							struct kevent ev;
 							EV_SET(&ev,
-							       sesh.r_fd,
+							       sessions[s_idx].r_fd,
 							       EVFILT_READ,
 							       EV_DELETE, 0, 0,
 							       NULL);
@@ -407,7 +394,6 @@ int main(int argc, char *argv[])
 							     BUF_SIZE)) > 0) {
 							write(client_fd, buffer,
 							      n);
-							tsprintf("/ n %d\n", n);
 						}
 						close(fd);
 					} else {
@@ -440,14 +426,12 @@ int main(int argc, char *argv[])
 							     BUF_SIZE)) > 0) {
 							write(client_fd, buffer,
 							      n);
-							tsprintf("path %d\n",
-								 n);
 						}
 						close(fd);
 
 					} else {
 						tsprintf
-						    ("ERROR: path not supported: %s\n",
+						    ("    ERROR: path not supported: %s\n",
 						     path);
 						// char header[256];
 						// int header_len;
@@ -460,8 +444,15 @@ int main(int argc, char *argv[])
 				}
 				close(client_fd);
 			} else {	// event_fd != server_fd
+				for(int i = 0; i < 64; i++){
+					if(sessions[i].r_fd == event_fd){
+						s_idx = i;
+						tsprintf("    LONG POLL s_idx %d event_fd %d\n", s_idx, event_fd);
+						break;
+					}
+				}
 				int iflank_bytes_read =
-				    read(event_fd, buffer, BUF_SIZE);
+				    read(sessions[s_idx].r_fd, buffer, BUF_SIZE);
 				char header[256];
 				int header_len;
 				if (iflank_bytes_read == -1) {
@@ -481,17 +472,16 @@ int main(int argc, char *argv[])
 						     iflank_bytes_read);
 					write(sessions[s_idx].long_poll_req_fd, header, header_len);	// forward to client
 					int n = write(sessions[s_idx].long_poll_req_fd, buffer, iflank_bytes_read);	// forward to client
-					tsprintf("get %d\n", iflank_bytes_read);
 				}
 				close(sessions[s_idx].long_poll_req_fd);
 				sessions[s_idx].long_poll_req_fd = -1;
 
 				// Clear the iflank pipe from the queue until a new GET comes in
 #ifdef __linux__
-				epoll_ctl(ep, EPOLL_CTL_DEL, sesh.r_fd, NULL);
+				epoll_ctl(ep, EPOLL_CTL_DEL, sessions[s_idx].r_fd, NULL);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 				struct kevent ev;
-				EV_SET(&ev, sesh.r_fd, EVFILT_READ,
+				EV_SET(&ev, sessions[s_idx].r_fd, EVFILT_READ,
 				       EV_DELETE, 0, 0, NULL);
 				kevent(kq, &ev, 1, NULL, 0, NULL);
 #else
