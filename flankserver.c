@@ -245,9 +245,10 @@ int main(int argc, char *argv[])
 
 				s_idx = find_session(sessions, 64, sid);
 				if (s_idx >= 0) {
-					tsprintf
-					    ("    Session Found: s_idx=%d sid=%s r/w=%d/%d\n", s_idx,
-					     sessions[s_idx].sid, sessions[s_idx].r_fd, sessions[s_idx].w_fd);
+					;
+					// tsprintf
+					//     ("    Session Found: s_idx=%d sid=%s r/w=%d/%d\n", s_idx,
+					//      sessions[s_idx].sid, sessions[s_idx].r_fd, sessions[s_idx].w_fd);
 				}
 				if (strcmp(path, "/iflank") == 0
 				    && strcmp(sid, "") != 0 && s_idx == -1) {
