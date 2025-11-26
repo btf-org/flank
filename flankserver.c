@@ -204,12 +204,16 @@ int main(int argc, char *argv[])
 		int n = epoll_wait(ep, events, 64, -1);	// -1 = block indefinitely
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 		struct kevent events[64];
-		printf("blocked\n");
-		int n = kevent(kq, NULL, 0, events, 64, NULL);	// NULL timeout = block
+		// kq
+		// changelist	event registration (not used here)
+		// nchangelist
+		// eventlist
+		// neventlist
+		// timeout		NULL=block indefinitely
+		int n = kevent(kq, NULL, 0, events, 64, NULL);	
 #else
 #error "Unsupported platform"
 #endif
-
 		for (int i = 0; i < n; i++) {
 #ifdef __linux__
 			int event_fd = events[i].data.fd;
