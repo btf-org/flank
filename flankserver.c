@@ -300,6 +300,7 @@ int main(int argc, char *argv[])
 					write(sessions[s_idx].w_fd, body,
 					      buffer + http_bytes_read - body);
 					char header[] = "HTTP/1.1 200 OK\r\n"
+						"Connection: close\r\n"
 					    "Content-Length: 0\r\n\r\n";
 					write(client_fd, header,
 					      sizeof(header) - 1);
@@ -388,6 +389,7 @@ int main(int argc, char *argv[])
 							     sizeof(header),
 							     "HTTP/1.1 200 OK\r\n"
 							     "Content-Type: text/html\r\n"
+							     "Connection: close\r\n"
 							     "Content-Length: %lld\r\n"
 							     "\r\n", (long long)
 							     filesize);
@@ -403,6 +405,7 @@ int main(int argc, char *argv[])
 					} else {
 						char header[] =
 						    "HTTP/1.1 404 Not Found\r\n"
+							"Connection: close\r\n"
 						    "Content-Length: 0\r\n\r\n";
 						write(client_fd, header,
 						      sizeof(header) - 1);
@@ -420,6 +423,7 @@ int main(int argc, char *argv[])
 							     sizeof(header),
 							     "HTTP/1.1 200 OK\r\n"
 							     "Content-Type: text/html\r\n"
+								 "Connection: close\r\n"
 							     "Content-Length: %lld\r\n"
 							     "\r\n", (long long)
 							     filesize);
@@ -441,6 +445,7 @@ int main(int argc, char *argv[])
 						// int header_len;
 						char header[] =
 						    "HTTP/1.1 404 Not Found\r\n"
+							"Connection: close\r\n"
 						    "Content-Length: 0\r\n\r\n";
 						write(client_fd, header,
 						      sizeof(header) - 1);
@@ -465,6 +470,7 @@ int main(int argc, char *argv[])
 						     sizeof(header),
 						     "HTTP/1.1 200 OK\r\n"
 						     "Content-Type: text/plain\r\n"
+							 "Connection: close\r\n"
 						     "Content-Length: 0\r\n\r\n");
 					write(sessions[s_idx].long_poll_req_fd, header, header_len);	// forward to client
 				} else {
@@ -472,6 +478,7 @@ int main(int argc, char *argv[])
 					    snprintf(header, sizeof(header),
 						     "HTTP/1.1 200 OK\r\n"
 						     "Content-Type: text/plain\r\n"
+							 "Connection: close\r\n"
 						     "Content-Length: %d\r\n\r\n",
 						     iflank_bytes_read);
 					write(sessions[s_idx].long_poll_req_fd, header, header_len);	// forward to client
