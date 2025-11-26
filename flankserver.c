@@ -218,6 +218,7 @@ int main(int argc, char *argv[])
 #error "Unsupported platform"
 #endif
 
+			int s_idx = -1;
 			struct session sesh;
 			if (event_fd == server_fd) {
 				client_fd = accept(event_fd, NULL, NULL);
@@ -238,79 +239,69 @@ int main(int argc, char *argv[])
 				parse_path(buffer, path, method);
 				parse_sid(buffer, sid);
 
+				s_idx = find_session(sessions, 64, sid);
+				if (s_idx >= 0) {
+					sesh = sessions[s_idx];
+					printf
+					    ("Session Found: %s %d %d\n",
+					     sesh.sid, sesh.r_fd, sesh.w_fd);
+				}
 				if (strcmp(path, "/iflank") == 0
-				    && strcmp(sid, "") != 0) {
-					int s_idx =
-					    find_session(sessions, 64, sid);
-					if (s_idx >= 0) {
-						sesh = sessions[s_idx];
-						printf
-						    ("Session Found: %s %d %d\n",
-						     sesh.sid, sesh.r_fd,
-						     sesh.w_fd);
-					} else {
-						printf
-						    ("Session NOT found: %s\n",
-						     sid);
-						int j = 0;
-						for (; j < 64; j++) {
-							if (sessions[j].
-							    sid[0] == '\0') {
-								printf
-								    ("break sid %d: %s\n",
-								     j,
-								     sessions
-								     [j].sid);
-								break;
-							}
+				    && strcmp(sid, "") != 0 && s_idx == -1) {
+					printf("Session NOT found: %s\n", sid);
+					int j = 0;
+					for (; j < 64; j++) {
+						if (sessions[j].sid[0] == '\0') {
+							printf
+							    ("break sid %d: %s\n",
+							     j,
+							     sessions[j].sid);
+							s_idx = j;
+							break;
 						}
-						printf("session j :%d\n", j);
-						int to_iflank_pipe_rw[2],
-						    from_iflank_pipe_rw[2];
-						pid_t pid;
-
-						pipe(to_iflank_pipe_rw);	// creates pipe, fills `to_iflank_pipe_rw[0]` with read FD and `to_iflank_pipe_rw[1]` with write FD
-						pipe(from_iflank_pipe_rw);	// parent reads from child stdout
-
-						pid = fork();
-						if (pid == 0) {
-							// Child process 
-							dup2(to_iflank_pipe_rw[0], STDIN_FILENO);	// in file descriptor table,
-							// point 0 at whatever file description 
-							// is specified by the FD in to_iflank_pipe_rw[0]
-							dup2(from_iflank_pipe_rw[1], STDOUT_FILENO);	// in file descriptor table,
-							// point 1 at whatever FD is write end of pipe
-							close(to_iflank_pipe_rw[1]);	// close the "write" end of the "to" pipe (it's for the parent)
-							close(from_iflank_pipe_rw[0]);	// close the "read" end of the "from" pipe (it's for the parent)
-							execlp(iflank_path, iflank_name, "--http-mode", NULL);	// filename, argv[0] the name the program sees itself as, end of arg list
-							perror("execlp");
-							exit(1);
-						} else {
-							// Parent process
-							close(to_iflank_pipe_rw[0]);	// close the "read" end of the "to" pipe (it's for the child)
-							close(from_iflank_pipe_rw[1]);	// close the "write" end of the "from" pipe (it's for the child) 
-						}
-
-						int flags =
-						    fcntl(from_iflank_pipe_rw
-							  [0],
-							  F_GETFL, 0);
-						fcntl(from_iflank_pipe_rw[0],
-						      F_SETFL,
-						      flags | O_NONBLOCK);
-						strcpy(sessions[j].sid, sid);
-						printf
-						    ("sessions[j].sid : %d : %s\n",
-						     j, sessions[j].sid);
-						sessions[j].r_fd =
-						    from_iflank_pipe_rw[0];
-						sessions[j].w_fd =
-						    to_iflank_pipe_rw[1];
-						sessions[j].long_poll_req_fd =
-						    -1;
-						sesh = sessions[j];
-						printf("session created\n");
 					}
+					printf("session j :%d\n", j);
+					int to_iflank_pipe_rw[2],
+					    from_iflank_pipe_rw[2];
+					pid_t pid;
+
+					pipe(to_iflank_pipe_rw);	// creates pipe, fills `to_iflank_pipe_rw[0]` with read FD and `to_iflank_pipe_rw[1]` with write FD
+					pipe(from_iflank_pipe_rw);	// parent reads from child stdout
+
+					pid = fork();
+					if (pid == 0) {
+						// Child process 
+						dup2(to_iflank_pipe_rw[0], STDIN_FILENO);	// in file descriptor table,
+						// point 0 at whatever file description 
+						// is specified by the FD in to_iflank_pipe_rw[0]
+						dup2(from_iflank_pipe_rw[1], STDOUT_FILENO);	// in file descriptor table,
+						// point 1 at whatever FD is write end of pipe
+						close(to_iflank_pipe_rw[1]);	// close the "write" end of the "to" pipe (it's for the parent)
+						close(from_iflank_pipe_rw[0]);	// close the "read" end of the "from" pipe (it's for the parent)
+						execlp(iflank_path, iflank_name, "--http-mode", NULL);	// filename, argv[0] the name the program sees itself as, end of arg list
+						perror("execlp");
+						exit(1);
+					} else {
+						// Parent process
+						close(to_iflank_pipe_rw[0]);	// close the "read" end of the "to" pipe (it's for the child)
+						close(from_iflank_pipe_rw[1]);	// close the "write" end of the "from" pipe (it's for the child) 
+					}
+
+					int flags =
+					    fcntl(from_iflank_pipe_rw[0],
+						  F_GETFL, 0);
+					fcntl(from_iflank_pipe_rw[0],
+					      F_SETFL, flags | O_NONBLOCK);
+					strcpy(sessions[j].sid, sid);
+					printf
+					    ("sessions[j].sid : %d : %s\n",
+					     j, sessions[j].sid);
+					sessions[j].r_fd =
+					    from_iflank_pipe_rw[0];
+					sessions[j].w_fd = to_iflank_pipe_rw[1];
+					sessions[j].long_poll_req_fd = -1;
+					sesh = sessions[j];
+					printf("session created\n");
 				}
 				if (strcmp(path, "/iflank") == 0
 				    && strcmp(method, "POST") == 0) {
@@ -324,7 +315,8 @@ int main(int argc, char *argv[])
 					tsprintf("%s\n", body);
 				} else if (strcmp(path, "/iflank") == 0
 					   && strcmp(method, "GET") == 0) {
-					sesh.long_poll_req_fd = client_fd;
+					sessions[s_idx].long_poll_req_fd =
+					    client_fd;
 					// Register the read end of the iflank pipe
 #ifdef __linux__
 					struct epoll_event iflank_ev;
@@ -365,11 +357,13 @@ int main(int argc, char *argv[])
 						    ("ERROR: index.html not found\n");
 					}
 					if (found) {
-						if (sesh.long_poll_req_fd != -1) {
-							close
-							    (sesh.
-							     long_poll_req_fd);
-							sesh.long_poll_req_fd =
+						if (s_idx > -1
+						    && sessions[s_idx].
+						    long_poll_req_fd != -1) {
+							close(sessions[s_idx].
+							      long_poll_req_fd);
+							sessions[s_idx].
+							    long_poll_req_fd =
 							    -1;
 
 							// Clear the iflank pipe from the queue until a new GET comes in
@@ -477,7 +471,7 @@ int main(int argc, char *argv[])
 						     "HTTP/1.1 200 OK\r\n"
 						     "Content-Type: text/plain\r\n"
 						     "Content-Length: 0\r\n\r\n");
-					write(sesh.long_poll_req_fd, header, header_len);	// forward to client
+					write(sessions[s_idx].long_poll_req_fd, header, header_len);	// forward to client
 				} else {
 					header_len =
 					    snprintf(header, sizeof(header),
@@ -485,12 +479,12 @@ int main(int argc, char *argv[])
 						     "Content-Type: text/plain\r\n"
 						     "Content-Length: %d\r\n\r\n",
 						     iflank_bytes_read);
-					write(sesh.long_poll_req_fd, header, header_len);	// forward to client
-					int n = write(sesh.long_poll_req_fd, buffer, iflank_bytes_read);	// forward to client
+					write(sessions[s_idx].long_poll_req_fd, header, header_len);	// forward to client
+					int n = write(sessions[s_idx].long_poll_req_fd, buffer, iflank_bytes_read);	// forward to client
 					tsprintf("get %d\n", iflank_bytes_read);
 				}
-				close(sesh.long_poll_req_fd);
-				sesh.long_poll_req_fd = -1;
+				close(sessions[s_idx].long_poll_req_fd);
+				sessions[s_idx].long_poll_req_fd = -1;
 
 				// Clear the iflank pipe from the queue until a new GET comes in
 #ifdef __linux__
