@@ -49,9 +49,9 @@
     </style>
   </head>
   <body class="p-1_25 font-family-monospace font-size-1">
+    <div id="container" class="white-space-pre p-1_25 my-0_75 border-1 border-color-black overflow-x-scroll"></div>
     <script>
       let accumulatingResponse = "";
-      let lastOutput = null;
       let sid = sessionStorage.getItem("sid");
       if (!sid) {
         sid = randomBase62Id();
@@ -95,14 +95,22 @@
         return out;
       }
 
-      function run(cmd) {
-        console.log(cmd);
-        const lastContainer =
-          document.body.children[document.body.children.length - 1];
-        const lastInput = lastContainer.children[0];
-        lastInput.value = cmd;
-        const lastBtn = lastContainer.children[1];
-        lastBtn.click();
+      async function run(cmd) {
+        try {
+          await fetch(window.location.origin + "/iflank", {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain",
+              "X-Session-ID": sid,
+            },
+            body: cmd + "\n",
+          });
+        } catch (err) {
+          console.error(err);
+          const container = document.getElementById("container");
+          container.textContent = "Error reaching server: " + err.message;
+          return;
+        }
       }
 
       async function longPoll() {
@@ -114,74 +122,15 @@
         accumulatingResponse += thisText;
 
         if (thisText[thisText.length - 1] === "\0") {
-          lastOutput.innerHTML = accumulatingResponse;
+          const container = document.getElementById("container");
+          container.innerHTML = accumulatingResponse;
           accumulatingResponse = "";
-          makeCommand();
         }
 
         longPoll();
       }
-
-      function makeCommand(outputOnly = false) {
-        const container = document.createElement("div");
-        if (!outputOnly) {
-          const input = document.createElement("input");
-          const button = document.createElement("button");
-          input.className = "font-family-monospace";
-          button.textContent = "Send";
-          button.addEventListener("click", sendCommand);
-          container.appendChild(input);
-          container.appendChild(button);
-        }
-        const output = document.createElement("div");
-        output.className =
-          "white-space-pre p-1_25 my-0_75 border-1 border-color-black overflow-x-scroll";
-        container.appendChild(output);
-
-        document.body.appendChild(container);
-        lastOutput = output;
-      }
-      async function sendCommand(event) {
-        const button = event.target;
-        const container = button.parentElement;
-        const [input, btn, output] = container.children;
-
-        lastOutput.innerHTML = "Loading...";
-        try {
-          await fetch(window.location.origin + "/iflank", {
-            method: "POST",
-            headers: {
-              "Content-Type": "text/plain",
-              "X-Session-ID": sid,
-            },
-            body: input.value + "\n",
-          });
-        } catch (err) {
-          lastOutput.textContent = "Error reaching server: " + err.message;
-          return;
-        }
-        // makeCommand();
-      }
-      async function sendInitialRefresh() {
-        const container =
-          document.body.children[document.body.children.length - 1];
-
-        try {
-          console.log("init POST");
-          await fetch(window.location.origin + "/iflank", {
-            method: "POST",
-            headers: { "X-Session-ID": sid },
-            body: "refresh\n",
-          });
-        } catch (err) {
-          console.error(err);
-          lastOutput.textContent = "Error reaching server: " + err.message;
-          return;
-        }
-      }
       async function setup() {
-        makeCommand(true);
-        await sendInitialRefresh();
+        await run("refresh");
         longPoll();
       }
 
