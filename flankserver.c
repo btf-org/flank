@@ -205,12 +205,12 @@ int main(int argc, char *argv[])
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 		struct kevent events[64];
 		// kq
-		// changelist	event registration (not used here)
+		// changelist   event registration (not used here)
 		// nchangelist
 		// eventlist
 		// neventlist
-		// timeout		NULL=block indefinitely
-		int n = kevent(kq, NULL, 0, events, 64, NULL);	
+		// timeout              NULL=block indefinitely
+		int n = kevent(kq, NULL, 0, events, 64, NULL);
 #else
 #error "Unsupported platform"
 #endif
@@ -292,16 +292,21 @@ int main(int argc, char *argv[])
 					strcpy(sessions[s_idx].sid, sid);
 					sessions[s_idx].r_fd =
 					    from_iflank_pipe_rw[0];
-					sessions[s_idx].w_fd = to_iflank_pipe_rw[1];
+					sessions[s_idx].w_fd =
+					    to_iflank_pipe_rw[1];
 					sessions[s_idx].long_poll_req_fd = -1;
-					tsprintf("    Session Created: s_idx=%d sid=%s r/w=%d/%d\n", s_idx, sessions[s_idx].sid, sessions[s_idx].r_fd, sessions[s_idx].w_fd);
+					tsprintf
+					    ("    Session Created: s_idx=%d sid=%s r/w=%d/%d\n",
+					     s_idx, sessions[s_idx].sid,
+					     sessions[s_idx].r_fd,
+					     sessions[s_idx].w_fd);
 				}
 				if (strcmp(path, "/iflank") == 0
 				    && strcmp(method, "POST") == 0) {
 					write(sessions[s_idx].w_fd, body,
 					      buffer + http_bytes_read - body);
 					char header[] = "HTTP/1.1 200 OK\r\n"
-						"Connection: close\r\n"
+					    "Connection: close\r\n"
 					    "Content-Length: 0\r\n\r\n";
 					write(client_fd, header,
 					      sizeof(header) - 1);
@@ -314,10 +319,12 @@ int main(int argc, char *argv[])
 #ifdef __linux__
 					struct epoll_event iflank_ev;
 					iflank_ev.events = EPOLLIN;
-					iflank_ev.data.fd = sessions[s_idx].r_fd;
+					iflank_ev.data.fd =
+					    sessions[s_idx].r_fd;
 					if (epoll_ctl
 					    (ep, EPOLL_CTL_ADD,
-					     sessions[s_idx].r_fd, &iflank_ev) == -1) {
+					     sessions[s_idx].r_fd,
+					     &iflank_ev) == -1) {
 						perror("epoll_ctl");
 						exit(1);
 					}
@@ -353,9 +360,12 @@ int main(int argc, char *argv[])
 					}
 					if (found) {
 						if (s_idx > -1
-						    && sessions[s_idx].
-						    long_poll_req_fd != -1) {
-							close(sessions[s_idx].
+						    &&
+						    sessions
+						    [s_idx].long_poll_req_fd !=
+						    -1) {
+							close(sessions
+							      [s_idx].
 							      long_poll_req_fd);
 							sessions[s_idx].
 							    long_poll_req_fd =
@@ -365,12 +375,14 @@ int main(int argc, char *argv[])
 #ifdef __linux__
 							epoll_ctl(ep,
 								  EPOLL_CTL_DEL,
-								  sessions[s_idx].r_fd,
+								  sessions
+								  [s_idx].r_fd,
 								  NULL);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 							struct kevent ev;
 							EV_SET(&ev,
-							       sessions[s_idx].r_fd,
+							       sessions
+							       [s_idx].r_fd,
 							       EVFILT_READ,
 							       EV_DELETE, 0, 0,
 							       NULL);
@@ -408,7 +420,7 @@ int main(int argc, char *argv[])
 					} else {
 						char header[] =
 						    "HTTP/1.1 404 Not Found\r\n"
-							"Connection: close\r\n"
+						    "Connection: close\r\n"
 						    "Content-Length: 0\r\n\r\n";
 						write(client_fd, header,
 						      sizeof(header) - 1);
@@ -426,7 +438,7 @@ int main(int argc, char *argv[])
 							     sizeof(header),
 							     "HTTP/1.1 200 OK\r\n"
 							     "Content-Type: text/html\r\n"
-								 "Connection: close\r\n"
+							     "Connection: close\r\n"
 							     "Content-Length: %lld\r\n"
 							     "\r\n", (long long)
 							     filesize);
@@ -448,7 +460,7 @@ int main(int argc, char *argv[])
 						// int header_len;
 						char header[] =
 						    "HTTP/1.1 404 Not Found\r\n"
-							"Connection: close\r\n"
+						    "Connection: close\r\n"
 						    "Content-Length: 0\r\n\r\n";
 						write(client_fd, header,
 						      sizeof(header) - 1);
@@ -457,15 +469,16 @@ int main(int argc, char *argv[])
 				close(client_fd);
 			} else {	// event_fd != server_fd
 				// tsprintf("    <= change on r_fd=%d\n", event_fd);
-				for(int i = 0; i < 64; i++){
-					if(sessions[i].r_fd == event_fd){
+				for (int i = 0; i < 64; i++) {
+					if (sessions[i].r_fd == event_fd) {
 						s_idx = i;
 						// tsprintf("    <= will write back to lpr_fd=%d\n", sessions[s_idx].long_poll_req_fd);
 						break;
 					}
 				}
 				int iflank_bytes_read =
-				    read(sessions[s_idx].r_fd, buffer, BUF_SIZE);
+				    read(sessions[s_idx].r_fd, buffer,
+					 BUF_SIZE);
 				char header[256];
 				int header_len;
 				if (iflank_bytes_read == -1) {
@@ -474,7 +487,7 @@ int main(int argc, char *argv[])
 						     sizeof(header),
 						     "HTTP/1.1 200 OK\r\n"
 						     "Content-Type: text/plain\r\n"
-							 "Connection: close\r\n"
+						     "Connection: close\r\n"
 						     "Content-Length: 0\r\n\r\n");
 					write(sessions[s_idx].long_poll_req_fd, header, header_len);	// forward to client
 				} else {
@@ -482,7 +495,7 @@ int main(int argc, char *argv[])
 					    snprintf(header, sizeof(header),
 						     "HTTP/1.1 200 OK\r\n"
 						     "Content-Type: text/plain\r\n"
-							 "Connection: close\r\n"
+						     "Connection: close\r\n"
 						     "Content-Length: %d\r\n\r\n",
 						     iflank_bytes_read);
 					write(sessions[s_idx].long_poll_req_fd, header, header_len);	// forward to client
@@ -493,7 +506,8 @@ int main(int argc, char *argv[])
 
 				// Clear the iflank pipe from the queue until a new GET comes in
 #ifdef __linux__
-				epoll_ctl(ep, EPOLL_CTL_DEL, sessions[s_idx].r_fd, NULL);
+				epoll_ctl(ep, EPOLL_CTL_DEL,
+					  sessions[s_idx].r_fd, NULL);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 				struct kevent ev;
 				EV_SET(&ev, sessions[s_idx].r_fd, EVFILT_READ,
