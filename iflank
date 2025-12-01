@@ -545,19 +545,21 @@ while true; do
 	CMD)
 		header_pwd
 		echo ''
-		echo 'Next: (R)un / (L)ogs / (H)ome'
+		if [ "$MODE" == 'TTY' ]; then
+			echo 'Next: run . / cd runs'
+		else
+			echo '<a onclick="run('\''run .'\'')">Run</a><a onclick="run('\''cd runs'\'')">Logs</a>'
+		fi
 		echo ''
 		printf '\0'
 		read -rp "$PROMPT" choice args || readerr
 		case $choice in
-		R)
-			run_cmd 'bg'
-			;;
-		L)
-			cd runs
-			;;
-		H)
-			cd $FLANK_ROOT
+		run)
+			if [ "$args" == '.' ]; then
+				run_cmd 'bg'
+			else
+				echo 'Must run this command via "run ."'
+			fi
 			;;
 		cd)
 			cd $args
@@ -581,7 +583,7 @@ while true; do
 		if [ -z "$pid" ]; then
 			echo 'Next: cat [file] / cd [dir]'
 		else
-			echo 'Next: cat [file] / cd [dir] / kill'
+			echo 'Next: cat [file] / cd [dir] / <a onclick="run('\''kill'\'')">kill</a>'
 		fi
 		if [ "$MODE" == 'HTTP' ]; then
 			path_components=(${PWD//\// })
@@ -598,9 +600,6 @@ while true; do
 		cat)
 			cat $args
 			echo ''
-			;;
-		cd)
-			cd $args
 			;;
 		refresh) ;;
 		*)
