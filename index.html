@@ -55,7 +55,7 @@
     ></div>
     <script>
       let accumulatingResponse = "";
-      let state = 'outside';
+      let state = "outside";
       let sid = sessionStorage.getItem("sid");
       if (!sid) {
         sid = randomBase62Id();
@@ -123,21 +123,22 @@
           headers: { "X-Session-ID": sid },
         });
         let thisText = await response.text();
-        for(let i = 0; i < thisText.length; i++){
-          if(thisText[i] == '%' && thisText.startsWith("%PAGESTART%\n", i)){
-              accumulatingResponse = '';
-              state = 'insidePage';
-              i += "%PAGESTART%\n".length - 1;
-            }
-            else if(thisText[i] == '%' && thisText.startsWith("%PAGEEND%\n", i)){
-              state = 'outside';
-              i += "%PAGEEND%\n".length - 1;
-              const container = document.getElementById("container");
-              container.innerHTML = accumulatingResponse;
-            }
-            else if (state == 'insidePage'){
-              accumulatingResponse += thisText[i];
-            }
+        for (let i = 0; i < thisText.length; i++) {
+          if (thisText[i] == "%" && thisText.startsWith("%PAGESTART%\n", i)) {
+            accumulatingResponse = "";
+            state = "insidePage";
+            i += "%PAGESTART%\n".length - 1;
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%PAGEEND%\n", i)
+          ) {
+            state = "outside";
+            i += "%PAGEEND%\n".length - 1;
+            const container = document.getElementById("container");
+            container.innerHTML = accumulatingResponse;
+          } else if (state == "insidePage") {
+            accumulatingResponse += thisText[i];
+          }
         }
 
         longPoll();

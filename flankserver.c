@@ -365,11 +365,10 @@ int main(int argc, char *argv[])
 						    [s_idx].long_poll_req_fd !=
 						    -1) {
 							close(sessions
-							      [s_idx].
-							      long_poll_req_fd);
-							sessions[s_idx].
-							    long_poll_req_fd =
-							    -1;
+							      [s_idx].long_poll_req_fd);
+							sessions
+							    [s_idx].long_poll_req_fd
+							    = -1;
 
 							// Clear the iflank pipe from the queue until a new GET comes in
 #ifdef __linux__
