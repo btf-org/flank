@@ -293,8 +293,6 @@ while true; do
 		    } '
 		fi
 		echo '%PAGEEND%'
-		echo ''
-		printf '\0'
 		read -rp "$PROMPT" choice args || readerr
 		case $choice in
 		cd)
@@ -307,6 +305,7 @@ while true; do
 		esac
 		;;
 	GLOBAL_RUN_DATES)
+		echo '%PAGESTART%'
 		header_pwd
 		echo ''
 		# if [ $MODE == 'TTY' ]; then
@@ -510,7 +509,7 @@ while true; do
 					awk -v FS='\t' "$awk_tsv_to_html"
 			fi
 		fi
-		printf '\0'
+		echo '%PAGEEND%'
 
 		read -rp "$PROMPT" choice args || readerr
 		case $choice in
@@ -524,6 +523,7 @@ while true; do
 		esac
 		;;
 	FS)
+		echo '%PAGESTART%'
 		header_pwd
 		echo ""
 		if [ $MODE == 'TTY' ]; then
@@ -531,8 +531,7 @@ while true; do
 		else
 			ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
 		fi
-		echo ""
-		printf '\0'
+		echo '%PAGEEND%'
 		read -rp "$PROMPT" choice arg || readerr
 		case $choice in
 		cd)
@@ -545,15 +544,16 @@ while true; do
 		esac
 		;;
 	CMD)
+		echo '%PAGESTART%'
 		header_pwd
 		echo ''
 		if [ "$MODE" == 'TTY' ]; then
 			echo 'Next: run . / cd runs'
 		else
-			echo '<a onclick="run('\''run .'\'')">Run</a><a onclick="run('\''cd runs'\'')">Logs</a>'
+			echo '<a onclick="run('\''run .'\'')">Run</a>'
+			echo '<a onclick="run('\''cd runs'\'')">Logs</a>'
 		fi
-		echo ''
-		printf '\0'
+		echo '%PAGEEND%'
 		read -rp "$PROMPT" choice args || readerr
 		case $choice in
 		run)
@@ -573,6 +573,7 @@ while true; do
 		esac
 		;;
 	LOG_DIR)
+		echo '%PAGESTART%'
 		header_pwd
 		echo ''
 		ls -1
@@ -585,7 +586,7 @@ while true; do
 		if [ -z "$pid" ]; then
 			echo 'Next: cat [file] / cd [dir]'
 		else
-			echo 'Next: cat [file] / cd [dir] / <a onclick="run('\''kill'\'')">kill</a>'
+			echo '<a onclick="run('\''kill'\'')">kill</a>'
 		fi
 		if [ "$MODE" == 'HTTP' ]; then
 			path_components=(${PWD//\// })
@@ -593,7 +594,7 @@ while true; do
 			filename=${path_components[$((length - 4))]}"-"${path_components[$((length - 2))]}"_"${path_components[$((length - 1))]}".log"
 			echo '<a href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
 		fi
-		printf '\0'
+		echo '%PAGEEND%'
 		read -rp "$PROMPT" choice args || readerr
 		case $choice in
 		kill)
@@ -610,7 +611,9 @@ while true; do
 		esac
 		;;
 	*)
+		echo '%PAGESTART%'
 		echo "Got into weird state. Hit Ctrl-C to quit"
+		echo '%PAGEEND%'
 		;;
 	esac
 done
