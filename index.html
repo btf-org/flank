@@ -144,8 +144,8 @@
         longPoll();
       }
       async function setup() {
-        await run("refresh");
         longPoll();
+        run("refresh");
       }
 
       setup();
