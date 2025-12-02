@@ -273,6 +273,7 @@ while true; do
 		esac
 		;;
 	HOME)
+		echo '%PAGESTART%'
 		# header_pwd
 		# echo ''
 		echo 'Welcome to Flank! v0.1.39'
@@ -291,6 +292,7 @@ while true; do
 			print "<a onclick=\"run('\''cd "$0"'\'')\">"content"</a>" 
 		    } '
 		fi
+		echo '%PAGEEND%'
 		echo ''
 		printf '\0'
 		read -rp "$PROMPT" choice args || readerr
