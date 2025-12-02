@@ -313,41 +313,45 @@ int main(int argc, char *argv[])
 					tsprintf("    Body: %s\n", body);
 				} else if (strcmp(path, "/iflank") == 0
 					   && strcmp(method, "GET") == 0) {
-						if (s_idx > -1
-						    &&
-						    sessions
-						    [s_idx].long_poll_req_fd !=
-						    -1) {
-							tsprintf("    deregistering s_idx=%d lpr_fd=%d\n", s_idx, sessions[s_idx].long_poll_req_fd);
-							close(sessions
-							      [s_idx].long_poll_req_fd);
-							sessions
-							    [s_idx].long_poll_req_fd
-							    = -1;
+					if (s_idx > -1
+					    &&
+					    sessions
+					    [s_idx].long_poll_req_fd != -1) {
+						tsprintf
+						    ("    deregistering s_idx=%d lpr_fd=%d\n",
+						     s_idx,
+						     sessions
+						     [s_idx].long_poll_req_fd);
+						close(sessions
+						      [s_idx].long_poll_req_fd);
+						sessions[s_idx].long_poll_req_fd
+						    = -1;
 
-							// Clear the iflank pipe from the queue until a new GET comes in
+						// Clear the iflank pipe from the queue until a new GET comes in
 #ifdef __linux__
-							epoll_ctl(ep,
-								  EPOLL_CTL_DEL,
-								  sessions
-								  [s_idx].r_fd,
-								  NULL);
+						epoll_ctl(ep,
+							  EPOLL_CTL_DEL,
+							  sessions
+							  [s_idx].r_fd, NULL);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
-							struct kevent ev;
-							EV_SET(&ev,
-							       sessions
-							       [s_idx].r_fd,
-							       EVFILT_READ,
-							       EV_DELETE, 0, 0,
-							       NULL);
-							kevent(kq, &ev, 1, NULL,
-							       0, NULL);
+						struct kevent ev;
+						EV_SET(&ev,
+						       sessions
+						       [s_idx].r_fd,
+						       EVFILT_READ,
+						       EV_DELETE, 0, 0, NULL);
+						kevent(kq, &ev, 1, NULL,
+						       0, NULL);
 #else
 #error "Unsupported platform"
 #endif
-						} else {
-							tsprintf("    NOT deregistering s_idx=%d lpr_fd=%d\n", s_idx, sessions[s_idx].long_poll_req_fd);
-						}
+					} else {
+						tsprintf
+						    ("    NOT deregistering s_idx=%d lpr_fd=%d\n",
+						     s_idx,
+						     sessions
+						     [s_idx].long_poll_req_fd);
+					}
 					sessions[s_idx].long_poll_req_fd =
 					    client_fd;
 					// Register the read end of the iflank pipe
@@ -372,8 +376,11 @@ int main(int argc, char *argv[])
 #else
 #error "Unsupported platform"
 #endif
-					tsprintf("    => registered r_fd=%d\n", sessions[s_idx].r_fd);
-					tsprintf("    => will write back to lpr_fd=%d\n", sessions[s_idx].long_poll_req_fd);
+					tsprintf("    => registered r_fd=%d\n",
+						 sessions[s_idx].r_fd);
+					tsprintf
+					    ("    => will write back to lpr_fd=%d\n",
+					     sessions[s_idx].long_poll_req_fd);
 					continue;
 				} else if (strcmp(path, "/") == 0) {
 					const char *index_html_path = NULL;
@@ -470,18 +477,22 @@ int main(int argc, char *argv[])
 				}
 				close(client_fd);
 			} else {	// event_fd != server_fd
-				tsprintf("    <= change on r_fd=%d\n", event_fd);
+				tsprintf("    <= change on r_fd=%d\n",
+					 event_fd);
 				for (int i = 0; i < 64; i++) {
 					if (sessions[i].r_fd == event_fd) {
 						s_idx = i;
-						tsprintf("    <= will write back to lpr_fd=%d\n", sessions[s_idx].long_poll_req_fd);
+						tsprintf
+						    ("    <= will write back to lpr_fd=%d\n",
+						     sessions
+						     [s_idx].long_poll_req_fd);
 						break;
 					}
 				}
 				int iflank_bytes_read =
 				    read(sessions[s_idx].r_fd, buffer,
 					 BUF_SIZE);
-				
+
 				char header[256];
 				int header_len;
 				if (iflank_bytes_read == -1) {
