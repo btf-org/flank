@@ -313,57 +313,12 @@ int main(int argc, char *argv[])
 					tsprintf("    Body: %s\n", body);
 				} else if (strcmp(path, "/iflank") == 0
 					   && strcmp(method, "GET") == 0) {
-					sessions[s_idx].long_poll_req_fd =
-					    client_fd;
-					// Register the read end of the iflank pipe
-#ifdef __linux__
-					struct epoll_event iflank_ev;
-					iflank_ev.events = EPOLLIN;
-					iflank_ev.data.fd =
-					    sessions[s_idx].r_fd;
-					if (epoll_ctl
-					    (ep, EPOLL_CTL_ADD,
-					     sessions[s_idx].r_fd,
-					     &iflank_ev) == -1) {
-						perror("epoll_ctl");
-						exit(1);
-					}
-#elif defined(__APPLE__) || defined(__FreeBSD__)
-					struct kevent iflank_ev;
-					EV_SET(&iflank_ev,
-					       sessions[s_idx].r_fd,
-					       EVFILT_READ, EV_ADD, 0, 0, NULL);
-					kevent(kq, &iflank_ev, 1, NULL, 0, NULL);	// register
-#else
-#error "Unsupported platform"
-#endif
-					// tsprintf("    => registered r_fd=%d\n", sessions[s_idx].r_fd);
-					// tsprintf("    => will write back to lpr_fd=%d\n", sessions[s_idx].long_poll_req_fd);
-					continue;
-				} else if (strcmp(path, "/") == 0) {
-					const char *index_html_path = NULL;
-
-					int found = 0;
-					if (access("./index.html", F_OK) == 0) {
-						index_html_path =
-						    "./index.html";
-						found = 1;
-					} else if (access
-						   ("/usr/share/flank/index.html",
-						    F_OK) == 0) {
-						index_html_path =
-						    "/usr/share/flank/index.html";
-						found = 1;
-					} else {
-						tsprintf
-						    ("    ERROR: index.html not found\n");
-					}
-					if (found) {
 						if (s_idx > -1
 						    &&
 						    sessions
 						    [s_idx].long_poll_req_fd !=
 						    -1) {
+							tsprintf("    deregistering s_idx=%d lpr_fd=%d\n", s_idx, sessions[s_idx].long_poll_req_fd);
 							close(sessions
 							      [s_idx].long_poll_req_fd);
 							sessions
@@ -390,7 +345,55 @@ int main(int argc, char *argv[])
 #else
 #error "Unsupported platform"
 #endif
+						} else {
+							tsprintf("    NOT deregistering s_idx=%d lpr_fd=%d\n", s_idx, sessions[s_idx].long_poll_req_fd);
 						}
+					sessions[s_idx].long_poll_req_fd =
+					    client_fd;
+					// Register the read end of the iflank pipe
+#ifdef __linux__
+					struct epoll_event iflank_ev;
+					iflank_ev.events = EPOLLIN;
+					iflank_ev.data.fd =
+					    sessions[s_idx].r_fd;
+					if (epoll_ctl
+					    (ep, EPOLL_CTL_ADD,
+					     sessions[s_idx].r_fd,
+					     &iflank_ev) == -1) {
+						perror("epoll_ctl");
+						exit(1);
+					}
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+					struct kevent iflank_ev;
+					EV_SET(&iflank_ev,
+					       sessions[s_idx].r_fd,
+					       EVFILT_READ, EV_ADD, 0, 0, NULL);
+					kevent(kq, &iflank_ev, 1, NULL, 0, NULL);	// register
+#else
+#error "Unsupported platform"
+#endif
+					tsprintf("    => registered r_fd=%d\n", sessions[s_idx].r_fd);
+					tsprintf("    => will write back to lpr_fd=%d\n", sessions[s_idx].long_poll_req_fd);
+					continue;
+				} else if (strcmp(path, "/") == 0) {
+					const char *index_html_path = NULL;
+
+					int found = 0;
+					if (access("./index.html", F_OK) == 0) {
+						index_html_path =
+						    "./index.html";
+						found = 1;
+					} else if (access
+						   ("/usr/share/flank/index.html",
+						    F_OK) == 0) {
+						index_html_path =
+						    "/usr/share/flank/index.html";
+						found = 1;
+					} else {
+						tsprintf
+						    ("    ERROR: index.html not found\n");
+					}
+					if (found) {
 						int fd = open(index_html_path,
 							      O_RDONLY);
 						struct stat st;
@@ -467,17 +470,18 @@ int main(int argc, char *argv[])
 				}
 				close(client_fd);
 			} else {	// event_fd != server_fd
-				// tsprintf("    <= change on r_fd=%d\n", event_fd);
+				tsprintf("    <= change on r_fd=%d\n", event_fd);
 				for (int i = 0; i < 64; i++) {
 					if (sessions[i].r_fd == event_fd) {
 						s_idx = i;
-						// tsprintf("    <= will write back to lpr_fd=%d\n", sessions[s_idx].long_poll_req_fd);
+						tsprintf("    <= will write back to lpr_fd=%d\n", sessions[s_idx].long_poll_req_fd);
 						break;
 					}
 				}
 				int iflank_bytes_read =
 				    read(sessions[s_idx].r_fd, buffer,
 					 BUF_SIZE);
+				
 				char header[256];
 				int header_len;
 				if (iflank_bytes_read == -1) {
@@ -497,8 +501,14 @@ int main(int argc, char *argv[])
 						     "Connection: close\r\n"
 						     "Content-Length: %d\r\n\r\n",
 						     iflank_bytes_read);
-					write(sessions[s_idx].long_poll_req_fd, header, header_len);	// forward to client
+					int h = write(sessions[s_idx].long_poll_req_fd, header, header_len);	// forward to client
+					if (h == -1) {
+						perror("write");
+					}
 					int n = write(sessions[s_idx].long_poll_req_fd, buffer, iflank_bytes_read);	// forward to client
+					if (n == -1) {
+						perror("write");
+					}
 				}
 				close(sessions[s_idx].long_poll_req_fd);
 				sessions[s_idx].long_poll_req_fd = -1;
