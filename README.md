@@ -1,12 +1,14 @@
 # Flank
-Flank is an easy-to-use web interface on top of the CLI.
+Flank is a web interface for your CLI.
 
-With Flank, an engineer can single-handedly ship a solution by just writing code in their favorite language. The benefit is not having to think about all the other stuff: ~~what programming language to use, where your code is running, scheduling, Docker, a website with logins, user guardrails, CSS rules, audit trails, connecting API calls, building frontends, analytics, compliance.~~
+The core use case is creating a web page for running a script/query. From there, you can go in various directions to productiionze it (e.g. guardrails, permissioning, etc.).
 
-How does it work:
-- You write a script that solves some problem
-- You run `$ flank my-script` (roughly) and Flank moves it to a part of your computer where it can be run through a website
-- From there, Flank makes it easy to add guardrails, permissioning, run it on a schedule, move it to a remote machine, and so on.
+It works like this:
+- You write a script
+- You run `$ flank my-script` (roughly) and Flank creates another script for running your script
+- This other script is triggerable through the web interface
+
+The main benefit to users is that they can ship tools by just writing backend code.
 
 ## Mac / Homebrew
 
