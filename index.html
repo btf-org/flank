@@ -132,13 +132,56 @@
             thisText[i] == "%" &&
             thisText.startsWith("%PAGEEND%\n", i)
           ) {
+            const prevState = state;
             state = "outside";
             i += "%PAGEEND%\n".length - 1;
-            const container = document.getElementById("container");
-            container.innerHTML = accumulatingResponse;
-          } else if (state == "insidePage") {
+            if (prevState == "insidePage") {
+              const container = document.getElementById("container");
+              container.innerHTML = accumulatingResponse;
+            }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%TABLEHEADSTART%\n", i)
+          ) {
+            accumulatingResponse = "";
+            state = "insideTableHead";
+            i += "%TABLEHEADSTART%\n".length - 1;
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%TABLEHEADEND%\n", i)
+          ) {
+            const prevState = state;
+            state = "outside";
+            i += "%TABLHEADEND%\n".length - 1;
+            if (prevState == "insideTableHead") {
+              const thead = document.getElementById("thead");
+              thead.innerHTML = accumulatingResponse;
+            }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%APPENDTRSTART%\n", i)
+          ) {
+            accumulatingResponse = "";
+            state = "insideTableRowAppend";
+            i += "%APPENDTRSTART%\n".length - 1;
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%APPENDTREND%\n", i)
+          ) {
+            const prevState = state;
+            state = "outside";
+            i += "%TABLHEADEND%\n".length - 1;
+            if (prevState == "insideTableRowAppend") {
+              const tbody = document.getElementById("tbody");
+              tbody.insertAdjacentHTML("beforeend", accumulatingResponse);
+            }
+          } else if (state.startsWith("inside")) {
             accumulatingResponse += thisText[i];
           }
+        }
+        if (state == "insideTableRowAppend") {
+          const tbody = document.getElementById("tbody");
+          tbody.insertAdjacentHTML("beforeend", accumulatingResponse);
         }
 
         longPoll();
