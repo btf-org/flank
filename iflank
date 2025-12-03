@@ -578,8 +578,7 @@ while true; do
 		echo '%PAGESTART%'
 		header_pwd
 		echo ''
-		ls -1
-		echo ''
+		echo '<div id="pageBody"></div>'
 		if [ "$PS_VERSION" == 'procps' ]; then
 			pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 		else
@@ -588,7 +587,7 @@ while true; do
 		if [ -z "$pid" ]; then
 			echo 'Next: cat [file] / cd [dir]'
 		else
-			echo '<a onclick="run('\''kill'\'')">kill</a>'
+			echo '<a onclick="run('\''kill'\'')">Kill</a>'
 		fi
 		if [ "$MODE" == 'HTTP' ]; then
 			path_components=(${PWD//\// })
@@ -597,14 +596,15 @@ while true; do
 			echo '<a href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
 		fi
 		echo '%PAGEEND%'
+		echo '%APPENDPAGEBODYSTART%'
+		if [ -f console.log ]; then
+			cat console.log
+		fi
+		echo '%APPENDPAGEBODYEND%'
 		read -rp "$PROMPT" choice args || readerr
 		case $choice in
 		kill)
 			kill $pid
-			;;
-		cat)
-			cat $args
-			echo ''
 			;;
 		refresh) ;;
 		*)

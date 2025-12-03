@@ -55,6 +55,7 @@
     ></div>
     <script>
       let accumulatingResponse = "";
+      let accumulatingUrl = "";
       let state = "outside";
       let sid = sessionStorage.getItem("sid");
       if (!sid) {
@@ -170,10 +171,28 @@
           ) {
             const prevState = state;
             state = "outside";
-            i += "%TABLHEADEND%\n".length - 1;
+            i += "%APPENDTREND%\n".length - 1;
             if (prevState == "insideTableRowAppend") {
               const tbody = document.getElementById("tbody");
               tbody.insertAdjacentHTML("beforeend", accumulatingResponse);
+            }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%APPENDPAGEBODYSTART%\n", i)
+          ) {
+            accumulatingResponse = "";
+            state = "insidePageBodyAppend";
+            i += "%APPENDPAGEBODYSTART%\n".length - 1;
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%APPENDPAGEBODYEND%\n", i)
+          ) {
+            const prevState = state;
+            state = "outside";
+            i += "%APPENDPAGEBODYEND%\n".length - 1;
+            if (prevState == "insidePageBodyAppend") {
+              const pageBody = document.getElementById("pageBody");
+              pageBody.insertAdjacentHTML("beforeend", accumulatingResponse);
             }
           } else if (state.startsWith("inside")) {
             accumulatingResponse += thisText[i];
@@ -183,6 +202,11 @@
           const tbody = document.getElementById("tbody");
           tbody.insertAdjacentHTML("beforeend", accumulatingResponse);
         }
+        else if (state == "insidePageBodyAppend") {
+          const pageBody = document.getElementById("pageBody");
+          pageBody.insertAdjacentHTML("beforeend", accumulatingResponse);
+        }
+        // history.pushState({}, "", "/derp");
 
         longPoll();
       }
