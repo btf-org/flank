@@ -139,6 +139,7 @@
             if (prevState == "insidePage") {
               const container = document.getElementById("container");
               container.innerHTML = accumulatingResponse;
+          accumulatingResponse = "";
             }
           } else if (
             thisText[i] == "%" &&
@@ -157,6 +158,7 @@
             if (prevState == "insideTableHead") {
               const thead = document.getElementById("thead");
               thead.innerHTML = accumulatingResponse;
+          accumulatingResponse = "";
             }
           } else if (
             thisText[i] == "%" &&
@@ -175,6 +177,7 @@
             if (prevState == "insideTableRowAppend") {
               const tbody = document.getElementById("tbody");
               tbody.insertAdjacentHTML("beforeend", accumulatingResponse);
+          accumulatingResponse = "";
             }
           } else if (
             thisText[i] == "%" &&
@@ -193,18 +196,30 @@
             if (prevState == "insidePageBodyAppend") {
               const pageBody = document.getElementById("pageBody");
               pageBody.insertAdjacentHTML("beforeend", accumulatingResponse);
+          accumulatingResponse = "";
             }
           } else if (state.startsWith("inside")) {
             accumulatingResponse += thisText[i];
           }
         }
         if (state == "insideTableRowAppend") {
+          let validHtml = "";
+          let remainder = accumulatingResponse;
+          for(let j = accumulatingResponse.length - 1; j >= 0; j--){
+            if(accumulatingResponse[j] === "\n" && accumulatingResponse.endsWith("</tr>\n", j + 1)){
+              validHtml = accumulatingResponse.slice(0, j + 1);
+              remainder = accumulatingResponse.slice(j + 1);
+              break;
+            }
+          }
           const tbody = document.getElementById("tbody");
-          tbody.insertAdjacentHTML("beforeend", accumulatingResponse);
+          tbody.insertAdjacentHTML("beforeend", validHtml);
+          accumulatingResponse = remainder;
         }
         else if (state == "insidePageBodyAppend") {
           const pageBody = document.getElementById("pageBody");
           pageBody.insertAdjacentHTML("beforeend", accumulatingResponse);
+          accumulatingResponse = "";
         }
         // history.pushState({}, "", "/derp");
 
