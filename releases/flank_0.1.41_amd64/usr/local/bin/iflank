@@ -1,0 +1,627 @@
+#!/usr/bin/env bash
+
+header_pwd() {
+	if [ "$MODE" == 'TTY' ]; then
+		pwd
+		return
+	fi
+
+	pwd | awk ' 
+	{ 
+	    line=""; 
+	    n = split($0, path_parts, "/"); 
+	    for (i = 2; i <= n; i++) { 
+		concat=""; 
+		ppi=path_parts[i]; 
+		for (j = 2; j <= i; j++) { 
+		    ppj=path_parts[j]; 
+		    concat=concat"/"ppj; 
+		} 
+		line=line"/<a onclick=\"run('\''cd "concat"'\'')\">"ppi"</a>";
+	    } 
+	    print line;
+	} '
+}
+run_cmd() {
+	if [ "$1" != 'bg' ] && [ "$1" != 'fg' ]; then
+		echo "first parameter $1 must be 'fg' or 'bg'"
+		return 1
+	fi
+	local nickname=""
+	if [ -n "$2" ]; then
+		if [ ! -f "$2" ]; then
+			echo "file \"$2\""' does not exist!'
+			return 1
+		fi
+		local cmd_dir=$(dirname "$2")
+		if [ $(basename "$cmd_dir") == 'saved_configs' ]; then
+			local cmd_dir=$(dirname "$cmd_dir")
+			local scriptname=$(basename "$2")
+			local nickname=${scriptname%.sh}
+		fi
+	else
+		local cmd_dir=$(pwd)
+	fi
+	# local cmd_name=$(basename $cmd_dir)
+
+	local datetime=$(date '+%Y-%m-%dT%Hh%Mm%Ss')
+	local cmd_run_date_dir=$cmd_dir/runs/$(echo $datetime | cut -c -10)
+	mkdir -p $cmd_run_date_dir
+	local cmd_run_dir=$cmd_dir/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-17)
+	if ! mkdir $cmd_run_dir 2>/dev/null; then
+		# include seconds
+		cmd_run_dir=$cmd_dir/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-20)
+		if ! mkdir $cmd_run_dir 2>/dev/null; then
+			local i=2
+			local non_incremented=$cmd_run_dir
+			cmd_run_dir=$non_incremented'_'$i
+			until mkdir $cmd_run_dir 2>/dev/null; do
+				i=$(($i + 1))
+				cmd_run_dir=$non_incremented'_'$i
+			done
+		fi
+	fi
+
+	# # Create date directory in runs
+	# local global_date_dir="$FLANK_ROOT/runs/$(echo $datetime | cut -c -10)"
+	# if [ ! -d $global_date_dir ]; then
+	#     mkdir -p $global_date_dir
+	# fi
+	# local global_dir_name=$(basename "$cmd_run_dir")_$cmd_name
+
+	# if [ -a "$global_date_dir/$global_dir_name" ]; then
+	#     local path_prefix=$FLANK_ROOT/cmds/
+	#     local mid_path=${cmd_run_dir#$path_prefix}
+	#     local mid_path_safe=$(echo $mid_path | tr '/' '-')
+	#     global_dir_name=$(basename "$cmd_run_dir")_$mid_path_safe
+	# fi
+	# echo $cmd_run_dir
+	# echo "$global_date_dir/$global_dir_name"
+	# ln -s $cmd_run_dir "$global_date_dir/$global_dir_name"
+
+	if [ -n "$2" ]; then
+		cp "$2" $cmd_run_dir/exec.sh
+	else
+		cp $cmd_dir/template.sh $cmd_run_dir/exec.sh
+	fi
+
+	# These only get called when iflank itself is killed
+	# This _should_ only happen when a command is run through `iflank run`
+	# via a cronjob or pipeline
+	local PID=''
+	handle_int() {
+		if [ -n "$PID" ]; then
+			exit_code=$((128 + $(kill -l SIGINT)))
+			printf 'ExitCode:\t%d\nEndTime:\t%d' $exit_code $(date '+%s') >>$cmd_run_dir/status
+			if [ -f $cmd_run_dir/time.gnu.out ]; then
+				awk ' /Maximum resident set size (kbytes)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' $cmd_run_dir/time.gnu.out >>$cmd_run_dir/status
+			elif [ -f $cmd_run_dir/time.bsd.out ]; then
+				awk ' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } ' $cmd_run_dir/time.bsd.out >>$cmd_run_dir/status
+			fi
+			kill -s SIGINT $PID
+			# By exiting here, the "wait / printf / return" sequence is not reached below
+			exit $exit_code
+		fi
+	}
+	handle_term() {
+		if [ -n "$PID" ]; then
+			exit_code=$((128 + $(kill -l SIGTERM)))
+			printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code $(date '+%s') >>$cmd_run_dir/status
+			if [ -f $cmd_run_dir/time.gnu.out ]; then
+				awk ' /Maximum resident set size (kbytes)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' $cmd_run_dir/time.gnu.out >>$cmd_run_dir/status
+			elif [ -f $cmd_run_dir/time.bsd.out ]; then
+				awk ' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } ' $cmd_run_dir/time.bsd.out >>$cmd_run_dir/status
+			fi
+			kill -s SIGTERM $PID
+			exit $exit_code
+		fi
+	}
+	handle_kill() {
+		if [ -n "$PID" ]; then
+			exit_code=$((128 + $(kill -l SIGKILL)))
+			printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code $(date '+%s') >>$cmd_run_dir/status
+			if [ -f $cmd_run_dir/time.gnu.out ]; then
+				awk ' /Maximum resident set size (kbytes)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' $cmd_run_dir/time.gnu.out >>$cmd_run_dir/status
+			elif [ -f $cmd_run_dir/time.bsd.out ]; then
+				awk ' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } ' $cmd_run_dir/time.bsd.out >>$cmd_run_dir/status
+			fi
+			kill -s SIGKILL $PID
+			exit $exit_code
+		fi
+	}
+	if [ "$1" == 'fg' ]; then
+		trap handle_int INT
+		trap handle_term TERM
+		trap handle_kill KILL
+	fi
+
+	# Subtle quoting things:
+	#  - $? needs to be escaped as \$? in "" or it will immediately evaluate
+	#  - $(date) needs to be single quoted or it will immediately evaluate
+	#  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
+	if [ -z "$TIME_VERSION" ]; then
+		if [ -n "$(/usr/bin/time --version 2>/dev/null | grep GNU)" ]; then
+			TIME_VERSION='GNU'
+		else
+			TIME_VERSION='BSD'
+		fi
+	fi
+	if [ "$TIME_VERSION" == 'GNU' ]; then
+		local time_flag='-v'
+		local time_filename='time.gnu.out'
+	else
+		local time_flag='-l'
+		local time_filename='time.bsd.out'
+	fi
+	if [ "$1" == 'bg' ]; then
+		nohup bash -c "cd $cmd_run_dir; printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > status; /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &> console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> status; if [ -f time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" time.gnu.out >> status; elif [ -f time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" time.bsd.out >> status; fi
+" >/dev/null &
+	else
+		cd $cmd_run_dir
+		printf 'Nickname:\t%s\nStartTime:\t%s\n' "$nickname" $(date "+%s") >status
+		# Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
+		set +e
+		/usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &>console.log &
+		PID=$!
+		wait $PID
+		local exit_code=$?
+		set -e
+		printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >>status
+		if [ -f time.gnu.out ]; then
+			awk -F: ' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' time.gnu.out >>status
+		elif [ -f time.bsd.out ]; then
+			awk ' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } ' time.bsd.out >>status
+		fi
+		return $exit_code
+	fi
+}
+
+if [ -n "$1" ] && [ "$1" == 'run' ]; then
+	if [ -z "$2" ]; then
+		echo 'Missing path to template / saved config `iflank run <path>`'
+		exit 1
+	fi
+
+	# Exits if a simple command exits with a non-zero status
+	set -e
+	run_cmd "fg" "$2"
+	exit_code=$?
+	exit $exit_code
+fi
+
+# This traps SIGPIPE, which would get sent if this program tried to write to a broken pipe
+trap "echo 'server disconnected (write pipe)'; exit 1" PIPE
+
+# This function gets called whenever `read` fails, which happens if OS sends EOF, which happens if pipe is closed
+readerr() {
+	echo 'Error on read, server => iflank pipe is probably closed'
+	exit 1
+}
+
+PAGE='HOME'
+PROMPT='iflank> '
+MODE='TTY'
+
+help_msg() {
+	printf 'Usage: iflank [run <path>] [--http-mode | -h]\n'
+}
+
+while [ "$1" != "" ]; do
+	case $1 in
+	--http-mode)
+		MODE='HTTP'
+		PROMPT=''
+		PAGE='HTTP_INIT'
+		;;
+	-h | --help)
+		help_msg
+		exit
+		;;
+	*)
+		help_msg
+		exit 1
+		;;
+	esac
+	shift
+done
+
+if [ -d /var/lib/flank ]; then
+	FLANK_ROOT=/var/lib/flank
+elif [ -d /opt/homebrew/var/flank ]; then
+	FLANK_ROOT=/opt/homebrew/var/flank
+elif [ -d /usr/local/var/flank ]; then
+	FLANK_ROOT=/usr/local/var/flank
+elif [ -n $(which brew) && $(brew --prefix) >0 ]; then
+	FLANK_ROOT=$(brew --prefix)/var
+else
+	echo "Cannot find flank root!"
+	exit
+fi
+PS_VERSION=''
+FIND_VERSION=''
+DATE_VERSION=''
+TIME_VERSION=''
+
+cd $FLANK_ROOT
+while true; do
+	if [ "$PAGE" == 'HTTP_INIT' ]; then
+		: # no-op
+	elif [ "$PWD" == "$FLANK_ROOT/runs" ]; then
+		PAGE='GLOBAL_RUN_DATES'
+	elif [ "$PWD" == "$FLANK_ROOT" ]; then
+		PAGE='HOME'
+	elif [ -f template.sh ]; then
+		PAGE='CMD'
+	elif [ -f status ]; then
+		PAGE='LOG_DIR'
+	elif [ "$(basename $PWD)" == 'runs' ]; then
+		PAGE='GLOBAL_RUN_DATES'
+	else
+		PAGE='FS'
+	fi
+	case "$PAGE" in
+	HTTP_INIT)
+		read -rp "$PROMPT" choice || readerr
+		case $choice in
+		refresh)
+			PAGE='HOME'
+			;;
+		*)
+			echo "ERROR: Invalid input to HTTP_INIT: $choice" 1>&2
+			PAGE='HOME'
+			;;
+		esac
+		;;
+	HOME)
+		echo '%PAGESTART%'
+		# header_pwd
+		# echo ''
+		echo 'Welcome to Flank! v0.1.41'
+		echo ''
+		if [ $MODE == 'TTY' ]; then
+			ls -1
+		else
+			ls -1 | awk ' 
+		    { 
+			content=$0;
+			if(content == "runs"){
+			    content="History";
+			} else if(content == "cmds"){
+			    content="Commands";
+			}
+			print "<a onclick=\"run('\''cd "$0"'\'')\">"content"</a>" 
+		    } '
+		fi
+		echo '%PAGEEND%'
+		read -rp "$PROMPT" choice args || readerr
+		case $choice in
+		cd)
+			cd $args
+			;;
+		refresh) ;;
+		*)
+			read -rp "Invalid choice! Hit [Enter] to continue" || readerr
+			;;
+		esac
+		;;
+	GLOBAL_RUN_DATES)
+		echo '%PAGESTART%'
+		header_pwd
+		echo ''
+		echo '<table><thead id="thead"></thead><tbody id="tbody"></tbody></table>'
+		echo '%PAGEEND%'
+		# if [ $MODE == 'TTY' ]; then
+		#     ls -1
+		# else
+		#     ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
+		# fi
+		awk_columns='
+		NR==1 { prev=FILENAME; } 
+		FNR==1 && NR!=1 { 
+		    if(st != ""){
+			if(DATE_VERSION == "gnu"){
+			    cmd = "date -d @"st" +\"%Y-%m-%d %H:%M:%S\""; 
+			} else {
+			    cmd = "date -r "st" +\"%Y-%m-%d %H:%M:%S\""; 
+			}
+			cmd | getline stf; 
+			close(cmd);
+		    } else {
+			stf = "";
+		    }
+
+		    if(et != ""){
+			if(DATE_VERSION == "gnu"){
+			    cmd = "date -d @"et" +\"%Y-%m-%d %H:%M:%S\""; 
+			} else {
+			    cmd = "date -r "et" +\"%Y-%m-%d %H:%M:%S\""; 
+			}
+			cmd | getline etf;
+			close(cmd);
+		    } else {
+			etf = "";
+		    }
+
+		    n = split(prev, path_parts, "/");
+		    
+		    pid="";
+		    if(code == ""){
+			logdir="";
+			for(i = 1; i < n; i++){
+			    logdir=logdir""path_parts[i];
+			    if(i < n - 1) {
+				logdir=logdir"/";
+			    }
+			}
+			if(PS_VERSION=="procps"){
+			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+			}
+			else {
+			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+			}
+			cmd | getline pid;
+			close(cmd);
+		    }
+		    cmd = "dirname "prev;
+		    cmd | getline dir;
+		    close(cmd)
+		    filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
+		    if(nickname != ""){
+			filename=nickname"-"filename;
+		    }
+		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
+		    linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
+
+		    print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRSSGiB;
+
+		    prev=FILENAME; 
+		    st=""; 
+		    et=""; 
+		    code="";
+		    nickname="";
+		    pid="";
+		    maxRSSGiB="";
+		} 
+		/StartTime/ { st=$2; } 
+		/EndTime/ { et=$2 } 
+		/ExitCode/ { code=$2 } 
+		/Nickname/ { nickname=$2 } 
+		/MaxRSSBytes/ { maxRSSGiB= sprintf("%.3f", $2 / 1073741824); }
+		END { 
+		    if(st != ""){
+			if(DATE_VERSION == "gnu"){
+			    cmd = "date -d @"st" +\"%Y-%m-%d %H:%M:%S\""; 
+			} else {
+			    cmd = "date -r "st" +\"%Y-%m-%d %H:%M:%S\""; 
+			}
+			cmd | getline stf; 
+			close(cmd);
+		    } else {
+			stf = "";
+		    }
+
+		    if(et != ""){
+			if(DATE_VERSION == "gnu"){
+			    cmd = "date -d @"et" +\"%Y-%m-%d %H:%M:%S\""; 
+			} else {
+			    cmd = "date -r "et" +\"%Y-%m-%d %H:%M:%S\""; 
+			}
+			cmd | getline etf;
+			close(cmd);
+		    } else {
+			etf = "";
+		    }
+
+		    n = split(prev, path_parts, "/");
+		    
+		    pid="";
+		    if(code == ""){
+			logdir="";
+			for(i = 1; i < n; i++){
+			    logdir=logdir""path_parts[i];
+			    if(i < n - 1) {
+				logdir=logdir"/";
+			    }
+			}
+			if(PS_VERSION=="procps"){
+			    cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+			}
+			else {
+			    cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+			}
+			cmd | getline pid;
+			close(cmd);
+		    }
+		    cmd = "dirname "prev;
+		    cmd | getline dir;
+		    close(cmd);
+		    filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
+		    if(nickname != ""){
+			filename=nickname"-"filename;
+		    }
+		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
+		    linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
+
+		    print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRSSGiB;
+		}'
+		awk_tsv_to_html='
+		{ print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td><td>"$8"</td><td>"$9"</td></tr>" }'
+
+		if [ -z "$PS_VERSION" ]; then
+			if [ -n "$(ps --version 2>/dev/null | grep procps)" ]; then
+				PS_VERSION='procps'
+			else
+				PS_VERSION='bsd'
+			fi
+		fi
+		if [ -z "$FIND_VERSION" ]; then
+			if [ -n "$(find --version 2>/dev/null | grep GNU)" ]; then
+				FIND_VERSION='gnu'
+			else
+				FIND_VERSION='bsd'
+			fi
+		fi
+		if [ -z "$DATE_VERSION" ]; then
+			if [ -n "$(date --version 2>/dev/null | grep GNU)" ]; then
+				DATE_VERSION='gnu'
+			else
+				DATE_VERSION='bsd'
+			fi
+		fi
+		if [ "$(pwd)" == "$FLANK_ROOT/runs" ]; then
+			search_root=$FLANK_ROOT/cmds
+		else
+			search_root=$(pwd)
+		fi
+
+		echo %TABLEHEADSTART%
+		echo '<th></th><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th><th>Max RAM (GiB)</th>'
+		echo %TABLEHEADEND%
+
+		echo %APPENDTRSTART%
+		pid=''
+		if [ "$MODE" == 'TTY' ]; then
+			if [ "$FIND_VERSION" == 'gnu' ]; then
+				find $search_root -type f -regextype posix-extended -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
+					sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
+					sort -nr |
+					cut -f2 |
+					xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns"
+			else
+				find -E $search_root -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
+					sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
+					sort -nr |
+					cut -f2 |
+					xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns"
+			fi
+		else
+			if [ "$FIND_VERSION" == 'gnu' ]; then
+				(
+					find $search_root -type f -regextype posix-extended -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
+						sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
+						sort -nr |
+						cut -f2 |
+						xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" |
+						awk -W interactive -v FS='\t' "$awk_tsv_to_html"
+					echo '%APPENDTREND%'
+				) &
+			else
+				(
+					find -E $search_root -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
+						sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
+						sort -nr |
+						cut -f2 |
+						xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" |
+						awk -v FS='\t' "$awk_tsv_to_html"
+					echo '%APPENDTREND%'
+				) &
+			fi
+		fi
+		pid=$!
+		read -rp "$PROMPT" choice args || readerr
+		kill -TERM -"$pid" 2>/dev/null
+		case $choice in
+		cd)
+			cd $args
+			;;
+		refresh) ;;
+		*)
+			read -rp "Invalid choice! Hit [Enter] to continue" || readerr
+			;;
+		esac
+		;;
+	FS)
+		echo '%PAGESTART%'
+		header_pwd
+		echo ""
+		if [ $MODE == 'TTY' ]; then
+			ls -1
+		else
+			ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
+		fi
+		echo '%PAGEEND%'
+		read -rp "$PROMPT" choice arg || readerr
+		case $choice in
+		cd)
+			cd $arg
+			;;
+		refresh) ;;
+		*)
+			read -rp "Invalid choice! Hit [Enter] to continue" || readerr
+			;;
+		esac
+		;;
+	CMD)
+		echo '%PAGESTART%'
+		header_pwd
+		echo ''
+		if [ "$MODE" == 'TTY' ]; then
+			echo 'Next: run . / cd runs'
+		else
+			echo '<a onclick="run('\''run .'\'')">Run</a>'
+			echo '<a onclick="run('\''cd runs'\'')">Logs</a>'
+		fi
+		echo '%PAGEEND%'
+		read -rp "$PROMPT" choice args || readerr
+		case $choice in
+		run)
+			if [ "$args" == '.' ]; then
+				run_cmd 'bg'
+			else
+				echo 'Must run this command via "run ."'
+			fi
+			;;
+		cd)
+			cd $args
+			;;
+		refresh) ;;
+		*)
+			read -rp "Invalid choice! Hit [Enter] to continue" || readerr
+			;;
+		esac
+		;;
+	LOG_DIR)
+		echo '%PAGESTART%'
+		header_pwd
+		echo ''
+		echo '<div id="pageBody"></div>'
+		if [ "$PS_VERSION" == 'procps' ]; then
+			pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+		else
+			pid=$(ps -x | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+		fi
+		if [ -z "$pid" ]; then
+			echo 'Next: cat [file] / cd [dir]'
+		else
+			echo '<a onclick="run('\''kill'\'')">Kill</a>'
+		fi
+		if [ "$MODE" == 'HTTP' ]; then
+			path_components=(${PWD//\// })
+			length=${#path_components[@]}
+			filename=${path_components[$((length - 4))]}"-"${path_components[$((length - 2))]}"_"${path_components[$((length - 1))]}".log"
+			echo '<a href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
+		fi
+		echo '%PAGEEND%'
+		echo '%APPENDPAGEBODYSTART%'
+		if [ -f console.log ]; then
+			cat console.log
+		fi
+		echo '%APPENDPAGEBODYEND%'
+		read -rp "$PROMPT" choice args || readerr
+		case $choice in
+		kill)
+			kill $pid
+			;;
+		refresh) ;;
+		*)
+			read -rp "Invalid choice! Hit [Enter] to continue" || readerr
+			;;
+		esac
+		;;
+	*)
+		echo '%PAGESTART%'
+		echo "Got into weird state. Hit Ctrl-C to quit"
+		echo '%PAGEEND%'
+		;;
+	esac
+done
