@@ -602,12 +602,22 @@ while true; do
 			echo '<a href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
 		fi
 		echo '%PAGEEND%'
-		echo '%APPENDPAGEBODYSTART%'
+		tail_pid=''
 		if [ -f console.log ]; then
-			cat console.log
+			if [ -z "$pid" ]; then
+				echo '%APPENDPAGEBODYSTART%'
+				cat console.log
+				echo '%APPENDPAGEBODYEND%'
+			else
+				echo '%STREAMPAGEBODYSTART%'
+				tail -f -n +1 console.log &
+				tail_pid=$!
+			fi
 		fi
-		echo '%APPENDPAGEBODYEND%'
 		read -rp "$PROMPT" choice args || readerr
+		if [ -n "$tail_pid" ]; then
+			kill -TERM -"$tail_pid" 2>/dev/null
+		fi
 		case $choice in
 		kill)
 			kill $pid

@@ -198,6 +198,13 @@
               pageBody.insertAdjacentHTML("beforeend", accumulatingResponse);
               accumulatingResponse = "";
             }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%STREAMPAGEBODYSTART%\n", i)
+          ) {
+            accumulatingResponse = "";
+            state = "insidePageBodyStream";
+            i += "%STREAMPAGEBODYSTART%\n".length - 1;
           } else if (state.startsWith("inside")) {
             accumulatingResponse += thisText[i];
           }
@@ -222,7 +229,12 @@
           const pageBody = document.getElementById("pageBody");
           pageBody.insertAdjacentHTML("beforeend", accumulatingResponse);
           accumulatingResponse = "";
+        } else if (state == "insidePageBodyStream") {
+          const pageBody = document.getElementById("pageBody");
+          pageBody.insertAdjacentHTML("beforeend", accumulatingResponse);
+          accumulatingResponse = "";
         }
+
         // history.pushState({}, "", "/derp");
 
         longPoll();
