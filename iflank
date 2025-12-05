@@ -636,7 +636,7 @@ while true; do
 
 		# Write the PID to a file so that the background job running `tail -f` 
 		# can mutate it (set it to '' once the process finishes)
-		tail_pgid_file=$(mktemp)
+		tail_pid_file=$(mktemp)
 		if [ -z "$pid" ]; then
 			echo '%APPENDPAGEBODYSTART%'
 			cat console.log
@@ -647,15 +647,15 @@ while true; do
 				echo '%STREAMPAGEBODYSTART%'
 				tail -f -n +1 console.log &
 				pid=$!
-				echo "$pid" > $tail_pgid_file
+				echo "$pid" > $tail_pid_file
 				wait "$pid"
-				: > $tail_pgid_file 
+				: > $tail_pid_file 
 			} &
 		fi
 		read -rp "$PROMPT" choice args || readerr
-		tail_pgid=$(cat $tail_pgid_file)
-		if [ -n "$tail_pgid" ]; then
-			kill_tree "$tail_pgid"
+		tail_pid=$(cat $tail_pid_file)
+		if [ -n "$tail_pid" ]; then
+			kill_tree "$tail_pid"
 		fi
 		case $choice in
 		kill)
