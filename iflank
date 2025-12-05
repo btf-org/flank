@@ -24,15 +24,15 @@ header_pwd() {
 }
 
 kill_tree() {
-	local parent=$1
-	# find direct children
-	local children
-	children=$(pgrep -P "$parent")
-	for child in $children; do
-		kill_tree "$child" # recurse into grandchildren
-	done
-	# kill the parent itself
-	kill -TERM "$parent" 2>/dev/null
+	     local parent=$1
+	     # find direct children
+	     local children
+	     children=$(pgrep -P "$parent")
+	     for child in $children; do
+	         kill_tree "$child"   # recurse into grandchildren
+	     done
+	     # kill the parent itself
+	     kill -TERM "$parent" 2>/dev/null
 }
 run_cmd() {
 	if [ "$1" != 'bg' ] && [ "$1" != 'fg' ]; then
@@ -518,13 +518,13 @@ while true; do
 						xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" |
 						awk -W interactive -v FS='\t' "$awk_tsv_to_html" && echo '%APPENDTREND%' &
 					pid=$!
-					echo "$pid" >$history_pid_file
-					wait "$pid"
-					: >$history_pid_file
+					echo "$pid" > $history_pid_file
+					wait "$pid" 
+					: > $history_pid_file
 				} &
 			else
 				{
-
+					
 					find -E $search_root -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
 						sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
 						sort -nr |
@@ -532,16 +532,16 @@ while true; do
 						xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" |
 						awk -v FS='\t' "$awk_tsv_to_html" && echo '%APPENDTREND%' &
 					pid=$!
-					echo "$pid" >$history_pid_file
-					wait "$pid"
-					: >$history_pid_file
+					echo "$pid" > $history_pid_file
+					wait "$pid" 
+					: > $history_pid_file
 				} &
 			fi
 		fi
 		read -rp "$PROMPT" choice args || readerr
 		history_pid=$(cat $history_pid_file)
 		if [ -n "$history_pid" ]; then
-			kill_tree "$history_pid"
+			kill_tree "$history_pid" 
 		fi
 		case $choice in
 		cd)
@@ -619,7 +619,7 @@ while true; do
 			fi
 			echo "LOOP $pid" 1>&2
 			sleep 1
-			i=$((i + 1))
+			i=$((i+1))
 		done
 		if [ -z "$pid" ]; then
 			echo 'Next: cat [file] / cd [dir]'
@@ -634,7 +634,7 @@ while true; do
 		fi
 		echo '%PAGEEND%'
 
-		# Write the PID to a file so that the background job running `tail -f`
+		# Write the PID to a file so that the background job running `tail -f` 
 		# can mutate it (set it to '' once the process finishes)
 		tail_pid_file=$(mktemp)
 		if [ -z "$pid" ]; then
@@ -642,14 +642,14 @@ while true; do
 			cat console.log
 			echo '%APPENDPAGEBODYEND%'
 		else
-			{
+			{ 
 				while [ ! -f console.log ]; do sleep 1; done
 				echo '%STREAMPAGEBODYSTART%'
 				tail -f -n +1 console.log &
 				pid=$!
-				echo "$pid" >$tail_pid_file
+				echo "$pid" > $tail_pid_file
 				wait "$pid"
-				: >$tail_pid_file
+				: > $tail_pid_file 
 			} &
 		fi
 		read -rp "$PROMPT" choice args || readerr
@@ -660,6 +660,9 @@ while true; do
 		case $choice in
 		kill)
 			kill $pid
+			;;
+		cd)
+			cd $args
 			;;
 		refresh) ;;
 		*)
