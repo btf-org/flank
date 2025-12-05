@@ -612,24 +612,24 @@ while true; do
 			echo '<a href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
 		fi
 		echo '%PAGEEND%'
+
+		# Write the PID to a file so that the bash process running `tail -f` 
+		# can mutate it (set it to '' once the process finishes)
 		tail_pid_file=$(mktemp)
 		if [ -z "$pid" ]; then
 			echo '%APPENDPAGEBODYSTART%'
 			cat console.log
 			echo '%APPENDPAGEBODYEND%'
 		else
+			# Use `setsid` to give the commands in the bash process the same PGID
+			# The default behavior is to inherit the PGID of this executable
 			setsid bash -c "while [ ! -f console.log ]; do sleep 1; done; echo '%STREAMPAGEBODYSTART%'; tail -f -n +1 console.log; : > $tail_pid_file" &
 			echo $! > $tail_pid_file
-			echo "$tail_pid_file contents" 1>&2
-			cat $tail_pid_file 1>&2
 		fi
 		read -rp "$PROMPT" choice args || readerr
 		tail_pid=$(cat $tail_pid_file)
-		echo "tail_pid $tail_pid" 1>&2
 		if [ -n "$tail_pid" ]; then
-			echo "kill $tail_pid" 1>&2
-			ps $tail_pid 1>&2
-			kill -TERM -- -"$tail_pid" # 2>/dev/null
+			kill -TERM -- -"$tail_pid"
 		fi
 		case $choice in
 		kill)
