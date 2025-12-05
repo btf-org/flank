@@ -609,35 +609,41 @@ while true; do
 		header_pwd
 		echo ''
 		echo '<div id="pageBody"></div>'
-		pid=''
-		i=0
-		while [ -z "$pid" ] && [ "$i" -lt 3 ]; do
+		state=''
+		if [ -f status ] && grep 'ExitCode:' status; then
+			state='after'
+		elif [ -f console.log ]; then
+			state='during'
+		else
+			state='before'
+		fi
+
+		if [ $state == 'during' ]; then
 			if [ "$PS_VERSION" == 'procps' ]; then
 				pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 			else
 				pid=$(ps -x | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 			fi
-			echo "LOOP $pid" 1>&2
-			sleep 1
-			i=$((i+1))
-		done
+		fi
+		disabled_class=''
 		if [ -z "$pid" ]; then
-			echo 'Next: cat [file] / cd [dir]'
-		else
-			echo '<a onclick="run('\''kill'\'')">Kill</a>'
+			disabled_class='class="disabled"'
 		fi
-		if [ "$MODE" == 'HTTP' ]; then
-			path_components=(${PWD//\// })
-			length=${#path_components[@]}
-			filename=${path_components[$((length - 4))]}"-"${path_components[$((length - 2))]}"_"${path_components[$((length - 1))]}".log"
-			echo '<a href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
+		echo '<a '"$disabled_class"' onclick="run('\''kill'\'')">Kill</a>'
+		disabled_class=''
+		path_components=(${PWD//\// })
+		length=${#path_components[@]}
+		filename=${path_components[$((length - 4))]}"-"${path_components[$((length - 2))]}"_"${path_components[$((length - 1))]}".log"
+		if [ ! -f console.log ]; then
+			disabled_class='class="disabled"'
 		fi
+		echo '<a '"$disabled_class"' href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
 		echo '%PAGEEND%'
 
 		# Write the PID to a file so that the background job running `tail -f` 
 		# can mutate it (set it to '' once the process finishes)
 		tail_pid_file=$(mktemp)
-		if [ -z "$pid" ]; then
+		if [ "$state" == 'after' ]; then
 			echo '%APPENDPAGEBODYSTART%'
 			cat console.log
 			echo '%APPENDPAGEBODYEND%'
