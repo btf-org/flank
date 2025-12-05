@@ -153,6 +153,8 @@ run_cmd() {
 		local time_flag='-l'
 		local time_filename='time.bsd.out'
 	fi
+	echo $cmd_run_dir
+
 	if [ "$1" == 'bg' ]; then
 		nohup bash -c "cd $cmd_run_dir; printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > status; /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &> console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> status; if [ -f time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" time.gnu.out >> status; elif [ -f time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" time.bsd.out >> status; fi
 " >/dev/null &
@@ -252,7 +254,7 @@ while true; do
 		PAGE='HOME'
 	elif [ -f template.sh ]; then
 		PAGE='CMD'
-	elif [ -f status ]; then
+	elif [ -f status ] || [ -f exec.sh ]; then
 		PAGE='LOG_DIR'
 	elif [ "$(basename $PWD)" == 'runs' ]; then
 		PAGE='GLOBAL_RUN_DATES'
@@ -566,7 +568,8 @@ while true; do
 		case $choice in
 		run)
 			if [ "$args" == '.' ]; then
-				run_cmd 'bg'
+				cmd_run_dir=$(run_cmd 'bg')
+				cd "$cmd_run_dir"
 			else
 				echo 'Must run this command via "run ."'
 			fi
@@ -585,11 +588,18 @@ while true; do
 		header_pwd
 		echo ''
 		echo '<div id="pageBody"></div>'
-		if [ "$PS_VERSION" == 'procps' ]; then
-			pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
-		else
-			pid=$(ps -x | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
-		fi
+		pid=''
+		i=0
+		while [ -z "$pid" ] && [ "$i" -lt 3 ]; do
+			if [ "$PS_VERSION" == 'procps' ]; then
+				pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+			else
+				pid=$(ps -x | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+			fi
+			echo "LOOP $pid" 1>&2
+			sleep 1
+			i=$((i+1))
+		done
 		if [ -z "$pid" ]; then
 			echo 'Next: cat [file] / cd [dir]'
 		else
@@ -603,20 +613,18 @@ while true; do
 		fi
 		echo '%PAGEEND%'
 		tail_pid=''
-		if [ -f console.log ]; then
-			if [ -z "$pid" ]; then
-				echo '%APPENDPAGEBODYSTART%'
-				cat console.log
-				echo '%APPENDPAGEBODYEND%'
-			else
-				echo '%STREAMPAGEBODYSTART%'
-				tail -f -n +1 console.log &
-				tail_pid=$!
-			fi
+		# pid='fake'
+		if [ -z "$pid" ]; then
+			echo '%APPENDPAGEBODYSTART%'
+			cat console.log
+			echo '%APPENDPAGEBODYEND%'
+		else
+			(while [ ! -f console.log ]; do sleep 1; done; echo '%STREAMPAGEBODYSTART%'; tail -f -n +1 console.log) &
+			tail_pid=$!
 		fi
 		read -rp "$PROMPT" choice args || readerr
 		if [ -n "$tail_pid" ]; then
-			kill -TERM -"$tail_pid" 2>/dev/null
+			kill "$tail_pid" 2>/dev/null
 		fi
 		case $choice in
 		kill)
