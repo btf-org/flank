@@ -134,12 +134,12 @@
             thisText.startsWith("%PAGEEND%\n", i)
           ) {
             const prevState = state;
-            state = "outside";
             i += "%PAGEEND%\n".length - 1;
             if (prevState == "insidePage") {
               const container = document.getElementById("container");
               container.innerHTML = accumulatingResponse;
               accumulatingResponse = "";
+              state = "outside";
             }
           } else if (
             thisText[i] == "%" &&
@@ -153,12 +153,12 @@
             thisText.startsWith("%TABLEHEADEND%\n", i)
           ) {
             const prevState = state;
-            state = "outside";
             i += "%TABLHEADEND%\n".length - 1;
             if (prevState == "insideTableHead") {
               const thead = document.getElementById("thead");
               thead.innerHTML = accumulatingResponse;
               accumulatingResponse = "";
+              state = "outside";
             }
           } else if (
             thisText[i] == "%" &&
@@ -172,12 +172,12 @@
             thisText.startsWith("%APPENDTREND%\n", i)
           ) {
             const prevState = state;
-            state = "outside";
             i += "%APPENDTREND%\n".length - 1;
             if (prevState == "insideTableRowAppend") {
               const tbody = document.getElementById("tbody");
               tbody.insertAdjacentHTML("beforeend", accumulatingResponse);
               accumulatingResponse = "";
+              state = "outside";
             }
           } else if (
             thisText[i] == "%" &&
@@ -191,12 +191,12 @@
             thisText.startsWith("%APPENDPAGEBODYEND%\n", i)
           ) {
             const prevState = state;
-            state = "outside";
             i += "%APPENDPAGEBODYEND%\n".length - 1;
             if (prevState == "insidePageBodyAppend") {
               const pageBody = document.getElementById("pageBody");
               pageBody.insertAdjacentHTML("beforeend", accumulatingResponse);
               accumulatingResponse = "";
+              state = "outside";
             }
           } else if (
             thisText[i] == "%" &&
