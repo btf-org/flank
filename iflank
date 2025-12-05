@@ -22,6 +22,18 @@ header_pwd() {
 	    print line;
 	} '
 }
+
+kill_tree() {
+	     local parent=$1
+	     # find direct children
+	     local children
+	     children=$(pgrep -P "$parent")
+	     for child in $children; do
+	         kill_tree "$child"   # recurse into grandchildren
+	     done
+	     # kill the parent itself
+	     kill -TERM "$parent" 2>/dev/null
+}
 run_cmd() {
 	if [ "$1" != 'bg' ] && [ "$1" != 'fg' ]; then
 		echo "first parameter $1 must be 'fg' or 'bg'"
@@ -510,23 +522,27 @@ while true; do
 					echo '\''%APPENDTREND%'\''
 					: > '"$history_pgid_file"'
 				' &
+				echo $! > $history_pgid_file
 			else
-				(
+				{
+					
 					find -E $search_root -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
 						sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
 						sort -nr |
 						cut -f2 |
 						xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" |
-						awk -v FS='\t' "$awk_tsv_to_html"
-					echo '%APPENDTREND%'
-				) &
+						awk -v FS='\t' "$awk_tsv_to_html" && echo '%APPENDTREND%' &
+					pgid=$!
+					echo "$pgid" > $history_pgid_file
+					wait "$pgid" 
+					: > $history_pgid_file
+				} &
 			fi
 		fi
-		echo $! > $history_pgid_file
 		read -rp "$PROMPT" choice args || readerr
 		history_pgid=$(cat $history_pgid_file)
 		if [ -n "$history_pgid" ]; then
-			kill -TERM -- -"$history_pgid" 
+			kill_tree "$history_pgid" 
 		fi
 		case $choice in
 		cd)
