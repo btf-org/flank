@@ -5,11 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flank</title>
     <style>
+      #pHeader {
+        overflow-wrap: anywhere;
+        border-bottom: 1px solid black;
+      }
+      #pBody {
+        overflow: auto;
+        flex: 1;
+      }
+      .h-100vh {
+        height:100vh;
+      }
       .font-family-monospace {
         font-family: monospace;
       }
+      .white-space-nowrap {
+        white-space: nowrap;
+      }
       .white-space-pre {
         white-space: pre-line;
+      }
+      .m-0 {
+        margin: 0rem;
       }
       .p-1_25 {
         padding: 1.25rem;
@@ -46,12 +63,17 @@
         text-align: left;
         white-space: nowrap;
       }
+      #container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
     </style>
   </head>
-  <body class="p-1_25 font-family-monospace font-size-1">
+  <body class="font-family-monospace font-size-1 m-0 h-100vh">
     <div
       id="container"
-      class="white-space-pre p-1_25 my-0_75 border-1 border-color-black overflow-x-scroll"
+      class="white-space-pre"
     ></div>
     <script>
       let accumulatingResponse = "";

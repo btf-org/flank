@@ -19,7 +19,7 @@ header_pwd() {
 		} 
 		line=line"/<a onclick=\"run('\''cd "concat"'\'')\">"ppi"</a>";
 	    } 
-	    print line;
+	    print "<div id=\"pHeader\">"line"</div>";
 	} '
 }
 
@@ -290,11 +290,13 @@ while true; do
 		echo '%PAGESTART%'
 		# header_pwd
 		# echo ''
-		echo 'Welcome to Flank! v0.1.42'
 		echo ''
 		if [ $MODE == 'TTY' ]; then
+			echo 'Welcome to Flank! v0.1.42'
 			ls -1
 		else
+			echo '<div id="pBody">'
+			echo 'Welcome to Flank! v0.1.42'
 			ls -1 | awk ' 
 		    { 
 			content=$0;
@@ -305,6 +307,8 @@ while true; do
 			}
 			print "<a onclick=\"run('\''cd "$0"'\'')\">"content"</a>" 
 		    } '
+			echo '</div>'
+			echo '<div id="pFooter"></div>'
 		fi
 		echo '%PAGEEND%'
 		read -rp "$PROMPT" choice args || readerr
@@ -322,7 +326,8 @@ while true; do
 		echo '%PAGESTART%'
 		header_pwd
 		echo ''
-		echo '<table><thead id="thead"></thead><tbody id="tbody"></tbody></table>'
+		echo '<div id="pBody"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>'
+		echo '<div id='pFooter'></div>'
 		echo '%PAGEEND%'
 		# if [ $MODE == 'TTY' ]; then
 		#     ls -1
@@ -560,7 +565,10 @@ while true; do
 		if [ $MODE == 'TTY' ]; then
 			ls -1
 		else
+			echo '<div id="pBody">'
 			ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
+			echo '</div>'
+			echo '<div id="pFooter"></div>'
 		fi
 		echo '%PAGEEND%'
 		read -rp "$PROMPT" choice arg || readerr
@@ -581,8 +589,11 @@ while true; do
 		if [ "$MODE" == 'TTY' ]; then
 			echo 'Next: run . / cd runs'
 		else
+			echo '<div id="pBody"></div>'
+			echo '<div id="pFooter">'
 			echo '<a onclick="run('\''run .'\'')">Run</a>'
 			echo '<a onclick="run('\''cd runs'\'')">Logs</a>'
+			echo '</div>'
 		fi
 		echo '%PAGEEND%'
 		read -rp "$PROMPT" choice args || readerr
@@ -608,7 +619,7 @@ while true; do
 		echo '%PAGESTART%'
 		header_pwd
 		echo ''
-		echo '<div id="pageBody"></div>'
+		echo '<div id="pBody"></div>'
 		state=''
 		if [ -f status ] && grep 'ExitCode:' status; then
 			state='after'
@@ -629,6 +640,7 @@ while true; do
 		if [ -z "$pid" ]; then
 			disabled_class='class="disabled"'
 		fi
+		echo '<div id="pFooter">'
 		echo '<a '"$disabled_class"' onclick="run('\''kill'\'')">Kill</a>'
 		disabled_class=''
 		path_components=(${PWD//\// })
@@ -638,6 +650,7 @@ while true; do
 			disabled_class='class="disabled"'
 		fi
 		echo '<a '"$disabled_class"' href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
+		echo '</div>'
 		echo '%PAGEEND%'
 
 		# Write the PID to a file so that the background job running `tail -f` 
