@@ -8,10 +8,20 @@
       #pHeader {
         overflow-wrap: anywhere;
         border-bottom: 1px solid black;
+        padding: 0.5rem;
+      }
+      #pHeader a {
+        color: darkslateblue;
       }
       #pBody {
         overflow: auto;
         flex: 1;
+        padding: 0.5rem;
+        white-space: pre;
+      }
+      #pFooter {
+        padding: 0.5rem;
+        border-top: 1px solid black;
       }
       .h-100vh {
         height:100vh;
@@ -63,7 +73,7 @@
         text-align: left;
         white-space: nowrap;
       }
-      #container {
+      body {
         display: flex;
         flex-direction: column;
         height: 100%;
@@ -71,10 +81,6 @@
     </style>
   </head>
   <body class="font-family-monospace font-size-1 m-0 h-100vh">
-    <div
-      id="container"
-      class="white-space-pre"
-    ></div>
     <script>
       let accumulatingResponse = "";
       let accumulatingUrl = "";
@@ -134,8 +140,7 @@
           });
         } catch (err) {
           console.error(err);
-          const container = document.getElementById("container");
-          container.textContent = "Error reaching server: " + err.message;
+          document.body.textContent = "Error reaching server: " + err.message;
           return;
         }
       }
@@ -158,8 +163,7 @@
             const prevState = state;
             i += "%PAGEEND%\n".length - 1;
             if (prevState == "insidePage") {
-              const container = document.getElementById("container");
-              container.innerHTML = accumulatingResponse;
+              document.body.innerHTML = accumulatingResponse;
               accumulatingResponse = "";
               state = "outside";
             }
@@ -215,8 +219,8 @@
             const prevState = state;
             i += "%APPENDPAGEBODYEND%\n".length - 1;
             if (prevState == "insidePageBodyAppend") {
-              const pageBody = document.getElementById("pageBody");
-              pageBody.insertAdjacentHTML("beforeend", accumulatingResponse);
+              const pBody = document.getElementById("pBody");
+              pBody.insertAdjacentHTML("beforeend", accumulatingResponse);
               accumulatingResponse = "";
               state = "outside";
             }
@@ -248,12 +252,12 @@
           tbody.insertAdjacentHTML("beforeend", validHtml);
           accumulatingResponse = remainder;
         } else if (state == "insidePageBodyAppend") {
-          const pageBody = document.getElementById("pageBody");
-          pageBody.insertAdjacentHTML("beforeend", accumulatingResponse);
+          const pBody = document.getElementById("pBody");
+          pBody.insertAdjacentHTML("beforeend", accumulatingResponse);
           accumulatingResponse = "";
         } else if (state == "insidePageBodyStream") {
-          const pageBody = document.getElementById("pageBody");
-          pageBody.insertAdjacentHTML("beforeend", accumulatingResponse);
+          const pBody = document.getElementById("pBody");
+          pBody.insertAdjacentHTML("beforeend", accumulatingResponse);
           accumulatingResponse = "";
         }
 
