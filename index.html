@@ -10,8 +10,15 @@
         border-bottom: 1px solid black;
         padding: 0.5rem;
       }
-      #pHeader a {
+      .loading {
+        animation: borderpulse 1.4s ease-in-out infinite;
+      }
+      #pHeader a, #pFooter a {
         color: darkslateblue;
+      }
+      @keyframes borderpulse {
+        0%,100% { border-color: #666; }
+        50%     { border-color: #fff; }
       }
       #pBody {
         overflow: auto;
@@ -78,6 +85,7 @@
         flex-direction: column;
         height: 100%;
       }
+
     </style>
   </head>
   <body class="font-family-monospace font-size-1 m-0 h-100vh">
@@ -144,7 +152,15 @@
           return;
         }
       }
-
+      function setLoading(value){
+        if(value){
+          document.getElementById("pHeader").classList.add("loading");
+          document.getElementById("pFooter").classList.add("loading");
+        } else {
+          document.getElementById("pHeader").classList.remove("loading");
+          document.getElementById("pFooter").classList.remove("loading");
+        }
+      }
       async function longPoll() {
         const response = await fetch(window.location.origin + "/iflank", {
           method: "GET",
@@ -174,6 +190,7 @@
             accumulatingResponse = "";
             state = "insideTableHead";
             i += "%TABLEHEADSTART%\n".length - 1;
+            setLoading(true);
           } else if (
             thisText[i] == "%" &&
             thisText.startsWith("%TABLEHEADEND%\n", i)
@@ -185,6 +202,7 @@
               thead.innerHTML = accumulatingResponse;
               accumulatingResponse = "";
               state = "outside";
+              setLoading(false);
             }
           } else if (
             thisText[i] == "%" &&
@@ -193,6 +211,7 @@
             accumulatingResponse = "";
             state = "insideTableRowAppend";
             i += "%APPENDTRSTART%\n".length - 1;
+            setLoading(true);
           } else if (
             thisText[i] == "%" &&
             thisText.startsWith("%APPENDTREND%\n", i)
@@ -204,6 +223,7 @@
               tbody.insertAdjacentHTML("beforeend", accumulatingResponse);
               accumulatingResponse = "";
               state = "outside";
+              setLoading(false);
             }
           } else if (
             thisText[i] == "%" &&
@@ -212,6 +232,7 @@
             accumulatingResponse = "";
             state = "insidePageBodyAppend";
             i += "%APPENDPAGEBODYSTART%\n".length - 1;
+            setLoading(true);
           } else if (
             thisText[i] == "%" &&
             thisText.startsWith("%APPENDPAGEBODYEND%\n", i)
@@ -223,6 +244,7 @@
               pBody.insertAdjacentHTML("beforeend", accumulatingResponse);
               accumulatingResponse = "";
               state = "outside";
+              setLoading(false);
             }
           } else if (
             thisText[i] == "%" &&
@@ -231,6 +253,7 @@
             accumulatingResponse = "";
             state = "insidePageBodyStream";
             i += "%STREAMPAGEBODYSTART%\n".length - 1;
+            setLoading(true);
           } else if (state.startsWith("inside")) {
             accumulatingResponse += thisText[i];
           }
