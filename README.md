@@ -3,7 +3,7 @@ Flank is a wormhole from your browser to your command line.
 
 **Who's it for:** Backend engineers, SQL developers, data scientists
 
-**How do you use it:** Write a script and then run `$ flank myscript.py`. Flank will make a webpage for running that script. You'll see output in the browser as if you ran it in the terminal. Then you can add input fields, guardrails, and access control without writing HTML/CSS/JS. 
+**How do you use it:** Write a script and then run `$ . flank myscript.py`. Flank will make a webpage for running that script. You'll see output in the browser as if you ran it in the terminal. Then you can add input fields, guardrails, and access control without writing HTML/CSS/JS. 
 
 **Integrations:** Anything that's runnable from the CLI on Mac/Linux.
 
@@ -22,7 +22,7 @@ $ brew install btf-org/flank/flank
 
 #### Usage
 ```bash
-$ flank
+$ . flank myscript.sh
 ```
 
 #### Getting updates
