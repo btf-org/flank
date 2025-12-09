@@ -1,14 +1,16 @@
 # Flank
 Flank is a wormhole from your browser to your command line.
 
-It lets you (or, even better, non-technical teammates) runs scripts on your machine (or a remote machine). 
+**Who's it for:** Backend engineers, SQL developers, data scientists
 
-By setting up a wormhole for you and your teammates, you can avoid things like...
-- having to run the same ad-hoc query twice
-- having to build an internal website to expose a CRUD operation
-- having to deploy a script to a cloud function/API just to make it triggerable
-- having to use an orchestration tool to run tasks on a schedule
-  
+**How do you use it:** Write a script and then run `$ flank myscript.py`. Flank will make a webpage for running that script. You'll see output in the browser as if you ran it in the terminal. Then you can add input fields, guardrails, and access control without writing HTML/CSS/JS. 
+
+**Integrations:** Anything that's runnable from the CLI on Mac/Linux.
+
+**Problem solved:** It depends. For a SQL developer asked to do lot of ad-hoc analysis, Flank saves him from having to run the same query twice. For a data scientist needing more compute, it allows him to just use EC2 and not have to futz with Docker, AWS Batch, and Airflow.
+
+**Architecture:** Flank runs a web server on a computer (your laptop or a remote machine), and it exposes selected scripts on that computer.
+
 ## Mac / Homebrew
 
 #### Installation
@@ -50,4 +52,4 @@ Same as installation process, but replace the version numbers with the new one
 
 ## Windows / Other Linux Distros
 
-Not available... yet
+Not available at this time
