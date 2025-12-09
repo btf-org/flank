@@ -1,15 +1,14 @@
 # Flank
-Flank is a web interface for your CLI.
+Flank is a wormhole from your browser to your command line.
 
-The core use case is creating a web page for running a script/query. From there, you can go in various directions to productiionze it (e.g. guardrails, permissioning, etc.).
+It lets you (or, even better, non-technical teammates) runs scripts on your machine (or a remote machine). 
 
-It works like this:
-- You write a script
-- You run `$ flank my-script` (roughly) and Flank creates another script for running your script
-- This other script is triggerable through the web interface
-
-The main benefit to users is that they can ship tools by just writing backend code.
-
+By setting up a wormhole for you and your teammates, you can avoid things like...
+- having to run the same ad-hoc query twice
+- having to build an internal website to expose a CRUD operation
+- having to deploy a script to a cloud function/API just to make it triggerable
+- having to use an orchestration tool to run tasks on a schedule
+  
 ## Mac / Homebrew
 
 #### Installation
