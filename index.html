@@ -135,7 +135,24 @@
 
         return out;
       }
-
+      async function iflankForm(cmd) {
+        const form = document.getElementById("form");
+        const fd = new FormData(form);
+        try {
+          await fetch(window.location.origin + "/iflank", {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain",
+              "X-Session-ID": sid,
+            },
+            body: cmd + " " + new URLSearchParams(fd).toString() + "\n",
+          });
+        } catch (err) {
+          console.error(err);
+          document.body.textContent = "Error reaching server: " + err.message;
+          return;
+        }
+      }
       async function run(cmd) {
         try {
           await fetch(window.location.origin + "/iflank", {

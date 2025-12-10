@@ -35,12 +35,13 @@ kill_tree() {
 	     kill -TERM "$parent" 2>/dev/null
 }
 run_cmd() {
+	echo "$@" 1>&2
 	if [ "$1" != 'bg' ] && [ "$1" != 'fg' ]; then
 		echo "first parameter $1 must be 'fg' or 'bg'"
 		return 1
 	fi
 	local nickname=""
-	if [ -n "$2" ]; then
+	if [ -n "$2" ] && [ "$2" != '.' ]; then
 		if [ ! -f "$2" ]; then
 			echo "file \"$2\""' does not exist!'
 			return 1
@@ -91,10 +92,19 @@ run_cmd() {
 	# echo "$global_date_dir/$global_dir_name"
 	# ln -s $cmd_run_dir "$global_date_dir/$global_dir_name"
 
-	if [ -n "$2" ]; then
+	if [ -n "$2" ] && [ "$2" != '.' ]; then
 		cp "$2" $cmd_run_dir/exec.sh
 	else
-		cp $cmd_dir/template.sh $cmd_run_dir/exec.sh
+		i=1
+		for arg in "$@"; do
+			if [ $i -ge 3 ]; then
+		        key=${arg%%=*}
+				val=${arg#*=}
+				 eval "export $key=\$val"
+			 fi
+			 i=$((i + 1))
+		done
+		envsubst < $cmd_dir/template.sh > $cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
@@ -589,7 +599,12 @@ while true; do
 		if [ "$MODE" == 'TTY' ]; then
 			echo 'Next: run . / cd runs'
 		else
-			echo '<div id="pBody"></div>'
+			echo '<div id="pBody">'
+			echo '<form id="form" method="POST" enctype="multipart/form-data">'
+			grep -oE '\${([^}]+)}' template.sh | sed 's/^${//; s/}$//' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
+			echo '<div><button type="button" onclick="iflankForm('\''run .'\'')">Run</button></div>'
+			echo '</form>'
+			echo '</div>'
 			echo '<div id="pFooter">'
 			echo '<a onclick="run('\''run .'\'')">Run</a>'
 			echo '<a onclick="run('\''cd runs'\'')">Logs</a>'
@@ -599,15 +614,16 @@ while true; do
 		read -rp "$PROMPT" choice args || readerr
 		case $choice in
 		run)
-			if [ "$args" == '.' ]; then
-				cmd_run_dir=$(run_cmd 'bg')
+			if [ "${args%% *}" == '.' ]; then
+				split_kvs=$(echo "${args#* }" | tr '&' ' ')
+				cmd_run_dir=$(run_cmd 'bg' '.' $split_kvs)
 				cd "$cmd_run_dir"
 			else
 				echo 'Must run this command via "run ."'
 			fi
 			;;
 		cd)
-			cd $args
+			cd "${args[0]}"
 			;;
 		refresh) ;;
 		*)
