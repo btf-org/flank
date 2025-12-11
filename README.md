@@ -1,12 +1,5 @@
 # Flank
-- [Use Cases](#use-cases)
-- [Getting Started](#getting-started)
-- [Update Flank](#update-flank)
-
-# Use Cases
-- [Run a Node script on a schedule](#run-a-node-script-on-a-schedule)
-
-## Run a Node script on a schedule
+Flank is a tool that lets you **run a Node script on a schedule**:
 
 1. [Install Flank](#install-flank)
 2. [Start Flank](#start-flank)
@@ -15,12 +8,8 @@
    # assuming a Node script called "hello.js"...
    $ flank add hello.js
    ```
-4. Schedule script through Flank website
+4. Schedule exeuction of script through Flank website
 
-### Steps
-1. See: [Install Flank](#install-flank)
-
-# Getting Started
 ## Install Flank
 
 ### Mac
@@ -49,7 +38,7 @@ Not available at this time
 $ flank start
 ```
 
-# Update Flank
+## Update Flank
 
 ### Mac
 ```bash
