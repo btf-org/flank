@@ -608,6 +608,7 @@ while true; do
 			echo '<div id="pFooter">'
 			echo '<a onclick="run('\''run .'\'')">Run</a>'
 			echo '<a onclick="run('\''cd runs'\'')">Logs</a>'
+			echo '<a onclick="run('\''edit'\'')">Edit</a>'
 			echo '</div>'
 		fi
 		echo '%PAGEEND%'
@@ -624,6 +625,53 @@ while true; do
 			;;
 		cd)
 			cd "${args[0]}"
+			;;
+		edit)
+			echo '%PAGESTART%'
+			header_pwd
+			echo '<div id="pBody">'
+			echo '<form id="form" method="POST" enctype="multipart/form-data">'
+			echo 'file' | awk ' 
+				BEGIN {
+	    			# read and escape template file
+		  			while ((getline line < "template.sh") > 0) {
+						gsub(/&/, "&amp;", line);
+						gsub(/</, "&lt;", line);
+						gsub(/>/, "&gt;", line);
+						gsub(/"/, "&quot;", line);
+						gsub(/\t/, "&#9;", line);
+						template = template line "\n"
+		        	}
+					close("template.sh")
+		        }
+				{ print "<div><div>"$0"</div><textarea name=\""$0"\">"template"</textarea></div>" }'
+			echo '<div><button type="button" onclick="iflankForm('\''run .'\'')">Save</button></div>'
+			echo '</form>'
+			echo '</div>'
+			echo '<div id="pFooter">'
+			echo '<a onclick="run('\''run .'\'')">Run</a>'
+			echo '<a onclick="run('\''cd runs'\'')">Logs</a>'
+			echo '</div>'
+			echo '%PAGEEND%'
+			read -rp "$PROMPT" choice2 args2 || readerr
+			case $choice2 in
+				run)
+					if [ "${args2%% *}" == '.' ]; then
+						split_kvs=$(echo "${args2#* }" | tr '&' ' ')
+						file_contents="${args2#*=}"
+						echo "file contents" 1>&2
+						echo "$file_contents" 1>&2
+						cleaned_file=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<< ${file_contents})")
+						echo "cleaned file" 1>&2
+						echo "$cleaned_file" 1>&2
+						cat <<< "$cleaned_file" > template.sh
+					else
+						echo 'Must run this command via "run ."'
+					fi
+						
+					;;
+				*) ;;
+			esac
 			;;
 		refresh) ;;
 		*)
