@@ -6,7 +6,7 @@ Flank is a tool that lets you **run a Node script on a schedule**:
 3. Add your script to Flank
    ```bash
    # assuming a Node script called "hello.js"...
-   $ flank add hello.js
+   flank add hello.js
    ```
 4. Schedule exeuction of script through Flank website
 
@@ -15,16 +15,16 @@ Flank is a tool that lets you **run a Node script on a schedule**:
 ### Mac
 
 ```bash
-$ brew tap btf-org/flank
-$ brew install btf-org/flank/flank
+brew tap btf-org/flank
+brew install btf-org/flank/flank
 ```
 
 ### Linux / Ubuntu / apt
 
 ```bash
 # From any directory
-$ wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
-$ sudo apt install ./flank_0.1.36_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
+sudo apt install ./flank_0.1.36_amd64.deb
 ```
 
 ### Windows / Other Linux Distros
@@ -35,23 +35,23 @@ Not available at this time
 ## Start Flank
 
 ```bash
-$ flank start
+flank start
 ```
 
 ## Update Flank
 
 ### Mac
 ```bash
-$ brew update # should update all your "taps", including btf-org/flank
-$ brew install btf-org/flank/flank
+brew update # should update all your "taps", including btf-org/flank
+brew install btf-org/flank/flank
 ```
 
 ### Linux / Ubuntu
 
 ```bash
 # From any directory
-$ wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
-$ sudo apt install ./flank_0.1.36_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
+sudo apt install ./flank_0.1.36_amd64.deb
 ```
 
 ### Windows / Other Linux Distros
