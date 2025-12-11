@@ -1,54 +1,60 @@
 # Flank
-Flank is a web interface for your CLI.
+Flank is a tool that lets you **run a Node script on a schedule**:
 
-The core use case is creating a web page for running a script/query. From there, you can go in various directions to productiionze it (e.g. guardrails, permissioning, etc.).
+1. [Install Flank](#install-flank)
+2. [Start Flank](#start-flank)
+3. Add your script to Flank
+   ```bash
+   # assuming a Node script called "hello.js"...
+   flank add hello.js
+   ```
+4. Schedule exeuction of script through Flank website
 
-It works like this:
-- You write a script
-- You run `$ flank my-script` (roughly) and Flank creates another script for running your script
-- This other script is triggerable through the web interface
+## Install Flank
 
-The main benefit to users is that they can ship tools by just writing backend code.
-
-## Mac / Homebrew
-
-#### Installation
+### Mac
 
 ```bash
-$ brew tap btf-org/flank
-$ brew install btf-org/flank/flank
+brew tap btf-org/flank
+brew install btf-org/flank/flank
 ```
 
-#### Usage
-```bash
-$ flank
-```
-
-#### Getting updates
-```bash
-$ brew update # should update all your "taps", including btf-org/flank
-$ brew install btf-org/flank/flank
-```
-
-## Linux / Ubuntu / apt
-
-#### Installation
+### Linux / Ubuntu / apt
 
 ```bash
 # From any directory
-$ wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
-$ sudo apt install ./flank_0.1.36_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
+sudo apt install ./flank_0.1.36_amd64.deb
 ```
 
-#### Usage
+### Windows / Other Linux Distros
+
+Not available at this time
+
+
+## Start Flank
+
+```bash
+flank start
+```
+
+## Update Flank
+
+### Mac
+```bash
+brew update # should update all your "taps", including btf-org/flank
+brew install btf-org/flank/flank
+```
+
+### Linux / Ubuntu
+
 ```bash
 # From any directory
-$ . flank
+wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
+sudo apt install ./flank_0.1.36_amd64.deb
 ```
 
-#### Getting updates
-Same as installation process, but replace the version numbers with the new one
+### Windows / Other Linux Distros
 
-## Windows / Other Linux Distros
+Not available at this time
 
-Not available... yet
