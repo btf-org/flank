@@ -1,39 +1,35 @@
 # Flank
-Flank is a wormhole from your browser to your command line.
+- Use Cases
 
-**Who's it for:** Backend engineers, SQL developers, data scientists
+# Use Cases
+- [Run a Node script on a schedule](#run-a-node-script-on-a-schedule)
 
-**How do you use it:** Write a script and then run `$ . flank myscript.py`. Flank will make a webpage for running that script. You'll see output in the browser as if you ran it in the terminal. Then you can add input fields, guardrails, and access control without writing HTML/CSS/JS. 
+## Run a Node script on a schedule
 
-**Integrations:** Anything that's runnable from the CLI on Mac/Linux.
+### Overview
+- [ ] [Install Flank](#install-flank)
+- [ ] [Start Flank](#start-flank)
+3. Add your script to Flank
+   ```bash
+   # assuming a Node script called "hello.js"...
+   $ flank add hello.js
+   ```
+4. Schedule script through Flank website
 
-**Problem solved:** It depends. For a SQL developer asked to do lot of ad-hoc analysis, Flank saves him from having to run the same query twice. For a data scientist needing more compute, it allows him to just use EC2 and not have to futz with Docker, AWS Batch, and Airflow.
+### Steps
+1. See: [Install Flank](#install-flank)
 
-**Architecture:** Flank runs a web server on a computer (your laptop or a remote machine), and it exposes selected scripts on that computer.
+# Getting started
+## Install Flank
 
-## Mac / Homebrew
-
-#### Installation
+### Mac
 
 ```bash
 $ brew tap btf-org/flank
 $ brew install btf-org/flank/flank
 ```
 
-#### Usage
-```bash
-$ . flank myscript.sh
-```
-
-#### Getting updates
-```bash
-$ brew update # should update all your "taps", including btf-org/flank
-$ brew install btf-org/flank/flank
-```
-
-## Linux / Ubuntu / apt
-
-#### Installation
+### Linux / Ubuntu / apt
 
 ```bash
 # From any directory
@@ -41,15 +37,32 @@ $ wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_a
 $ sudo apt install ./flank_0.1.36_amd64.deb
 ```
 
-#### Usage
-```bash
-# From any directory
-$ . flank
-```
-
-#### Getting updates
-Same as installation process, but replace the version numbers with the new one
-
-## Windows / Other Linux Distros
+### Windows / Other Linux Distros
 
 Not available at this time
+
+## Update Flank
+
+### Mac
+```bash
+$ brew update # should update all your "taps", including btf-org/flank
+$ brew install btf-org/flank/flank
+```
+
+### Linux / Ubuntu
+
+```bash
+# From any directory
+$ wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
+$ sudo apt install ./flank_0.1.36_amd64.deb
+```
+
+### Windows / Other Linux Distros
+
+Not available at this time
+
+## Start Flank
+
+```bash
+$ flank start
+```
