@@ -1,14 +1,15 @@
 # Flank
-- Use Cases
+- [Use Cases](#use-cases)
+- [Getting Started](#getting-started)
+- [Update Flank](#update-flank)
 
 # Use Cases
 - [Run a Node script on a schedule](#run-a-node-script-on-a-schedule)
 
 ## Run a Node script on a schedule
 
-### Overview
-- [ ] [Install Flank](#install-flank)
-- [ ] [Start Flank](#start-flank)
+1. [Install Flank](#install-flank)
+2. [Start Flank](#start-flank)
 3. Add your script to Flank
    ```bash
    # assuming a Node script called "hello.js"...
@@ -19,7 +20,7 @@
 ### Steps
 1. See: [Install Flank](#install-flank)
 
-# Getting started
+# Getting Started
 ## Install Flank
 
 ### Mac
@@ -41,7 +42,14 @@ $ sudo apt install ./flank_0.1.36_amd64.deb
 
 Not available at this time
 
-## Update Flank
+
+## Start Flank
+
+```bash
+$ flank start
+```
+
+# Update Flank
 
 ### Mac
 ```bash
@@ -61,8 +69,3 @@ $ sudo apt install ./flank_0.1.36_amd64.deb
 
 Not available at this time
 
-## Start Flank
-
-```bash
-$ flank start
-```
