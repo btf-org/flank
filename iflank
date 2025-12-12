@@ -490,7 +490,7 @@ while true; do
 		    print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, status, maxRSSGiB;
 		}'
 		awk_tsv_to_html='
-		{ print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td><td>"$8"</td><td>"$9"</td></tr>" }'
+		{ print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td><td>"$8"</td></tr>" }'
 
 		if [ -z "$PS_VERSION" ]; then
 			if [ -n "$(ps --version 2>/dev/null | grep procps)" ]; then
@@ -520,7 +520,7 @@ while true; do
 		fi
 
 		echo %TABLEHEADSTART%
-		echo '<th></th><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Exit Code</th><th>PID</th><th>Max RAM (GiB)</th>'
+		echo '<th></th><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Status</th><th>RAM (GiB)</th>'
 		echo %TABLEHEADEND%
 
 		echo %APPENDTRSTART%
