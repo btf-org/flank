@@ -395,7 +395,7 @@ while true; do
 			if(pid != ""){
 				status = "RUNNING (PID "pid")"
 			} else if (code == 0){
-				status = "success (0)"
+				status = "done (0)"
 			} else if (code != 0){
 				status = "FAILURE ("code")"
 			}
@@ -473,7 +473,7 @@ while true; do
 			if(pid != ""){
 				status = "RUNNING (PID "pid")"
 			} else if (code == 0){
-				status = "success (0)"
+				status = "done (0)"
 			} else if (code != 0){
 				status = "FAILURE ("code")"
 			}
