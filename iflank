@@ -302,11 +302,11 @@ while true; do
 		# echo ''
 		echo ''
 		if [ $MODE == 'TTY' ]; then
-			echo 'Welcome to Flank! v0.1.44'
+			echo 'Welcome to Flank! v0.1.45'
 			ls -1
 		else
 			echo '<div id="pBody">'
-			echo 'Welcome to Flank! v0.1.44'
+			echo 'Welcome to Flank! v0.1.45'
 			ls -1 | awk ' 
 		    { 
 			content=$0;
