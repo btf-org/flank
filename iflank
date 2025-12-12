@@ -391,6 +391,14 @@ while true; do
 			cmd | getline pid;
 			close(cmd);
 		    }
+			status=""
+			if(pid != ""){
+				status = "RUNNING (PID "pid")"
+			} else if (code == 0){
+				status = "success (0)"
+			} else if (code != 0){
+				status = "FAILURE ("code")"
+			}
 		    cmd = "dirname "prev;
 		    cmd | getline dir;
 		    close(cmd)
@@ -401,7 +409,7 @@ while true; do
 		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
 		    linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
 
-		    print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRSSGiB;
+		    print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, status, maxRSSGiB;
 
 		    prev=FILENAME; 
 		    st=""; 
@@ -461,6 +469,14 @@ while true; do
 			cmd | getline pid;
 			close(cmd);
 		    }
+			status=""
+			if(pid != ""){
+				status = "RUNNING (PID "pid")"
+			} else if (code == 0){
+				status = "success (0)"
+			} else if (code != 0){
+				status = "FAILURE ("code")"
+			}
 		    cmd = "dirname "prev;
 		    cmd | getline dir;
 		    close(cmd);
@@ -471,7 +487,7 @@ while true; do
 		    link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
 		    linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
 
-		    print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, code, pid, maxRSSGiB;
+		    print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, status, maxRSSGiB;
 		}'
 		awk_tsv_to_html='
 		{ print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td><td>"$8"</td><td>"$9"</td></tr>" }'
