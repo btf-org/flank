@@ -548,9 +548,8 @@ while true; do
 		echo '</form>'
 		echo '</div>'
 		echo '<div id="pFooter">'
-		echo '<a onclick="run('\''run .'\'')">Run</a>'
 		echo '<a onclick="run('\''history'\'')">Logs</a>'
-		echo '<a onclick="run('\''edit'\'')">Edit</a>'
+		echo '<a onclick="run('\''editfileform'\'')">Edit</a>'
 		echo '<a onclick="run('\''crontab'\'')">Cron</a>'
 		echo '</div>'
 		echo '%PAGEEND%'
@@ -571,8 +570,8 @@ while true; do
 		crontab)
 			PAGE='CRONTAB'
 			;;
-		edit)
-			PAGE='EDITFILE'
+		editfileform)
+			PAGE='EDITFILEFORM'
 			;;
 		history)
 			PAGE='HISTORY'
@@ -583,7 +582,7 @@ while true; do
 			;;
 		esac
 		;;
-	EDITFILE)
+	EDITFILEFORM)
 		echo '%PAGESTART%'
 		header_pwd
 		echo '<div id="pBody">'
@@ -602,17 +601,16 @@ while true; do
 				close("template.sh")
 			}
 			{ print "<div><div>"$0"</div><textarea name=\""$0"\">"template"</textarea></div>" }'
-		echo '<div><button type="button" onclick="iflankForm('\''run .'\'')">Save</button></div>'
+		echo '<div><button type="button" onclick="iflankForm('\''savefile .'\'')">Save</button></div>'
 		echo '</form>'
 		echo '</div>'
 		echo '<div id="pFooter">'
-		echo '<a onclick="run('\''run .'\'')">Run</a>'
 		echo '<a onclick="run('\''history'\'')">Logs</a>'
 		echo '</div>'
 		echo '%PAGEEND%'
 		read -r choice arg || readerr
 		case $choice in
-		run)
+		savefile)
 			if [ "${arg%% *}" == '.' ]; then
 				split_kvs=$(echo "${arg#* }" | tr '&' ' ')
 				file_contents="${arg#*=}"
@@ -643,11 +641,10 @@ while true; do
 		echo '%PAGESTART%'
 		header_pwd
 		echo '<div id="pBody">'
-		echo '<button type="button" onclick="run('\''croncreate'\'')">Create</button>'
+		echo '<button type="button" onclick="run('\''createcronform'\'')">Create</button>'
 		crontab -l
 		echo '</div>'
 		echo '<div id="pFooter">'
-		echo '<a onclick="run('\''run .'\'')">Run</a>'
 		echo '<a onclick="run('\''history'\'')">Logs</a>'
 		echo '</div>'
 		echo '%PAGEEND%'
@@ -656,8 +653,8 @@ while true; do
 		cd)
 			safe_cd $arg
 			;;
-		croncreate)
-			PAGE='CRONCREATE'
+		createcronform)
+			PAGE='CREATECRONFORM'
 			;;
 		history)
 			PAGE='HISTORY'
@@ -668,17 +665,16 @@ while true; do
 			;;
 		esac
 		;;
-	CRONCREATE)
+	CREATECRONFORM)
 		echo '%PAGESTART%'
 		header_pwd
 		echo '<div id="pBody">'
 		echo '<form id="form" method="POST">'
 		echo 'cron_expression' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
-		echo '<div><button type="button" onclick="iflankForm('\''run .'\'')">Save</button></div>'
+		echo '<div><button type="button" onclick="iflankForm('\''createcron .'\'')">Save</button></div>'
 		echo '</form>'
 		echo '</div>'
 		echo '<div id="pFooter">'
-		echo '<a onclick="run('\''run .'\'')">Run</a>'
 		echo '<a onclick="run('\''history'\'')">Logs</a>'
 		echo '</div>'
 		echo '%PAGEEND%'
@@ -686,7 +682,7 @@ while true; do
 		echo "cron expression" 1>&2
 		echo "$args" 1>&2
 		case $choice in
-		run)
+		createcron)
 			if [ "${args%% *}" == '.' ]; then
 				split_kvs=$(echo "${args#* }" | tr '&' ' ')
 				echo "split kvs" 1>&2
