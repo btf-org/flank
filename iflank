@@ -178,6 +178,23 @@ run_cmd() {
 	fi
 }
 
+safe_cd() {
+	cd "$1"
+	if [ "$PWD" == "$FLANK_ROOT/runs" ]; then
+		PAGE='GLOBAL_RUN_DATES'
+	elif [ "$PWD" == "$FLANK_ROOT" ]; then
+		PAGE='HOME'
+	elif [ -f template.sh ]; then
+		PAGE='CMD'
+	elif [ -f status ] || [ -f exec.sh ]; then
+		PAGE='LOG_DIR'
+	elif [ "$(basename $PWD)" == 'runs' ]; then
+		PAGE='GLOBAL_RUN_DATES'
+	else
+		PAGE='FS'
+	fi
+}
+
 if [ -n "$1" ] && [ "$1" == 'run' ]; then
 	if [ -z "$2" ]; then
 		echo 'Missing path to template / saved config `iflank run <path>`'
@@ -239,21 +256,6 @@ TIME_VERSION=''
 
 cd $FLANK_ROOT
 while true; do
-	if [ "$PAGE" == 'HTTP_INIT' ]; then
-		: # no-op
-	elif [ "$PWD" == "$FLANK_ROOT/runs" ]; then
-		PAGE='GLOBAL_RUN_DATES'
-	elif [ "$PWD" == "$FLANK_ROOT" ]; then
-		PAGE='HOME'
-	elif [ -f template.sh ]; then
-		PAGE='CMD'
-	elif [ -f status ] || [ -f exec.sh ]; then
-		PAGE='LOG_DIR'
-	elif [ "$(basename $PWD)" == 'runs' ]; then
-		PAGE='GLOBAL_RUN_DATES'
-	else
-		PAGE='FS'
-	fi
 	case "$PAGE" in
 	HTTP_INIT)
 		read -r choice || readerr
@@ -290,7 +292,7 @@ while true; do
 		read -r choice args || readerr
 		case $choice in
 		cd)
-			cd $args
+			safe_cd $args
 			;;
 		refresh) ;;
 		*)
@@ -515,7 +517,7 @@ while true; do
 		fi
 		case $choice in
 		cd)
-			cd $args
+			safe_cd $args
 			;;
 		refresh) ;;
 		*)
@@ -535,7 +537,7 @@ while true; do
 		read -r choice arg || readerr
 		case $choice in
 		cd)
-			cd $arg
+			safe_cd $arg
 			;;
 		refresh) ;;
 		*)
@@ -566,13 +568,13 @@ while true; do
 			if [ "${args%% *}" == '.' ]; then
 				split_kvs=$(echo "${args#* }" | tr '&' ' ')
 				cmd_run_dir=$(run_cmd 'bg' '.' $split_kvs)
-				cd "$cmd_run_dir"
+				safe_cd "$cmd_run_dir"
 			else
 				echo 'Must run this command via "run ."'
 			fi
 			;;
 		cd)
-			cd "${args[0]}"
+			safe_cd "${args[0]}"
 			;;
 		crontab)
 			echo '%PAGESTART%'
@@ -750,7 +752,7 @@ while true; do
 			kill $pid
 			;;
 		cd)
-			cd $args
+			safe_cd $args
 			;;
 		refresh) ;;
 		*)
