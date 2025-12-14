@@ -13,12 +13,18 @@
       .loading {
         animation: borderpulse 1.4s ease-in-out infinite;
       }
-      #pHeader a, #pFooter a {
+      #pHeader a,
+      #pFooter a {
         color: darkslateblue;
       }
       @keyframes borderpulse {
-        0%,100% { border-color: #666; }
-        50%     { border-color: #fff; }
+        0%,
+        100% {
+          border-color: #666;
+        }
+        50% {
+          border-color: #fff;
+        }
       }
       #pBody {
         overflow: auto;
@@ -35,7 +41,7 @@
         height: 300px;
       }
       .h-100vh {
-        height:100vh;
+        height: 100vh;
       }
       .font-family-monospace {
         font-family: monospace;
@@ -77,7 +83,7 @@
         overflow-x: scroll;
       }
       td {
-        padding: .15rem 1rem;
+        padding: 0.15rem 1rem;
         white-space: nowrap;
       }
       th {
@@ -85,17 +91,16 @@
         white-space: nowrap;
       }
       table tr:nth-child(even) {
-          background: #f0f0f0;
+        background: #f0f0f0;
       }
       table {
-          border-collapse: collapse;
+        border-collapse: collapse;
       }
       body {
         display: flex;
         flex-direction: column;
         height: 100%;
       }
-
     </style>
   </head>
   <body class="font-family-monospace font-size-1 m-0 h-100vh">
@@ -179,8 +184,8 @@
           return;
         }
       }
-      function setLoading(value){
-        if(value){
+      function setLoading(value) {
+        if (value) {
           document.getElementById("pHeader").classList.add("loading");
           document.getElementById("pFooter").classList.add("loading");
         } else {

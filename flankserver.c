@@ -396,7 +396,7 @@ int main(int argc, char *argv[])
 						index_html_path =
 						    "/usr/share/flank/index.html";
 						found = 1;
-					}  else if (access
+					} else if (access
 						   ("/opt/homebrew/share/flank/index.html",
 						    F_OK) == 0) {
 						index_html_path =
