@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
 header_pwd() {
-	if [ "$MODE" == 'TTY' ]; then
-		pwd
-		return
-	fi
-
 	pwd | awk ' 
 	{ 
 	    line=""; 
@@ -74,23 +69,6 @@ run_cmd() {
 			done
 		fi
 	fi
-
-	# # Create date directory in runs
-	# local global_date_dir="$FLANK_ROOT/runs/$(echo $datetime | cut -c -10)"
-	# if [ ! -d $global_date_dir ]; then
-	#     mkdir -p $global_date_dir
-	# fi
-	# local global_dir_name=$(basename "$cmd_run_dir")_$cmd_name
-
-	# if [ -a "$global_date_dir/$global_dir_name" ]; then
-	#     local path_prefix=$FLANK_ROOT/cmds/
-	#     local mid_path=${cmd_run_dir#$path_prefix}
-	#     local mid_path_safe=$(echo $mid_path | tr '/' '-')
-	#     global_dir_name=$(basename "$cmd_run_dir")_$mid_path_safe
-	# fi
-	# echo $cmd_run_dir
-	# echo "$global_date_dir/$global_dir_name"
-	# ln -s $cmd_run_dir "$global_date_dir/$global_dir_name"
 
 	if [ -n "$2" ] && [ "$2" != '.' ]; then
 		cp "$2" $cmd_run_dir/exec.sh
@@ -224,7 +202,6 @@ readerr() {
 
 PAGE='HOME'
 PROMPT='iflank> '
-MODE='TTY'
 
 help_msg() {
 	printf 'Usage: iflank [run <path>] [--http-mode | -h]\n'
@@ -233,7 +210,6 @@ help_msg() {
 while [ "$1" != "" ]; do
 	case $1 in
 	--http-mode)
-		MODE='HTTP'
 		PROMPT=''
 		PAGE='HTTP_INIT'
 		;;
@@ -301,25 +277,20 @@ while true; do
 		header_pwd
 		# echo ''
 		echo ''
-		if [ $MODE == 'TTY' ]; then
-			echo 'Welcome to Flank! v0.1.45'
-			ls -1
-		else
-			echo '<div id="pBody">'
-			echo 'Welcome to Flank! v0.1.45'
-			ls -1 | awk ' 
-		    { 
-			content=$0;
-			if(content == "runs"){
-			    content="History";
-			} else if(content == "cmds"){
-			    content="Commands";
-			}
-			print "<a onclick=\"run('\''cd "$0"'\'')\">"content"</a>" 
-		    } '
-			echo '</div>'
-			echo '<div id="pFooter"></div>'
-		fi
+		echo '<div id="pBody">'
+		echo 'Welcome to Flank! v0.1.45'
+		ls -1 | awk ' 
+		{ 
+		content=$0;
+		if(content == "runs"){
+			content="History";
+		} else if(content == "cmds"){
+			content="Commands";
+		}
+		print "<a onclick=\"run('\''cd "$0"'\'')\">"content"</a>" 
+		} '
+		echo '</div>'
+		echo '<div id="pFooter"></div>'
 		echo '%PAGEEND%'
 		read -rp "$PROMPT" choice args || readerr
 		case $choice in
@@ -339,11 +310,6 @@ while true; do
 		echo '<div id="pBody"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>'
 		echo '<div id='pFooter'></div>'
 		echo '%PAGEEND%'
-		# if [ $MODE == 'TTY' ]; then
-		#     ls -1
-		# else
-		#     ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
-		# fi
 		awk_columns='
 		NR==1 { prev=FILENAME; } 
 		FNR==1 && NR!=1 { 
@@ -525,50 +491,28 @@ while true; do
 
 		echo %APPENDTRSTART%
 		history_pid_file=$(mktemp)
-		if [ "$MODE" == 'TTY' ]; then
-			if [ "$FIND_VERSION" == 'gnu' ]; then
-				find $search_root -type f -regextype posix-extended -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
-					sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
-					sort -nr |
-					cut -f2 |
-					xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns"
-			else
-				find -E $search_root -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
-					sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
-					sort -nr |
-					cut -f2 |
-					xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns"
-			fi
+		if [ "$FIND_VERSION" == 'gnu' ]; then
+			regex_flag='-regextype posix-extended'
+			extended_flag=''
+			awk_flag='-W interactive'
 		else
-			if [ "$FIND_VERSION" == 'gnu' ]; then
-				{
-					find $search_root -type f -regextype posix-extended -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
-						sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
-						sort -nr |
-						cut -f2 |
-						xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" |
-						awk -W interactive -v FS='\t' "$awk_tsv_to_html" && echo '%APPENDTREND%' &
-					pid=$!
-					echo "$pid" >$history_pid_file
-					wait "$pid"
-					: >$history_pid_file
-				} &
-			else
-				{
-
-					find -E $search_root -type f -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
-						sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
-						sort -nr |
-						cut -f2 |
-						xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" |
-						awk -v FS='\t' "$awk_tsv_to_html" && echo '%APPENDTREND%' &
-					pid=$!
-					echo "$pid" >$history_pid_file
-					wait "$pid"
-					: >$history_pid_file
-				} &
-			fi
+			regex_flag=''
+			extended_flag='-E'
+			awk_flag=''
 		fi
+		{
+
+			find $extended_flag $search_root -type f $regex_flag -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
+				sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
+				sort -nr |
+				cut -f2 |
+				xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" |
+				awk $awk_flag -v FS='\t' "$awk_tsv_to_html" && echo '%APPENDTREND%' &
+			pid=$!
+			echo "$pid" >$history_pid_file
+			wait "$pid"
+			: >$history_pid_file
+		} &
 		read -rp "$PROMPT" choice args || readerr
 		history_pid=$(cat $history_pid_file)
 		if [ -n "$history_pid" ]; then
@@ -588,14 +532,10 @@ while true; do
 		echo '%PAGESTART%'
 		header_pwd
 		echo ""
-		if [ $MODE == 'TTY' ]; then
-			ls -1
-		else
-			echo '<div id="pBody">'
-			ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
-			echo '</div>'
-			echo '<div id="pFooter"></div>'
-		fi
+		echo '<div id="pBody">'
+		ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
+		echo '</div>'
+		echo '<div id="pFooter"></div>'
 		echo '%PAGEEND%'
 		read -rp "$PROMPT" choice arg || readerr
 		case $choice in
@@ -612,22 +552,18 @@ while true; do
 		echo '%PAGESTART%'
 		header_pwd
 		echo ''
-		if [ "$MODE" == 'TTY' ]; then
-			echo 'Next: run . / cd runs'
-		else
-			echo '<div id="pBody">'
-			echo '<form id="form" method="POST">'
-			grep -oE '\${([^}]+)}' template.sh | sed 's/^${//; s/}$//' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
-			echo '<div><button type="button" onclick="iflankForm('\''run .'\'')">Run</button></div>'
-			echo '</form>'
-			echo '</div>'
-			echo '<div id="pFooter">'
-			echo '<a onclick="run('\''run .'\'')">Run</a>'
-			echo '<a onclick="run('\''cd runs'\'')">Logs</a>'
-			echo '<a onclick="run('\''edit'\'')">Edit</a>'
-			echo '<a onclick="run('\''crontab'\'')">Cron</a>'
-			echo '</div>'
-		fi
+		echo '<div id="pBody">'
+		echo '<form id="form" method="POST">'
+		grep -oE '\${([^}]+)}' template.sh | sed 's/^${//; s/}$//' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
+		echo '<div><button type="button" onclick="iflankForm('\''run .'\'')">Run</button></div>'
+		echo '</form>'
+		echo '</div>'
+		echo '<div id="pFooter">'
+		echo '<a onclick="run('\''run .'\'')">Run</a>'
+		echo '<a onclick="run('\''cd runs'\'')">Logs</a>'
+		echo '<a onclick="run('\''edit'\'')">Edit</a>'
+		echo '<a onclick="run('\''crontab'\'')">Cron</a>'
+		echo '</div>'
 		echo '%PAGEEND%'
 		read -rp "$PROMPT" choice args || readerr
 		case $choice in
