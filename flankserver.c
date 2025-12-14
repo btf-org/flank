@@ -275,7 +275,7 @@ int main(int argc, char *argv[])
 						// point 1 at whatever FD is write end of pipe
 						close(to_iflank_pipe_rw[1]);	// close the "write" end of the "to" pipe (it's for the parent)
 						close(from_iflank_pipe_rw[0]);	// close the "read" end of the "from" pipe (it's for the parent)
-						execlp(iflank_path, iflank_name, "--http-mode", NULL);	// filename, argv[0] the name the program sees itself as, end of arg list
+						execlp(iflank_path, iflank_name, NULL);	// filename, argv[0] the name the program sees itself as, end of arg list
 						perror("execlp");
 						exit(1);
 					} else {

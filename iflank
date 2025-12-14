@@ -200,7 +200,7 @@ readerr() {
 	exit 1
 }
 
-PAGE='HOME'
+PAGE='HTTP_INIT'
 
 help_msg() {
 	printf 'Usage: iflank [run <path>] [--http-mode | -h]\n'
@@ -208,9 +208,6 @@ help_msg() {
 
 while [ "$1" != "" ]; do
 	case $1 in
-	--http-mode)
-		PAGE='HTTP_INIT'
-		;;
 	-h | --help)
 		help_msg
 		exit
