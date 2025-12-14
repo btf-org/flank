@@ -201,7 +201,6 @@ readerr() {
 }
 
 PAGE='HOME'
-PROMPT='iflank> '
 
 help_msg() {
 	printf 'Usage: iflank [run <path>] [--http-mode | -h]\n'
@@ -210,7 +209,6 @@ help_msg() {
 while [ "$1" != "" ]; do
 	case $1 in
 	--http-mode)
-		PROMPT=''
 		PAGE='HTTP_INIT'
 		;;
 	-h | --help)
@@ -261,7 +259,7 @@ while true; do
 	fi
 	case "$PAGE" in
 	HTTP_INIT)
-		read -rp "$PROMPT" choice || readerr
+		read -r choice || readerr
 		case $choice in
 		refresh)
 			PAGE='HOME'
@@ -292,7 +290,7 @@ while true; do
 		echo '</div>'
 		echo '<div id="pFooter"></div>'
 		echo '%PAGEEND%'
-		read -rp "$PROMPT" choice args || readerr
+		read -r choice args || readerr
 		case $choice in
 		cd)
 			cd $args
@@ -513,7 +511,7 @@ while true; do
 			wait "$pid"
 			: >$history_pid_file
 		} &
-		read -rp "$PROMPT" choice args || readerr
+		read -r choice args || readerr
 		history_pid=$(cat $history_pid_file)
 		if [ -n "$history_pid" ]; then
 			kill_tree "$history_pid"
@@ -537,7 +535,7 @@ while true; do
 		echo '</div>'
 		echo '<div id="pFooter"></div>'
 		echo '%PAGEEND%'
-		read -rp "$PROMPT" choice arg || readerr
+		read -r choice arg || readerr
 		case $choice in
 		cd)
 			cd $arg
@@ -565,7 +563,7 @@ while true; do
 		echo '<a onclick="run('\''crontab'\'')">Cron</a>'
 		echo '</div>'
 		echo '%PAGEEND%'
-		read -rp "$PROMPT" choice args || readerr
+		read -r choice args || readerr
 		case $choice in
 		run)
 			if [ "${args%% *}" == '.' ]; then
@@ -591,7 +589,7 @@ while true; do
 			echo '<a onclick="run('\''cd runs'\'')">Logs</a>'
 			echo '</div>'
 			echo '%PAGEEND%'
-			read -rp "$PROMPT" choice2 args2 || readerr
+			read -r choice2 args2 || readerr
 			case $choice2 in
 			croncreate)
 				echo '%PAGESTART%'
@@ -607,7 +605,7 @@ while true; do
 				echo '<a onclick="run('\''cd runs'\'')">Logs</a>'
 				echo '</div>'
 				echo '%PAGEEND%'
-				read -rp "$PROMPT" choice3 args3 || readerr
+				read -r choice3 args3 || readerr
 				echo "cron expression" 1>&2
 				echo "$args3" 1>&2
 				case $choice3 in
@@ -663,7 +661,7 @@ while true; do
 			echo '<a onclick="run('\''cd runs'\'')">Logs</a>'
 			echo '</div>'
 			echo '%PAGEEND%'
-			read -rp "$PROMPT" choice2 args2 || readerr
+			read -r choice2 args2 || readerr
 			case $choice2 in
 			run)
 				if [ "${args2%% *}" == '.' ]; then
@@ -745,7 +743,7 @@ while true; do
 				: >$tail_pid_file
 			} &
 		fi
-		read -rp "$PROMPT" choice args || readerr
+		read -r choice args || readerr
 		tail_pid=$(cat $tail_pid_file)
 		if [ -n "$tail_pid" ]; then
 			kill_tree "$tail_pid"
