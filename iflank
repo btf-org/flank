@@ -413,32 +413,31 @@ while true; do
 	fi
 	case $choice in
 	cd)
-		safe_cd $args
+		safe_cd "$args"
 		;;
 	history)
 		PAGE='HISTORY'
 		;;
 	refresh) ;;
 	run)
-		if [ "${args%% *}" == '.' ]; then
-			split_kvs=$(echo "${args#* }" | tr '&' ' ')
-			cmd_run_dir=$(run_cmd 'bg' '.' $split_kvs)
-			safe_cd "$cmd_run_dir"
-		else
-			echo 'Must run this command via "run ."'
-		fi
+		# run <dir> <k=v&k=v>
+		# everything after first space, then space delimited
+		split_kvs=$(echo "${args#* }" | tr '&' ' ')
+		cmd_run_dir=$(run_cmd 'bg' '.' $split_kvs)
+		safe_cd "$cmd_run_dir"
 		;;
 	savefile)
-		if [ "${arg%% *}" == '.' ]; then
-			split_kvs=$(echo "${arg#* }" | tr '&' ' ')
-			file_contents="${arg#*=}"
-			echo "file contents" 1>&2
-			echo "$file_contents" 1>&2
-			cleaned_file=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${file_contents})")
-			echo "cleaned file" 1>&2
-			echo "$cleaned_file" 1>&2
-			cat <<<"$cleaned_file" >template.sh
-		fi
+		# savefile <path> <k=v>
+		# everything after first space, then space delimited
+		split_kvs=$(echo "${args#* }" | tr '&' ' ')
+		file_contents="${split_kvs#*=}"
+		# echo "file contents" 1>&2
+		# echo "$file_contents" 1>&2
+		# Replace + with ' '. Replace % with \x. Then feed into %b in printf.
+		cleaned_file=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<< ${file_contents} )")
+		# echo "cleaned file" 1>&2
+		# echo "$cleaned_file" 1>&2
+		cat <<<"$cleaned_file" >template.sh
 
 		PAGE='CMD'
 
@@ -453,20 +452,20 @@ while true; do
 		PAGE='CREATECRONFORM'
 		;;
 	createcron)
-		if [ "${args%% *}" == '.' ]; then
-			split_kvs=$(echo "${args#* }" | tr '&' ' ')
-			echo "split kvs" 1>&2
-			echo "$split_kvs" 1>&2
-			url_encoded="${split_kvs#*=}"
-			cleaned_expr=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${url_encoded})")
-			cron="$cleaned_expr iflank run ${PWD}/template.sh"
-			echo "cron" 1>&2
-			echo "$cron" 1>&2
-			(
-				crontab -l 2>/dev/null
-				echo "$cron"
-			) | crontab -
-		fi
+		# createcron <dir> <k=v&k=v>
+		# everything after first space, then space delimited
+		split_kvs=$(echo "${args#* }" | tr '&' ' ')
+		# echo "split kvs" 1>&2
+		# echo "$split_kvs" 1>&2
+		first_value="${split_kvs#*=}"
+		url_decoded=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${first_value})")
+		new_cron_line="$url_decoded iflank run ${PWD}/template.sh"
+		# echo "new_cron_line" 1>&2
+		# echo "$new_cron_line" 1>&2
+		(
+			crontab -l 2>/dev/null
+			echo "$new_cron_line"
+		) | crontab -
 		PAGE='CRONTAB'
 		;;
 	kill)
