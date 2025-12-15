@@ -141,10 +141,6 @@ run_cmd() {
 		trap handle_kill KILL
 	fi
 
-	# Subtle quoting things:
-	#  - $? needs to be escaped as \$? in "" or it will immediately evaluate
-	#  - $(date) needs to be single quoted or it will immediately evaluate
-	#  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
 	if [ -z "$TIME_VERSION" ]; then
 		if [ -n "$(/usr/bin/time --version 2>/dev/null | grep GNU)" ]; then
 			TIME_VERSION='GNU'
@@ -161,6 +157,14 @@ run_cmd() {
 	fi
 	echo $cmd_run_dir
 
+	# Subtle quoting things:
+	#  - $? needs to be escaped as \$? in "" or it will immediately evaluate
+	#  - $(date) needs to be single quoted or it will immediately evaluate
+	#  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
+	# Subtle process things:
+	#  - Killing `/usr/bin/time` will not kill the process it wraps
+	#  - Killing `bash -c` will not kill the process it wraps
+	#  - Killing `nohup` will not kill the process it wraps
 	if [ "$1" == 'bg' ]; then
 		nohup bash -c "cd $cmd_run_dir; printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > status; /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &> console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> status; if [ -f time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" time.gnu.out >> status; elif [ -f time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" time.bsd.out >> status; fi
 " >/dev/null &
