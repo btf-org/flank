@@ -24,9 +24,11 @@ kill_tree() {
 	local children
 	children=$(pgrep -P "$parent")
 	for child in $children; do
+		echo "kill_tree recurse $child" 1>&2
 		kill_tree "$child" # recurse into grandchildren
 	done
 	# kill the parent itself
+	echo "kill_tree kill $parent" 1>&2
 	kill -TERM "$parent" 2>/dev/null
 }
 run_cmd() {
@@ -194,6 +196,31 @@ safe_cd() {
 		PAGE='LOG_DIR'
 	else
 		PAGE='FS'
+	fi
+}
+
+flank_kill() {
+	# flank_kill <run_dir>
+	echo "inside flank_kill ${1}" 1>&2
+	if [ -z "$PS_VERSION" ]; then
+		if [ -n "$(ps --version 2>/dev/null | grep procps)" ]; then
+			PS_VERSION='procps'
+		else
+			PS_VERSION='bsd'
+		fi
+	fi
+
+	if [ "$PS_VERSION" == 'procps' ]; then
+		local pid=$(ps -eo pid,args | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+	else
+		local pid=$(ps -x | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+	fi
+
+	if [ -n "$pid" ]; then
+		echo "about to flank_kill $pid" 1>&2
+		kill "$pid"
+	else
+		echo "ERROR: could not find PID for flank_kill ${1}" 1>&2
 	fi
 }
 
@@ -402,14 +429,16 @@ PS_VERSION=''
 FIND_VERSION=''
 DATE_VERSION=''
 TIME_VERSION=''
+ACTIVE_PID_FILE=''
 
 cd $FLANK_ROOT
 while true; do
 	read -r choice args || readerr
-	active_pid=$(cat "$active_pid_file")
+	active_pid=$(cat "$ACTIVE_PID_FILE")
 	if [ -n "$active_pid" ]; then
+		echo "about to kill_tree $active_pid" 1>&2
 		kill_tree "$active_pid"
-		active_pid_file=''
+		ACTIVE_PID_FILE=''
 	fi
 	case $choice in
 	cd)
@@ -469,7 +498,7 @@ while true; do
 		PAGE='CRONTAB'
 		;;
 	kill)
-		kill $pid
+		flank_kill "$args"
 		;;
 	*)
 		read -rp "Invalid choice! Hit [Enter] to continue" || readerr
@@ -524,7 +553,7 @@ while true; do
 		echo %TABLEHEADEND%
 
 		echo %APPENDTRSTART%
-		active_pid_file=$(mktemp)
+		ACTIVE_PID_FILE=$(mktemp)
 		if [ "$FIND_VERSION" == 'gnu' ]; then
 			regex_flag='-regextype posix-extended'
 			extended_flag=''
@@ -542,10 +571,10 @@ while true; do
 				cut -f2 |
 				xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" |
 				awk $awk_flag -v FS='\t' "$awk_tsv_to_html" && echo '%APPENDTREND%' &
-			pid=$!
-			echo "$pid" >$active_pid_file
-			wait "$pid"
-			: >$active_pid_file
+			hist_pid=$!
+			echo "$hist_pid" >$ACTIVE_PID_FILE
+			wait "$hist_pid"
+			: >$ACTIVE_PID_FILE
 		} &
 		;;
 	FS)
@@ -644,13 +673,13 @@ while true; do
 
 		if [ $state == 'during' ]; then
 			if [ "$PS_VERSION" == 'procps' ]; then
-				pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+				running_pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 			else
-				pid=$(ps -x | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+				running_pid=$(ps -x | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 			fi
 		fi
 		disabled_class=''
-		if [ -z "$pid" ]; then
+		if [ -z "$running_pid" ]; then
 			disabled_class='class="disabled"'
 		fi
 		echo '<div id="pFooter">'
@@ -668,7 +697,7 @@ while true; do
 
 		# Write the PID to a file so that the background job running `tail -f`
 		# can mutate it (set it to '' once the process finishes)
-		active_pid_file=$(mktemp)
+		ACTIVE_PID_FILE=$(mktemp)
 		if [ "$state" == 'after' ]; then
 			echo '%APPENDPAGEBODYSTART%'
 			cat console.log
@@ -678,10 +707,10 @@ while true; do
 				while [ ! -f console.log ]; do sleep 1; done
 				echo '%STREAMPAGEBODYSTART%'
 				tail -f -n +1 console.log &
-				pid=$!
-				echo "$pid" >$active_pid_file
-				wait "$pid"
-				: >$active_pid_file
+				tail_pid=$!
+				echo "$tail_pid" >$ACTIVE_PID_FILE
+				wait "$tail_pid"
+				: >$ACTIVE_PID_FILE
 			} &
 		fi
 		;;
