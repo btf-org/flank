@@ -412,8 +412,7 @@ while true; do
 	history)
 		PAGE='HISTORY'
 		;;
-	refresh)
-		;;
+	refresh) ;;
 	run)
 		if [ "${args%% *}" == '.' ]; then
 			split_kvs=$(echo "${args#* }" | tr '&' ' ')
