@@ -213,9 +213,21 @@ flank_kill() {
 	fi
 
 	if [ "$PS_VERSION" == 'procps' ]; then
-		local pid=$(ps -eo pid,args | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+		echo 'LOG ps -eo pid,args | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" 1>&2' 1>&2
+		ps -eo pid,args | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" 1>&2
+		echo 'LOG ps -eo pid,args | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" | grep -v "/usr/bin/time" 1>&2' 1>&2
+		ps -eo pid,args | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" | grep -v '/usr/bin/time' 1>&2
+		local pid=$(ps -eo pid,args | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime"  | grep -v '/usr/bin/time' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 	else
-		local pid=$(ps -x | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+		echo 'LOG ps -x | grep ${1} 1>&2' 1>&2
+		ps -x | grep ${1} 1>&2
+		echo 'LOG ps -x | grep ${1} | grep -v "grep .*${1}" 1>&2' 1>&2
+		ps -x | grep ${1} | grep -v "grep .*${1}" 1>&2
+		echo 'LOG ps -x | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" 1>&2' 1>&2
+		ps -x | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" 1>&2
+		echo 'LOG ps -x | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" | grep -v "/usr/bin/time"' 1>&2
+		ps -x | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" | grep -v '/usr/bin/time'
+		local pid=$(ps -x | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" | grep -v '/usr/bin/time' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 	fi
 
 	if [ -n "$pid" ]; then
