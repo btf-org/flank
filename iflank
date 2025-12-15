@@ -74,15 +74,21 @@ run_cmd() {
 		cp "$2" $cmd_run_dir/exec.sh
 	else
 		i=1
+		subset=""
 		for arg in "$@"; do
 			if [ $i -ge 3 ]; then
 				key=${arg%%=*}
 				val=${arg#*=}
 				eval "export $key=\$val"
+				if [ "$subset" == '' ]; then
+					subset=$key
+				else
+					subset="$subset $key"
+				fi
 			fi
 			i=$((i + 1))
 		done
-		envsubst <$cmd_dir/template.sh >$cmd_run_dir/exec.sh
+		envsubst "$subset" <$cmd_dir/template.sh >$cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
