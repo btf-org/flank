@@ -654,7 +654,7 @@ while true; do
 			disabled_class='class="disabled"'
 		fi
 		echo '<div id="pFooter">'
-		echo '<a '"$disabled_class"' onclick="run('\''kill'\'')">Kill</a>'
+		echo '<a '"$disabled_class"' onclick="run('\''kill '"$PWD"\'')">Kill</a>'
 		disabled_class=''
 		path_components=(${PWD//\// })
 		length=${#path_components[@]}
