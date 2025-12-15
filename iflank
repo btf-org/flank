@@ -212,7 +212,7 @@ flank_kill() {
 	fi
 
 	if [ "$PS_VERSION" == 'procps' ]; then
-		local kill_pid=$(ps -eo pid,args | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime"  | grep -v '/usr/bin/time' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+		local kill_pid=$(ps -eo pid,args | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" | grep -v '/usr/bin/time' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 	else
 		local kill_pid=$(ps -x | grep ${1} | grep -v "grep .*${1}" | grep -v "bash -c .*StartTime" | grep -v '/usr/bin/time' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 	fi
@@ -263,10 +263,10 @@ FNR==1 && NR!=1 {
 		}
 	}
 	if(PS_VERSION=="procps"){
-		cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+		cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
 	}
 	else {
-		cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+		cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
 	}
 	cmd | getline pid;
 	close(cmd);
@@ -341,10 +341,10 @@ END {
 		}
 	}
 	if(PS_VERSION=="procps"){
-		cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+		cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
 	}
 	else {
-		cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+		cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
 	}
 	cmd | getline pid;
 	close(cmd);
@@ -672,9 +672,9 @@ while true; do
 
 		if [ $state == 'during' ]; then
 			if [ "$PS_VERSION" == 'procps' ]; then
-				running_pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+				running_pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | grep -v '/usr/bin/time' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 			else
-				running_pid=$(ps -x | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+				running_pid=$(ps -x | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | grep -v '/usr/bin/time' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
 			fi
 		fi
 		disabled_class=''
