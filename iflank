@@ -510,7 +510,7 @@ while true; do
 		# echo ''
 		echo ''
 		echo '<div id="pBody">'
-		echo 'Welcome to Flank! v0.1.45'
+		echo 'Welcome to Flank! v0.1.46'
 		echo '<a onclick="run('\''cd cmds'\'')">Commands</a>'
 		echo '<a onclick="run('\''history'\'')">History</a>'
 		echo '</div>'
