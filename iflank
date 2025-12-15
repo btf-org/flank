@@ -462,7 +462,7 @@ while true; do
 		# echo "file contents" 1>&2
 		# echo "$file_contents" 1>&2
 		# Replace + with ' '. Replace % with \x. Then feed into %b in printf.
-		cleaned_file=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<< ${file_contents} )")
+		cleaned_file=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${file_contents})")
 		# echo "cleaned file" 1>&2
 		# echo "$cleaned_file" 1>&2
 		cat <<<"$cleaned_file" >template.sh
