@@ -24,11 +24,9 @@ kill_tree() {
 	local children
 	children=$(pgrep -P "$parent")
 	for child in $children; do
-		echo "kill_tree recurse $child" 1>&2
 		kill_tree "$child" # recurse into grandchildren
 	done
 	# kill the parent itself
-	echo "kill_tree kill $parent" 1>&2
 	kill -TERM "$parent" 2>/dev/null
 }
 run_cmd() {
@@ -436,7 +434,6 @@ while true; do
 	read -r choice args || readerr
 	active_pid=$(cat "$ACTIVE_PID_FILE")
 	if [ -n "$active_pid" ]; then
-		echo "about to kill_tree $active_pid" 1>&2
 		kill_tree "$active_pid"
 		ACTIVE_PID_FILE=''
 	fi
