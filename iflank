@@ -1,5 +1,153 @@
 #!/usr/bin/env bash
 
+awk_columns='
+NR==1 { prev=FILENAME; } 
+FNR==1 && NR!=1 { 
+	if(st != ""){
+	if(DATE_VERSION == "gnu"){
+		cmd = "date -d @"st" +\"%Y-%m-%d %H:%M:%S\""; 
+	} else {
+		cmd = "date -r "st" +\"%Y-%m-%d %H:%M:%S\""; 
+	}
+	cmd | getline stf; 
+	close(cmd);
+	} else {
+	stf = "";
+	}
+
+	if(et != ""){
+	if(DATE_VERSION == "gnu"){
+		cmd = "date -d @"et" +\"%Y-%m-%d %H:%M:%S\""; 
+	} else {
+		cmd = "date -r "et" +\"%Y-%m-%d %H:%M:%S\""; 
+	}
+	cmd | getline etf;
+	close(cmd);
+	} else {
+	etf = "";
+	}
+
+	n = split(prev, path_parts, "/");
+	
+	pid="";
+	if(code == ""){
+	logdir="";
+	for(i = 1; i < n; i++){
+		logdir=logdir""path_parts[i];
+		if(i < n - 1) {
+		logdir=logdir"/";
+		}
+	}
+	if(PS_VERSION=="procps"){
+		cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+	}
+	else {
+		cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+	}
+	cmd | getline pid;
+	close(cmd);
+	}
+	status=""
+	if(pid != ""){
+		status = "RUNNING (PID "pid")"
+	} else if (code == 0){
+		status = "done (0)"
+	} else if (code != 0){
+		status = "FAILURE ("code")"
+	}
+	cmd = "dirname "prev;
+	cmd | getline dir;
+	close(cmd)
+	filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
+	if(nickname != ""){
+	filename=nickname"-"filename;
+	}
+	link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
+	linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
+
+	print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, status, maxRSSGiB;
+
+	prev=FILENAME; 
+	st=""; 
+	et=""; 
+	code="";
+	nickname="";
+	pid="";
+	maxRSSGiB="";
+} 
+/StartTime/ { st=$2; } 
+/EndTime/ { et=$2 } 
+/ExitCode/ { code=$2 } 
+/Nickname/ { nickname=$2 } 
+/MaxRSSBytes/ { maxRSSGiB= sprintf("%.3f", $2 / 1073741824); }
+END { 
+	if(st != ""){
+	if(DATE_VERSION == "gnu"){
+		cmd = "date -d @"st" +\"%Y-%m-%d %H:%M:%S\""; 
+	} else {
+		cmd = "date -r "st" +\"%Y-%m-%d %H:%M:%S\""; 
+	}
+	cmd | getline stf; 
+	close(cmd);
+	} else {
+	stf = "";
+	}
+
+	if(et != ""){
+	if(DATE_VERSION == "gnu"){
+		cmd = "date -d @"et" +\"%Y-%m-%d %H:%M:%S\""; 
+	} else {
+		cmd = "date -r "et" +\"%Y-%m-%d %H:%M:%S\""; 
+	}
+	cmd | getline etf;
+	close(cmd);
+	} else {
+	etf = "";
+	}
+
+	n = split(prev, path_parts, "/");
+	
+	pid="";
+	if(code == ""){
+	logdir="";
+	for(i = 1; i < n; i++){
+		logdir=logdir""path_parts[i];
+		if(i < n - 1) {
+		logdir=logdir"/";
+		}
+	}
+	if(PS_VERSION=="procps"){
+		cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+	}
+	else {
+		cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
+	}
+	cmd | getline pid;
+	close(cmd);
+	}
+	status=""
+	if(pid != ""){
+		status = "RUNNING (PID "pid")"
+	} else if (code == 0){
+		status = "done (0)"
+	} else if (code != 0){
+		status = "FAILURE ("code")"
+	}
+	cmd = "dirname "prev;
+	cmd | getline dir;
+	close(cmd);
+	filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
+	if(nickname != ""){
+	filename=nickname"-"filename;
+	}
+	link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
+	linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
+
+	print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, status, maxRSSGiB;
+}'
+awk_tsv_to_html='
+{ print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td><td>"$8"</td></tr>" }'
+
 header_pwd() {
 	pwd | awk ' 
 	{ 
@@ -193,7 +341,7 @@ safe_cd() {
 	if [ "$PWD" == "$FLANK_ROOT" ]; then
 		PAGE='HOME'
 	elif [ -f template.sh ]; then
-		PAGE='CMD'
+		PAGE='RUNFORM'
 	elif [ -f status ] || [ -f exec.sh ]; then
 		PAGE='LOG_DIR'
 	else
@@ -224,153 +372,6 @@ flank_kill() {
 	fi
 }
 
-awk_columns='
-NR==1 { prev=FILENAME; } 
-FNR==1 && NR!=1 { 
-	if(st != ""){
-	if(DATE_VERSION == "gnu"){
-		cmd = "date -d @"st" +\"%Y-%m-%d %H:%M:%S\""; 
-	} else {
-		cmd = "date -r "st" +\"%Y-%m-%d %H:%M:%S\""; 
-	}
-	cmd | getline stf; 
-	close(cmd);
-	} else {
-	stf = "";
-	}
-
-	if(et != ""){
-	if(DATE_VERSION == "gnu"){
-		cmd = "date -d @"et" +\"%Y-%m-%d %H:%M:%S\""; 
-	} else {
-		cmd = "date -r "et" +\"%Y-%m-%d %H:%M:%S\""; 
-	}
-	cmd | getline etf;
-	close(cmd);
-	} else {
-	etf = "";
-	}
-
-	n = split(prev, path_parts, "/");
-	
-	pid="";
-	if(code == ""){
-	logdir="";
-	for(i = 1; i < n; i++){
-		logdir=logdir""path_parts[i];
-		if(i < n - 1) {
-		logdir=logdir"/";
-		}
-	}
-	if(PS_VERSION=="procps"){
-		cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
-	}
-	else {
-		cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
-	}
-	cmd | getline pid;
-	close(cmd);
-	}
-	status=""
-	if(pid != ""){
-		status = "RUNNING (PID "pid")"
-	} else if (code == 0){
-		status = "done (0)"
-	} else if (code != 0){
-		status = "FAILURE ("code")"
-	}
-	cmd = "dirname "prev;
-	cmd | getline dir;
-	close(cmd)
-	filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
-	if(nickname != ""){
-	filename=nickname"-"filename;
-	}
-	link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
-	linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
-
-	print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, status, maxRSSGiB;
-
-	prev=FILENAME; 
-	st=""; 
-	et=""; 
-	code="";
-	nickname="";
-	pid="";
-	maxRSSGiB="";
-} 
-/StartTime/ { st=$2; } 
-/EndTime/ { et=$2 } 
-/ExitCode/ { code=$2 } 
-/Nickname/ { nickname=$2 } 
-/MaxRSSBytes/ { maxRSSGiB= sprintf("%.3f", $2 / 1073741824); }
-END { 
-	if(st != ""){
-	if(DATE_VERSION == "gnu"){
-		cmd = "date -d @"st" +\"%Y-%m-%d %H:%M:%S\""; 
-	} else {
-		cmd = "date -r "st" +\"%Y-%m-%d %H:%M:%S\""; 
-	}
-	cmd | getline stf; 
-	close(cmd);
-	} else {
-	stf = "";
-	}
-
-	if(et != ""){
-	if(DATE_VERSION == "gnu"){
-		cmd = "date -d @"et" +\"%Y-%m-%d %H:%M:%S\""; 
-	} else {
-		cmd = "date -r "et" +\"%Y-%m-%d %H:%M:%S\""; 
-	}
-	cmd | getline etf;
-	close(cmd);
-	} else {
-	etf = "";
-	}
-
-	n = split(prev, path_parts, "/");
-	
-	pid="";
-	if(code == ""){
-	logdir="";
-	for(i = 1; i < n; i++){
-		logdir=logdir""path_parts[i];
-		if(i < n - 1) {
-		logdir=logdir"/";
-		}
-	}
-	if(PS_VERSION=="procps"){
-		cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
-	}
-	else {
-		cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
-	}
-	cmd | getline pid;
-	close(cmd);
-	}
-	status=""
-	if(pid != ""){
-		status = "RUNNING (PID "pid")"
-	} else if (code == 0){
-		status = "done (0)"
-	} else if (code != 0){
-		status = "FAILURE ("code")"
-	}
-	cmd = "dirname "prev;
-	cmd | getline dir;
-	close(cmd);
-	filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
-	if(nickname != ""){
-	filename=nickname"-"filename;
-	}
-	link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
-	linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
-
-	print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, status, maxRSSGiB;
-}'
-awk_tsv_to_html='
-{ print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td><td>"$8"</td></tr>" }'
 if [ -n "$1" ] && [ "$1" == 'run' ]; then
 	if [ -z "$2" ]; then
 		echo 'Missing path to template / saved config `iflank run <path>`'
@@ -391,6 +392,224 @@ trap "echo 'server disconnected (write pipe)'; exit 1" PIPE
 readerr() {
 	echo 'Error on read, server => iflank pipe is probably closed'
 	exit 1
+}
+
+home() { 
+	echo '%PAGESTART%'
+	header_pwd
+	# echo ''
+	echo ''
+	echo '<div id="pBody">'
+	echo 'Welcome to Flank! v0.1.46'
+	echo '<a onclick="run('\''cd cmds'\'')">Commands</a>'
+	echo '<a onclick="run('\''history'\'')">History</a>'
+	echo '</div>'
+	echo '<div id="pFooter"></div>'
+	echo '%PAGEEND%'
+}
+
+flank_ls() {
+	echo '%PAGESTART%'
+	header_pwd
+	echo ""
+	echo '<div id="pBody">'
+	ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
+	echo '</div>'
+	echo '<div id="pFooter"></div>'
+	echo '%PAGEEND%'
+}
+flank_hist() {
+	echo '%PAGESTART%'
+	header_pwd
+	echo ''
+	echo '<div id="pBody"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>'
+	echo '<div id='pFooter'></div>'
+	echo '%PAGEEND%'
+
+	if [ -z "$PS_VERSION" ]; then
+		if [ -n "$(ps --version 2>/dev/null | grep procps)" ]; then
+			PS_VERSION='procps'
+		else
+			PS_VERSION='bsd'
+		fi
+	fi
+	if [ -z "$FIND_VERSION" ]; then
+		if [ -n "$(find --version 2>/dev/null | grep GNU)" ]; then
+			FIND_VERSION='gnu'
+		else
+			FIND_VERSION='bsd'
+		fi
+	fi
+	if [ -z "$DATE_VERSION" ]; then
+		if [ -n "$(date --version 2>/dev/null | grep GNU)" ]; then
+			DATE_VERSION='gnu'
+		else
+			DATE_VERSION='bsd'
+		fi
+	fi
+
+	echo %TABLEHEADSTART%
+	echo '<th></th><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Status</th><th>RAM (GiB)</th>'
+	echo %TABLEHEADEND%
+
+	echo %APPENDTRSTART%
+	ACTIVE_PID_FILE=$(mktemp)
+	if [ "$FIND_VERSION" == 'gnu' ]; then
+		regex_flag='-regextype posix-extended'
+		extended_flag=''
+		awk_flag='-W interactive'
+	else
+		regex_flag=''
+		extended_flag='-E'
+		awk_flag=''
+	fi
+	{
+
+		find $extended_flag . -type f $regex_flag -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
+			sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
+			sort -nr |
+			cut -f2 |
+			xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" |
+			awk $awk_flag -v FS='\t' "$awk_tsv_to_html" && echo '%APPENDTREND%' &
+		hist_pid=$!
+		echo "$hist_pid" >$ACTIVE_PID_FILE
+		wait "$hist_pid"
+		: >$ACTIVE_PID_FILE
+	} &
+}
+
+run_form() {
+	echo '%PAGESTART%'
+	header_pwd
+	echo ''
+	echo '<div id="pBody">'
+	echo '<form id="form" method="POST">'
+	grep -oE '\${([^}]+)}' template.sh | sed 's/^${//; s/}$//' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
+	echo '<div><button type="button" onclick="iflankForm('\''run .'\'')">Run</button></div>'
+	echo '</form>'
+	echo '</div>'
+	echo '<div id="pFooter">'
+	echo '<a onclick="run('\''history'\'')">Logs</a>'
+	echo '<a onclick="run('\''editfileform'\'')">Edit</a>'
+	echo '<a onclick="run('\''crontab'\'')">Cron</a>'
+	echo '</div>'
+	echo '%PAGEEND%'
+}
+edit_file_form() {
+	echo '%PAGESTART%'
+	header_pwd
+	echo '<div id="pBody">'
+	echo '<form id="form" method="POST">'
+	echo 'file' | awk ' 
+		BEGIN {
+			# read and escape template file
+			while ((getline line < "template.sh") > 0) {
+				gsub(/&/, "&amp;", line);
+				gsub(/</, "&lt;", line);
+				gsub(/>/, "&gt;", line);
+				gsub(/"/, "&quot;", line);
+				gsub(/\t/, "&#9;", line);
+				template = template line "\n"
+			}
+			close("template.sh")
+		}
+		{ print "<div><div>"$0"</div><textarea name=\""$0"\">"template"</textarea></div>" }'
+	echo '<div><button type="button" onclick="iflankForm('\''savefile .'\'')">Save</button></div>'
+	echo '</form>'
+	echo '</div>'
+	echo '<div id="pFooter">'
+	echo '<a onclick="run('\''history'\'')">Logs</a>'
+	echo '</div>'
+	echo '%PAGEEND%'
+}
+
+flank_crontab() {
+	echo '%PAGESTART%'
+	header_pwd
+	echo '<div id="pBody">'
+	echo '<button type="button" onclick="run('\''createcronform'\'')">Create</button>'
+	crontab -l
+	echo '</div>'
+	echo '<div id="pFooter">'
+	echo '<a onclick="run('\''history'\'')">Logs</a>'
+	echo '</div>'
+	echo '%PAGEEND%'
+}
+create_cron_form() {
+	echo '%PAGESTART%'
+	header_pwd
+	echo '<div id="pBody">'
+	echo '<form id="form" method="POST">'
+	echo 'cron_expression' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
+	echo '<div><button type="button" onclick="iflankForm('\''createcron .'\'')">Save</button></div>'
+	echo '</form>'
+	echo '</div>'
+	echo '<div id="pFooter">'
+	echo '<a onclick="run('\''history'\'')">Logs</a>'
+	echo '</div>'
+	echo '%PAGEEND%'
+}
+log_dir() {
+	echo '%PAGESTART%'
+	header_pwd
+	echo ''
+	echo '<div id="pBody"></div>'
+	state=''
+	if [ -f status ] && grep 'ExitCode:' status; then
+		state='after'
+	elif [ -f console.log ]; then
+		state='during'
+	else
+		state='before'
+	fi
+
+	if [ $state == 'during' ]; then
+		if [ "$PS_VERSION" == 'procps' ]; then
+			running_pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | grep -v '/usr/bin/time' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+		else
+			running_pid=$(ps -x | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | grep -v '/usr/bin/time' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
+		fi
+	fi
+	disabled_class=''
+	if [ -z "$running_pid" ]; then
+		disabled_class='class="disabled"'
+	fi
+	echo '<div id="pFooter">'
+	echo '<a '"$disabled_class"' onclick="run('\''kill '"$PWD"\'')">Kill</a>'
+	disabled_class=''
+	path_components=(${PWD//\// })
+	length=${#path_components[@]}
+	filename=${path_components[$((length - 4))]}"-"${path_components[$((length - 2))]}"_"${path_components[$((length - 1))]}".log"
+	if [ ! -f console.log ]; then
+		disabled_class='class="disabled"'
+	fi
+	echo '<a '"$disabled_class"' href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
+	echo '</div>'
+	echo '%PAGEEND%'
+
+	# Write the PID to a file so that the background job running `tail -f`
+	# can mutate it (set it to '' once the process finishes)
+	ACTIVE_PID_FILE=$(mktemp)
+	if [ "$state" == 'after' ]; then
+		echo '%APPENDPAGEBODYSTART%'
+		cat console.log
+		echo '%APPENDPAGEBODYEND%'
+	else
+		{
+			while [ ! -f console.log ]; do sleep 1; done
+			echo '%STREAMPAGEBODYSTART%'
+			tail -f -n +1 console.log &
+			tail_pid=$!
+			echo "$tail_pid" >$ACTIVE_PID_FILE
+			wait "$tail_pid"
+			: >$ACTIVE_PID_FILE
+		} &
+	fi
+}
+flank_error() {
+	echo '%PAGESTART%'
+	echo "Got into weird state. Hit Ctrl-C to quit"
+	echo '%PAGEEND%'
 }
 
 PAGE='HOME'
@@ -467,7 +686,7 @@ while true; do
 		# echo "$cleaned_file" 1>&2
 		cat <<<"$cleaned_file" >template.sh
 
-		PAGE='CMD'
+		PAGE='RUNFORM'
 
 		;;
 	crontab)
@@ -505,218 +724,31 @@ while true; do
 	esac
 	case "$PAGE" in
 	HOME)
-		echo '%PAGESTART%'
-		header_pwd
-		# echo ''
-		echo ''
-		echo '<div id="pBody">'
-		echo 'Welcome to Flank! v0.1.46'
-		echo '<a onclick="run('\''cd cmds'\'')">Commands</a>'
-		echo '<a onclick="run('\''history'\'')">History</a>'
-		echo '</div>'
-		echo '<div id="pFooter"></div>'
-		echo '%PAGEEND%'
+		home
 		;;
 	HISTORY)
-		echo '%PAGESTART%'
-		header_pwd
-		echo ''
-		echo '<div id="pBody"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>'
-		echo '<div id='pFooter'></div>'
-		echo '%PAGEEND%'
-
-		if [ -z "$PS_VERSION" ]; then
-			if [ -n "$(ps --version 2>/dev/null | grep procps)" ]; then
-				PS_VERSION='procps'
-			else
-				PS_VERSION='bsd'
-			fi
-		fi
-		if [ -z "$FIND_VERSION" ]; then
-			if [ -n "$(find --version 2>/dev/null | grep GNU)" ]; then
-				FIND_VERSION='gnu'
-			else
-				FIND_VERSION='bsd'
-			fi
-		fi
-		if [ -z "$DATE_VERSION" ]; then
-			if [ -n "$(date --version 2>/dev/null | grep GNU)" ]; then
-				DATE_VERSION='gnu'
-			else
-				DATE_VERSION='bsd'
-			fi
-		fi
-
-		echo %TABLEHEADSTART%
-		echo '<th></th><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Status</th><th>RAM (GiB)</th>'
-		echo %TABLEHEADEND%
-
-		echo %APPENDTRSTART%
-		ACTIVE_PID_FILE=$(mktemp)
-		if [ "$FIND_VERSION" == 'gnu' ]; then
-			regex_flag='-regextype posix-extended'
-			extended_flag=''
-			awk_flag='-W interactive'
-		else
-			regex_flag=''
-			extended_flag='-E'
-			awk_flag=''
-		fi
-		{
-
-			find $extended_flag . -type f $regex_flag -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
-				sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
-				sort -nr |
-				cut -f2 |
-				xargs awk -v OFS='\t' -v PS_VERSION=$PS_VERSION -v DATE_VERSION=$DATE_VERSION "$awk_columns" |
-				awk $awk_flag -v FS='\t' "$awk_tsv_to_html" && echo '%APPENDTREND%' &
-			hist_pid=$!
-			echo "$hist_pid" >$ACTIVE_PID_FILE
-			wait "$hist_pid"
-			: >$ACTIVE_PID_FILE
-		} &
+		flank_hist
 		;;
 	FS)
-		echo '%PAGESTART%'
-		header_pwd
-		echo ""
-		echo '<div id="pBody">'
-		ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
-		echo '</div>'
-		echo '<div id="pFooter"></div>'
-		echo '%PAGEEND%'
+		flank_ls
 		;;
-	CMD)
-		echo '%PAGESTART%'
-		header_pwd
-		echo ''
-		echo '<div id="pBody">'
-		echo '<form id="form" method="POST">'
-		grep -oE '\${([^}]+)}' template.sh | sed 's/^${//; s/}$//' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
-		echo '<div><button type="button" onclick="iflankForm('\''run .'\'')">Run</button></div>'
-		echo '</form>'
-		echo '</div>'
-		echo '<div id="pFooter">'
-		echo '<a onclick="run('\''history'\'')">Logs</a>'
-		echo '<a onclick="run('\''editfileform'\'')">Edit</a>'
-		echo '<a onclick="run('\''crontab'\'')">Cron</a>'
-		echo '</div>'
-		echo '%PAGEEND%'
+	RUNFORM)
+		run_form
 		;;
 	EDITFILEFORM)
-		echo '%PAGESTART%'
-		header_pwd
-		echo '<div id="pBody">'
-		echo '<form id="form" method="POST">'
-		echo 'file' | awk ' 
-			BEGIN {
-				# read and escape template file
-				while ((getline line < "template.sh") > 0) {
-					gsub(/&/, "&amp;", line);
-					gsub(/</, "&lt;", line);
-					gsub(/>/, "&gt;", line);
-					gsub(/"/, "&quot;", line);
-					gsub(/\t/, "&#9;", line);
-					template = template line "\n"
-				}
-				close("template.sh")
-			}
-			{ print "<div><div>"$0"</div><textarea name=\""$0"\">"template"</textarea></div>" }'
-		echo '<div><button type="button" onclick="iflankForm('\''savefile .'\'')">Save</button></div>'
-		echo '</form>'
-		echo '</div>'
-		echo '<div id="pFooter">'
-		echo '<a onclick="run('\''history'\'')">Logs</a>'
-		echo '</div>'
-		echo '%PAGEEND%'
+		edit_file_form
 		;;
 	CRONTAB)
-		echo '%PAGESTART%'
-		header_pwd
-		echo '<div id="pBody">'
-		echo '<button type="button" onclick="run('\''createcronform'\'')">Create</button>'
-		crontab -l
-		echo '</div>'
-		echo '<div id="pFooter">'
-		echo '<a onclick="run('\''history'\'')">Logs</a>'
-		echo '</div>'
-		echo '%PAGEEND%'
+		flank_crontab
 		;;
 	CREATECRONFORM)
-		echo '%PAGESTART%'
-		header_pwd
-		echo '<div id="pBody">'
-		echo '<form id="form" method="POST">'
-		echo 'cron_expression' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
-		echo '<div><button type="button" onclick="iflankForm('\''createcron .'\'')">Save</button></div>'
-		echo '</form>'
-		echo '</div>'
-		echo '<div id="pFooter">'
-		echo '<a onclick="run('\''history'\'')">Logs</a>'
-		echo '</div>'
-		echo '%PAGEEND%'
+		create_cron_form
 		;;
 	LOG_DIR)
-		echo '%PAGESTART%'
-		header_pwd
-		echo ''
-		echo '<div id="pBody"></div>'
-		state=''
-		if [ -f status ] && grep 'ExitCode:' status; then
-			state='after'
-		elif [ -f console.log ]; then
-			state='during'
-		else
-			state='before'
-		fi
-
-		if [ $state == 'during' ]; then
-			if [ "$PS_VERSION" == 'procps' ]; then
-				running_pid=$(ps -eo pid,args | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | grep -v '/usr/bin/time' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
-			else
-				running_pid=$(ps -x | grep $PWD | grep -v "grep .*"$PWD | grep -v "bash -c .*StartTime" | grep -v '/usr/bin/time' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]].*//')
-			fi
-		fi
-		disabled_class=''
-		if [ -z "$running_pid" ]; then
-			disabled_class='class="disabled"'
-		fi
-		echo '<div id="pFooter">'
-		echo '<a '"$disabled_class"' onclick="run('\''kill '"$PWD"\'')">Kill</a>'
-		disabled_class=''
-		path_components=(${PWD//\// })
-		length=${#path_components[@]}
-		filename=${path_components[$((length - 4))]}"-"${path_components[$((length - 2))]}"_"${path_components[$((length - 1))]}".log"
-		if [ ! -f console.log ]; then
-			disabled_class='class="disabled"'
-		fi
-		echo '<a '"$disabled_class"' href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
-		echo '</div>'
-		echo '%PAGEEND%'
-
-		# Write the PID to a file so that the background job running `tail -f`
-		# can mutate it (set it to '' once the process finishes)
-		ACTIVE_PID_FILE=$(mktemp)
-		if [ "$state" == 'after' ]; then
-			echo '%APPENDPAGEBODYSTART%'
-			cat console.log
-			echo '%APPENDPAGEBODYEND%'
-		else
-			{
-				while [ ! -f console.log ]; do sleep 1; done
-				echo '%STREAMPAGEBODYSTART%'
-				tail -f -n +1 console.log &
-				tail_pid=$!
-				echo "$tail_pid" >$ACTIVE_PID_FILE
-				wait "$tail_pid"
-				: >$ACTIVE_PID_FILE
-			} &
-		fi
+		log_dir
 		;;
 	*)
-		echo '%PAGESTART%'
-		echo "Got into weird state. Hit Ctrl-C to quit"
-		echo '%PAGEEND%'
+		flank_error
 		;;
 	esac
 done
