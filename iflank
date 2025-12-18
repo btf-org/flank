@@ -178,31 +178,31 @@ kill_tree() {
 	kill -TERM "$parent" 2>/dev/null
 }
 run_cmd() {
-	# iflank run <cmd dir> [--prefix prefix] k1=v1 k2=v2 k3=v3
-	# run_cmd fg|bg <cmd dir> [--prefix prefix] k1=v1 k2=v2 k3=v3
+	# iflank run <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
+	# run_cmd fg|bg <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
 	local p_fgbg="$1"
 	shift
 	local p_path="$1"
 	shift
-	local p_prefix=''
-	local subset=''
+	local p_output_key=''
+	local arg_keys=''
 
 	# Positional args are local to a function so `shift` doesn't unset 
 	# the positional args at the script level
 	while [ "$1" != "" ]; do
 		case "$1" in
-			--prefix)
+			--output_key)
 				shift
-				local p_prefix="$1"
+				local p_output_key="$1"
 				;;
 			*)
 				local key="${1%%=*}"
 				local val="${1#*=}"
 				eval "export $key=\$val"
-				if [ "$subset" == '' ]; then
-					local subset=$key
+				if [ "$arg_keys" == '' ]; then
+					local arg_keys=$key
 				else
-					local subset="$subset $key"
+					local arg_keys="$arg_keys $key"
 				fi
 
 				;;
@@ -251,22 +251,7 @@ run_cmd() {
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
 		cp "$p_path" $cmd_run_dir/exec.sh
 	else
-		# i=1
-		# subset=""
-		# for arg in "$@"; do
-		# 	if [ $i -ge 3 ]; then
-		# 		key=${arg%%=*}
-		# 		val=${arg#*=}
-		# 		eval "export $key=\$val"
-		# 		if [ "$subset" == '' ]; then
-		# 			subset=$key
-		# 		else
-		# 			subset="$subset $key"
-		# 		fi
-		# 	fi
-		# 	i=$((i + 1))
-		# done
-		envsubst "$subset" <$cmd_dir/template.sh >$cmd_run_dir/exec.sh
+		envsubst "$arg_keys" <$cmd_dir/template.sh >$cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
@@ -333,7 +318,12 @@ run_cmd() {
 		local time_flag='-l'
 		local time_filename='time.bsd.out'
 	fi
-	echo $cmd_run_dir
+
+	if [ -n ${p_output_key} ]; then
+		echo "${p_output_key}=${cmd_run_dir}"
+	else
+		echo "${cmd_run_dir}"
+	fi
 
 	# Subtle quoting things:
 	#  - $? needs to be escaped as \$? in "" or it will immediately evaluate
