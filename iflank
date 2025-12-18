@@ -339,12 +339,16 @@ run_cmd() {
 safe_cd() {
 	cd "$1"
 	if [ "$PWD" == "$FLANK_ROOT" ]; then
+		home
 		PAGE='HOME'
 	elif [ -f template.sh ]; then
+		run_form
 		PAGE='RUNFORM'
 	elif [ -f status ] || [ -f exec.sh ]; then
+		log_dir
 		PAGE='LOG_DIR'
 	else
+		flank_ls
 		PAGE='FS'
 	fi
 }
@@ -649,23 +653,35 @@ FIND_VERSION=''
 DATE_VERSION=''
 TIME_VERSION=''
 ACTIVE_PID_FILE=''
+PREV_CHOICE='cd'
+PREV_ARGS="$FLANK_ROOT"
 
-cd $FLANK_ROOT
 while true; do
 	read -r choice args || readerr
-	active_pid=$(cat "$ACTIVE_PID_FILE")
-	if [ -n "$active_pid" ]; then
-		kill_tree "$active_pid"
-		ACTIVE_PID_FILE=''
+	if [ -f "$ACTIVE_PID_FILE" ]; then
+		active_pid=$(cat "$ACTIVE_PID_FILE")
+		if [ -n "$active_pid" ]; then
+			kill_tree "$active_pid"
+			ACTIVE_PID_FILE=''
+		fi
 	fi
+
+	if [ "$choice" == 'refresh' ]; then
+		choice="$PREV_CHOICE"
+		args="$PREV_ARGS"
+	fi
+
+	echo "choice $choice" 1>&2
+	echo "args $args" 1>&2
+
 	case $choice in
 	cd)
 		safe_cd "$args"
 		;;
 	history)
+		flank_hist
 		PAGE='HISTORY'
 		;;
-	refresh) ;;
 	run)
 		# run <dir> <k=v&k=v>
 		# everything after first space, then space delimited
@@ -686,16 +702,20 @@ while true; do
 		# echo "$cleaned_file" 1>&2
 		cat <<<"$cleaned_file" >template.sh
 
+		run_form
 		PAGE='RUNFORM'
 
 		;;
 	crontab)
+		flank_crontab
 		PAGE='CRONTAB'
 		;;
 	editfileform)
+		edit_file_form
 		PAGE='EDITFILEFORM'
 		;;
 	createcronform)
+		create_cron_form
 		PAGE='CREATECRONFORM'
 		;;
 	createcron)
@@ -713,6 +733,7 @@ while true; do
 			crontab -l 2>/dev/null
 			echo "$new_cron_line"
 		) | crontab -
+		flank_crontab
 		PAGE='CRONTAB'
 		;;
 	kill)
@@ -722,33 +743,35 @@ while true; do
 		read -rp "Invalid choice! Hit [Enter] to continue" || readerr
 		;;
 	esac
-	case "$PAGE" in
-	HOME)
-		home
-		;;
-	HISTORY)
-		flank_hist
-		;;
-	FS)
-		flank_ls
-		;;
-	RUNFORM)
-		run_form
-		;;
-	EDITFILEFORM)
-		edit_file_form
-		;;
-	CRONTAB)
-		flank_crontab
-		;;
-	CREATECRONFORM)
-		create_cron_form
-		;;
-	LOG_DIR)
-		log_dir
-		;;
-	*)
-		flank_error
-		;;
-	esac
+	PREV_CHOICE="$choice"
+	PREV_ARGS="$args"
+	# case "$PAGE" in
+	# HOME)
+	# 	home
+	# 	;;
+	# HISTORY)
+	# 	:
+	# 	;;
+	# FS)
+	# 	:
+	# 	;;
+	# RUNFORM)
+	# 	:
+	# 	;;
+	# EDITFILEFORM)
+	# 	:
+	# 	;;
+	# CRONTAB)
+	# 	:
+	# 	;;
+	# CREATECRONFORM)
+	# 	:
+	# 	;;
+	# LOG_DIR)
+	# 	:
+	# 	;;
+	# *)
+	# 	flank_error
+	# 	;;
+	# esac
 done
