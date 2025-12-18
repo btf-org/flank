@@ -592,7 +592,60 @@ log_dir() {
 	# Write the PID to a file so that the background job running `tail -f`
 	# can mutate it (set it to '' once the process finishes)
 	ACTIVE_PID_FILE=$(mktemp)
-	if [ "$state" == 'after' ]; then
+	if grep '^make ' <(head -1 exec.sh); then
+		local awk_enrich='
+		BEGIN {
+			while ((getline line < "console.log") > 0) {
+				if (line ~ /=>/) {
+					n = split(line, parts, /=>/)
+					stamp = parts[1]
+					run_dir = parts[2]
+					run_dirs[stamp]=run_dir
+				}
+			}
+			close("console.log")
+
+			for (stamp in run_dirs) {
+		        status_file = run_dirs[stamp] "/status"
+				color = "gray"
+
+			    if ((getline < status_file) >= 0) { 
+					close(status_file)
+					while ((getline sline < status_file) > 0) {
+						if (sline ~ /^ExitCode/) {
+							split(sline, ec_parts, /[ \t]+/)
+							exit_code = ec_parts[2]
+							if (exit_code == 0) {
+								color = "green"
+							} else {
+								color = "red"
+							}
+							break
+						}
+					}
+					close(status_file)
+				}
+				colors[stamp] = color
+			}
+		}
+		/color/ { 
+			# if (match($0, /label="([^"]+)"/, m)) {
+			# 	stamp = m[1]
+			# } else {
+			# 	stamp = ""
+			# }
+			color = "yellow";
+			if(stamp in colors){
+				color = colors[stamp];
+			}
+			sub(/color=".*"/, "color=\""color"\"");  
+			sub(/label=/, "URL=\""run_dirs[stamp]"\", label=");
+		}
+		{ print } '
+		echo '%APPENDPAGEBODYSTART%'
+		make -Bnd -f <(grep -Ev '^make |EOF' exec.sh) | make2graph | grep -Ev 'n2 |n2\[' | awk "$awk_enrich" # | dot -Tsvg
+		echo '%APPENDPAGEBODYEND%'
+	elif [ "$state" == 'after' ]; then
 		echo '%APPENDPAGEBODYSTART%'
 		cat console.log
 		echo '%APPENDPAGEBODYEND%'
