@@ -187,6 +187,8 @@ run_cmd() {
 	local p_prefix=''
 	local subset=''
 
+	# Positional args are local to a function so `shift` doesn't unset 
+	# the positional args at the script level
 	while [ "$1" != "" ]; do
 		case "$1" in
 			--prefix)
@@ -194,8 +196,8 @@ run_cmd() {
 				local p_prefix="$1"
 				;;
 			*)
-				key=${arg%%=*}
-				val=${arg#*=}
+				local key="${1%%=*}"
+				local val="${1#*=}"
 				eval "export $key=\$val"
 				if [ "$subset" == '' ]; then
 					local subset=$key
