@@ -178,7 +178,7 @@ kill_tree() {
 	kill -TERM "$parent" 2>/dev/null
 }
 run_cmd() {
-	# iflank run <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
+	# iflank run    <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
 	# run_cmd fg|bg <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
 	local p_fgbg="$1"
 	shift
@@ -319,7 +319,7 @@ run_cmd() {
 	fi
 
 	if [ -n "${p_output_key}" ]; then
-		echo "${p_output_key}=${cmd_run_dir}"
+		echo "${p_output_key}=>${cmd_run_dir}"
 	else
 		echo "${cmd_run_dir}"
 	fi
@@ -344,7 +344,6 @@ run_cmd() {
 		PID=$!
 		wait $PID
 		local exit_code=$?
-		set -e
 		printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >>status
 		if [ -f time.gnu.out ]; then
 			awk -F: ' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' time.gnu.out >>status
@@ -390,22 +389,6 @@ flank_kill() {
 		echo "ERROR: could not find PID for flank_kill ${1}" 1>&2
 	fi
 }
-
-if [ -n "$1" ] && [ "$1" == 'run' ]; then
-	if [ -z "$2" ]; then
-		echo 'Missing path to template / saved config `iflank run <path>`'
-		exit 1
-	fi
-
-	# Exits if a simple command exits with a non-zero status
-	set -e
-	run_cmd "fg" "$2"
-	exit_code=$?
-	exit $exit_code
-fi
-
-# This traps SIGPIPE, which would get sent if this program tried to write to a broken pipe
-trap "echo 'server disconnected (write pipe)'; exit 1" PIPE
 
 # This function gets called whenever `read` fails, which happens if OS sends EOF, which happens if pipe is closed
 readerr() {
@@ -636,8 +619,24 @@ help_msg() {
 	printf 'Usage: iflank [run <path>] [--http-mode | -h]\n'
 }
 
+
+# This traps SIGPIPE, which would get sent if this program tried to write to a broken pipe
+trap "echo 'server disconnected (write pipe)'; exit 1" PIPE
+
+
 while [ "$1" != "" ]; do
 	case $1 in
+	run)
+		set -e
+		shift
+		# if your params are "a", "b merry" and "c"
+		# "$@" expands to "a" "b merry" "c"
+		# $@ expands to a b merry c
+		# "$*" expands to "a b merry c"
+		run_cmd "fg" "$@"
+		exit_code=$?
+		exit $exit_code
+		;;
 	-h | --help)
 		help_msg
 		exit
