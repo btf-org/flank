@@ -340,16 +340,12 @@ safe_cd() {
 	cd "$1"
 	if [ "$PWD" == "$FLANK_ROOT" ]; then
 		home
-		PAGE='HOME'
 	elif [ -f template.sh ]; then
 		run_form
-		PAGE='RUNFORM'
 	elif [ -f status ] || [ -f exec.sh ]; then
 		log_dir
-		PAGE='LOG_DIR'
 	else
 		flank_ls
-		PAGE='FS'
 	fi
 }
 
@@ -616,7 +612,6 @@ flank_error() {
 	echo '%PAGEEND%'
 }
 
-PAGE='HOME'
 
 help_msg() {
 	printf 'Usage: iflank [run <path>] [--http-mode | -h]\n'
@@ -680,7 +675,6 @@ while true; do
 		;;
 	history)
 		flank_hist
-		PAGE='HISTORY'
 		;;
 	run)
 		# run <dir> <k=v&k=v>
@@ -703,20 +697,16 @@ while true; do
 		cat <<<"$cleaned_file" >template.sh
 
 		run_form
-		PAGE='RUNFORM'
 
 		;;
 	crontab)
 		flank_crontab
-		PAGE='CRONTAB'
 		;;
 	editfileform)
 		edit_file_form
-		PAGE='EDITFILEFORM'
 		;;
 	createcronform)
 		create_cron_form
-		PAGE='CREATECRONFORM'
 		;;
 	createcron)
 		# createcron <dir> <k=v&k=v>
@@ -734,7 +724,6 @@ while true; do
 			echo "$new_cron_line"
 		) | crontab -
 		flank_crontab
-		PAGE='CRONTAB'
 		;;
 	kill)
 		flank_kill "$args"
@@ -745,33 +734,4 @@ while true; do
 	esac
 	PREV_CHOICE="$choice"
 	PREV_ARGS="$args"
-	# case "$PAGE" in
-	# HOME)
-	# 	home
-	# 	;;
-	# HISTORY)
-	# 	:
-	# 	;;
-	# FS)
-	# 	:
-	# 	;;
-	# RUNFORM)
-	# 	:
-	# 	;;
-	# EDITFILEFORM)
-	# 	:
-	# 	;;
-	# CRONTAB)
-	# 	:
-	# 	;;
-	# CREATECRONFORM)
-	# 	:
-	# 	;;
-	# LOG_DIR)
-	# 	:
-	# 	;;
-	# *)
-	# 	flank_error
-	# 	;;
-	# esac
 done
