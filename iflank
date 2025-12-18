@@ -187,24 +187,24 @@ run_cmd() {
 	local p_output_key=''
 	local arg_keys=''
 
-	# Positional args are local to a function so `shift` doesn't unset 
+	# Positional args are local to a function so `shift` doesn't unset
 	# the positional args at the script level
 	while [ "$1" != "" ]; do
 		case "$1" in
-			--output_key)
-				shift
-				local p_output_key="$1"
-				;;
-			*)
-				local key="${1%%=*}"
-				local val="${1#*=}"
-				eval "export $key=\$val"
-				if [ "$arg_keys" == '' ]; then
-					local arg_keys=$key
-				else
-					local arg_keys="$arg_keys $key"
-				fi
-				;;
+		--output_key)
+			shift
+			local p_output_key="$1"
+			;;
+		*)
+			local key="${1%%=*}"
+			local val="${1#*=}"
+			eval "export $key=\$val"
+			if [ "$arg_keys" == '' ]; then
+				local arg_keys=$key
+			else
+				local arg_keys="$arg_keys $key"
+			fi
+			;;
 		esac
 		shift
 	done
@@ -396,7 +396,7 @@ readerr() {
 	exit 1
 }
 
-home() { 
+home() {
 	echo '%PAGESTART%'
 	header_pwd
 	# echo ''
@@ -614,15 +614,12 @@ flank_error() {
 	echo '%PAGEEND%'
 }
 
-
 help_msg() {
 	printf 'Usage: iflank [run <path>] [--http-mode | -h]\n'
 }
 
-
 # This traps SIGPIPE, which would get sent if this program tried to write to a broken pipe
 trap "echo 'server disconnected (write pipe)'; exit 1" PIPE
-
 
 while [ "$1" != "" ]; do
 	case $1 in
@@ -696,7 +693,7 @@ while true; do
 		;;
 	run)
 		# run <cmd_dir> <k=v&k=v>
-		IFS=' ' read cmd_dir kvs <<< "$args"
+		IFS=' ' read cmd_dir kvs <<<"$args"
 		split_kvs=$(echo "$kvs" | tr '&' ' ')
 		# don't quote $split_kvs or they'll get passed as one string
 		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" $split_kvs)
