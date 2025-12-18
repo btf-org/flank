@@ -394,7 +394,7 @@ readerr() {
 	exit 1
 }
 
-home() { 
+home() {
 	echo '%PAGESTART%'
 	header_pwd
 	# echo ''
@@ -611,7 +611,6 @@ flank_error() {
 	echo "Got into weird state. Hit Ctrl-C to quit"
 	echo '%PAGEEND%'
 }
-
 
 help_msg() {
 	printf 'Usage: iflank [run <path>] [--http-mode | -h]\n'
