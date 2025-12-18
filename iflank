@@ -178,21 +178,49 @@ kill_tree() {
 	kill -TERM "$parent" 2>/dev/null
 }
 run_cmd() {
-	echo "$@" 1>&2
-	if [ "$1" != 'bg' ] && [ "$1" != 'fg' ]; then
+	# iflank run <cmd dir> [--prefix prefix] k1=v1 k2=v2 k3=v3
+	# run_cmd fg|bg <cmd dir> [--prefix prefix] k1=v1 k2=v2 k3=v3
+	local p_fgbg="$1"
+	shift
+	local p_path="$1"
+	shift
+	local p_prefix=''
+	local subset=''
+
+	while [ "$1" != "" ]; do
+		case "$1" in
+			--prefix)
+				shift
+				local p_prefix="$1"
+				;;
+			*)
+				key=${arg%%=*}
+				val=${arg#*=}
+				eval "export $key=\$val"
+				if [ "$subset" == '' ]; then
+					local subset=$key
+				else
+					local subset="$subset $key"
+				fi
+
+				;;
+		esac
+		shift
+	done
+	if [ "$p_fgbg" != 'bg' ] && [ "$p_fgbg" != 'fg' ]; then
 		echo "first parameter $1 must be 'fg' or 'bg'"
 		return 1
 	fi
 	local nickname=""
-	if [ -n "$2" ] && [ "$2" != '.' ]; then
-		if [ ! -f "$2" ]; then
-			echo "file \"$2\""' does not exist!'
+	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
+		if [ ! -f "$p_path" ]; then
+			echo "file \"$p_path\""' does not exist!'
 			return 1
 		fi
-		local cmd_dir=$(dirname "$2")
+		local cmd_dir=$(dirname "$p_path")
 		if [ $(basename "$cmd_dir") == 'saved_configs' ]; then
 			local cmd_dir=$(dirname "$cmd_dir")
-			local scriptname=$(basename "$2")
+			local scriptname=$(basename "$p_path")
 			local nickname=${scriptname%.sh}
 		fi
 	else
@@ -218,24 +246,24 @@ run_cmd() {
 		fi
 	fi
 
-	if [ -n "$2" ] && [ "$2" != '.' ]; then
-		cp "$2" $cmd_run_dir/exec.sh
+	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
+		cp "$p_path" $cmd_run_dir/exec.sh
 	else
-		i=1
-		subset=""
-		for arg in "$@"; do
-			if [ $i -ge 3 ]; then
-				key=${arg%%=*}
-				val=${arg#*=}
-				eval "export $key=\$val"
-				if [ "$subset" == '' ]; then
-					subset=$key
-				else
-					subset="$subset $key"
-				fi
-			fi
-			i=$((i + 1))
-		done
+		# i=1
+		# subset=""
+		# for arg in "$@"; do
+		# 	if [ $i -ge 3 ]; then
+		# 		key=${arg%%=*}
+		# 		val=${arg#*=}
+		# 		eval "export $key=\$val"
+		# 		if [ "$subset" == '' ]; then
+		# 			subset=$key
+		# 		else
+		# 			subset="$subset $key"
+		# 		fi
+		# 	fi
+		# 	i=$((i + 1))
+		# done
 		envsubst "$subset" <$cmd_dir/template.sh >$cmd_run_dir/exec.sh
 	fi
 
@@ -283,7 +311,7 @@ run_cmd() {
 			exit $exit_code
 		fi
 	}
-	if [ "$1" == 'fg' ]; then
+	if [ "$p_fgbg" == 'fg' ]; then
 		trap handle_int INT
 		trap handle_term TERM
 		trap handle_kill KILL
@@ -313,7 +341,7 @@ run_cmd() {
 	#  - Killing `/usr/bin/time` will not kill the process it wraps
 	#  - Killing `bash -c` will not kill the process it wraps
 	#  - Killing `nohup` will not kill the process it wraps
-	if [ "$1" == 'bg' ]; then
+	if [ "$p_fgbg" == 'bg' ]; then
 		nohup bash -c "cd $cmd_run_dir; printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > status; /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &> console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> status; if [ -f time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" time.gnu.out >> status; elif [ -f time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" time.bsd.out >> status; fi
 " >/dev/null &
 	else
@@ -394,7 +422,7 @@ readerr() {
 	exit 1
 }
 
-home() {
+home() { 
 	echo '%PAGESTART%'
 	header_pwd
 	# echo ''
@@ -611,6 +639,7 @@ flank_error() {
 	echo "Got into weird state. Hit Ctrl-C to quit"
 	echo '%PAGEEND%'
 }
+
 
 help_msg() {
 	printf 'Usage: iflank [run <path>] [--http-mode | -h]\n'
