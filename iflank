@@ -204,7 +204,6 @@ run_cmd() {
 				else
 					local arg_keys="$arg_keys $key"
 				fi
-
 				;;
 		esac
 		shift
@@ -319,7 +318,7 @@ run_cmd() {
 		local time_filename='time.bsd.out'
 	fi
 
-	if [ -n ${p_output_key} ]; then
+	if [ -n "${p_output_key}" ]; then
 		echo "${p_output_key}=${cmd_run_dir}"
 	else
 		echo "${cmd_run_dir}"
@@ -697,10 +696,11 @@ while true; do
 		flank_hist
 		;;
 	run)
-		# run <dir> <k=v&k=v>
-		# everything after first space, then space delimited
-		split_kvs=$(echo "${args#* }" | tr '&' ' ')
-		cmd_run_dir=$(run_cmd 'bg' '.' $split_kvs)
+		# run <cmd_dir> <k=v&k=v>
+		IFS=' ' read cmd_dir kvs <<< "$args"
+		split_kvs=$(echo "$kvs" | tr '&' ' ')
+		# don't quote $split_kvs or they'll get passed as one string
+		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" $split_kvs)
 		safe_cd "$cmd_run_dir"
 		;;
 	savefile)
