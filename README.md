@@ -2,11 +2,12 @@
 I'm a data analytics consultant and I built the following to speed up my work. I use it for everything from BI to internal tools to setting up pipelines.
 
 # Examples
-- Node
-  - Run a Node script on a schedule
 - R
   - Run an R script on a schedule
   - Build a pipeline of R scripts
+
+# Case Studies
+- Building a productiion data pipeline by just writing R scripts (no Docker, no CI/CD, etc)
 
 ## Run a Node script on a schedule
 1. [Install Flank](#install-flank)
