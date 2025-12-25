@@ -178,7 +178,7 @@ kill_tree() {
 	kill -TERM "$parent" 2>/dev/null
 }
 run_cmd() {
-	# iflank run    <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
+	# iflank  run   <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
 	# run_cmd fg|bg <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
 	local p_fgbg="$1"
 	shift
@@ -743,12 +743,16 @@ while true; do
 
 	echo "choice $choice" 1>&2
 	echo "args $args" 1>&2
-
+	
 	case $choice in
 	cd)
+		PREV_CHOICE="$choice"
+		PREV_ARGS="$args"
 		safe_cd "$args"
 		;;
 	history)
+		PREV_CHOICE="$choice"
+		PREV_ARGS="$args"
 		flank_hist
 		;;
 	run)
@@ -758,8 +762,12 @@ while true; do
 		# don't quote $split_kvs or they'll get passed as one string
 		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" $split_kvs)
 		safe_cd "$cmd_run_dir"
+		PREV_CHOICE='cd'
+		PREV_ARGS="$cmd_run_dir"
 		;;
 	savefile)
+		PREV_CHOICE="$PREV_CHOICE"
+		PREV_ARGS="$PREV_ARGS"
 		# savefile <path> <k=v>
 		# everything after first space, then space delimited
 		split_kvs=$(echo "${args#* }" | tr '&' ' ')
@@ -773,18 +781,28 @@ while true; do
 		cat <<<"$cleaned_file" >template.sh
 
 		run_form
-
+		PREV_CHOICE='cd'
+		PREV_ARGS="$PWD"
 		;;
 	crontab)
+		PREV_CHOICE="$choice"
+		PREV_ARGS="$args"
 		flank_crontab
 		;;
 	editfileform)
+		PREV_CHOICE="$choice"
+		PREV_ARGS="$args"
 		edit_file_form
 		;;
 	createcronform)
+		PREV_CHOICE="$choice"
+		PREV_ARGS="$args"
 		create_cron_form
 		;;
 	createcron)
+		PREV_CHOICE="$PREV_CHOICE"
+		PREV_ARGS="$PREV_ARGS"
+		dont_update_prev_choice=1
 		# createcron <dir> <k=v&k=v>
 		# everything after first space, then space delimited
 		split_kvs=$(echo "${args#* }" | tr '&' ' ')
@@ -802,12 +820,14 @@ while true; do
 		flank_crontab
 		;;
 	kill)
+		PREV_CHOICE="$PREV_CHOICE"
+		PREV_ARGS="$PREV_ARGS"
 		flank_kill "$args"
 		;;
 	*)
+		PREV_CHOICE="$PREV_CHOICE"
+		PREV_ARGS="$PREV_ARGS"
 		read -rp "Invalid choice! Hit [Enter] to continue" || readerr
 		;;
 	esac
-	PREV_CHOICE="$choice"
-	PREV_ARGS="$args"
 done
