@@ -624,16 +624,21 @@ log_dir() {
 						}
 					}
 					close(status_file)
+				} else {
+					print status_file" NOT FOUND"
 				}
 				colors[stamp] = color
 			}
 		}
 		/color/ { 
-			# if (match($0, /label="([^"]+)"/, m)) {
-			# 	stamp = m[1]
-			# } else {
-			# 	stamp = ""
-			# }
+			    if (match($0, /label="[^"]+"/)) {
+					start = RSTART + 7       
+					len = RLENGTH - 8 
+					stamp = substr($0, start, len)
+				}
+				else {
+					stamp = ""
+				}
 			color = "yellow";
 			if(stamp in colors){
 				color = colors[stamp];
@@ -643,7 +648,9 @@ log_dir() {
 		}
 		{ print } '
 		echo '%APPENDPAGEBODYSTART%'
-		make -Bnd -f <(grep -Ev '^make |EOF' exec.sh) | make2graph | grep -Ev 'n2 |n2\[' | awk "$awk_enrich" # | dot -Tsvg
+		make -Bnd -f <(grep -Ev '^make |EOF' exec.sh) | \
+			make2graph | grep -Ev 'n2 |n2\[' | awk "$awk_enrich" | \
+			dot -Tsvg | sed 's/xlink:href="\([^"]*\)"/onclick="run('\''cd \1'\'')"/'
 		echo '%APPENDPAGEBODYEND%'
 	elif [ "$state" == 'after' ]; then
 		echo '%APPENDPAGEBODYSTART%'
