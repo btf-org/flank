@@ -648,8 +648,8 @@ log_dir() {
 		}
 		{ print } '
 		echo '%APPENDPAGEBODYSTART%'
-		make -Bnd -f <(grep -Ev '^make |EOF' exec.sh) | \
-			make2graph | grep -Ev 'n2 |n2\[' | awk "$awk_enrich" | \
+		make -Bnd -f <(grep -Ev '^make |EOF' exec.sh) |
+			make2graph | grep -Ev 'n2 |n2\[' | awk "$awk_enrich" |
 			dot -Tsvg | sed 's/xlink:href="\([^"]*\)"/onclick="run('\''cd \1'\'')"/'
 		echo '%APPENDPAGEBODYEND%'
 	elif [ "$state" == 'after' ]; then
