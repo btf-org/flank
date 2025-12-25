@@ -756,6 +756,8 @@ while true; do
 		flank_hist
 		;;
 	run)
+		PREV_CHOICE="$PREV_CHOICE"
+		PREV_ARGS="$PREV_ARGS"
 		# run <cmd_dir> <k=v&k=v>
 		IFS=' ' read cmd_dir kvs <<<"$args"
 		split_kvs=$(echo "$kvs" | tr '&' ' ')
