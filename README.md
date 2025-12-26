@@ -9,6 +9,17 @@ I'm a data analytics consultant, and I built the following to simplfy my work.
 ### Case Studies
 - [Building a memory-intensive pipeline without Docker, Airflow, etc.](#building-a-memory-intensive-pipeline-without-docker-airflow-etc)
 
+### Setup
+- Install Flank
+  - Mac
+  - Linux/Ubuntu
+  - Windows
+- Start Flank Server
+- Update Flank
+
+### Basics
+- Add Your Script to Flank 
+
 # Examples
 ## Run an R script on a schedule
 
@@ -28,6 +39,7 @@ I'm a data analytics consultant, and I built the following to simplfy my work.
 # Case Studies
 ## Building a memory-intensive pipeline without Docker, Airflow, etc.
 
+# Setup
 ## Install Flank
 
 ### Mac
