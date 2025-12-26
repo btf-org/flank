@@ -1,23 +1,23 @@
 # Flank
-I'm a data analytics consultant and I built the following to speed up my work. I use it for everything from BI to internal tools to setting up pipelines.
+I'm a data analytics consultant, and I built the following to speed up my work. I use it for everything from BI to internal tools to setting up pipelines.
 
-# Examples
+### Examples
 - R
-  - Run an R script on a schedule
+  - [Run an R script on a schedule](#run-an-r-script-on-a-schedule)
   - Build a pipeline of R scripts
 
-# Case Studies
-- Building a productiion data pipeline by just writing R scripts (no Docker, no CI/CD, etc)
+### Case Studies
+- [Building a data pipeline without Docker, Airflow, etc.](#building-a-data-pipeline-without-docker-airflow-etc)
 
-## Run a Node script on a schedule
+# Examples
+## Run an R script on a schedule
 1. [Install Flank](#install-flank)
 2. [Start Flank](#start-flank)
-3. Add your script to Flank
-   ```bash
-   # assuming a Node script called "hello.js"...
-   flank add hello.js
-   ```
+3. [Add your script to Flank](#add-your-script-to-flank)
 4. Schedule exeuction of script through Flank website
+
+# Case Studies
+## Building a data pipeline without Docker, Airflow, etc.
 
 ## Install Flank
 
@@ -67,3 +67,15 @@ sudo apt install ./flank_0.1.36_amd64.deb
 
 Not available at this time
 
+## Add Your Script to Flank
+
+1. Run the following command
+  ```bash
+  flank add helloWorld.R
+  
+  # Example output:
+  # localhost:8083/helloWorld.R
+  ```
+2. Add parameters in Flank
+   - Go to URL outputted above
+   - Click on "Edit" at the bottom
