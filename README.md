@@ -1,23 +1,32 @@
 # Flank
-I'm a data analytics consultant, and I built the following to speed up my work. I use it for everything from BI to internal tools to setting up pipelines.
+I'm a data analytics consultant, and I built the following to simplfy my work.
 
 ### Examples
 - R
   - [Run an R script on a schedule](#run-an-r-script-on-a-schedule)
-  - Build a pipeline of R scripts
+  - [Build a pipeline of R scripts](#build-a-pipeline-of-r-scripts)
 
 ### Case Studies
-- [Building a data pipeline without Docker, Airflow, etc.](#building-a-data-pipeline-without-docker-airflow-etc)
+- [Building a memory-intensive pipeline without Docker, Airflow, etc.](#building-a-memory-intensive-pipeline-without-docker-airflow-etc)
 
 # Examples
 ## Run an R script on a schedule
-1. [Install Flank](#install-flank)
-2. [Start Flank](#start-flank)
-3. [Add your script to Flank](#add-your-script-to-flank)
-4. Schedule exeuction of script through Flank website
 
+1. Prerequisites
+   - [Install Flank](#install-flank)
+   - [Start Flank Server](#start-flank-server)
+2. [Add your script to Flank](#add-your-script-to-flank)
+3. Schedule exeuction of script through Flank website
+
+## Build a pipeline of R scripts
+1. Prerequisites
+   - [Install Flank](#install-flank)
+   - [Start Flank Server](#start-flank-server)
+2. [Add your script to Flank](#add-your-script-to-flank)
+3. Schedule exeuction of script through Flank website
+   
 # Case Studies
-## Building a data pipeline without Docker, Airflow, etc.
+## Building a memory-intensive pipeline without Docker, Airflow, etc.
 
 ## Install Flank
 
@@ -41,7 +50,7 @@ sudo apt install ./flank_0.1.36_amd64.deb
 Not available at this time
 
 
-## Start Flank
+## Start Flank Server
 
 ```bash
 flank start
