@@ -94,17 +94,19 @@ Not available at this time
 
 ## Add Your Script to Flank
 
-1. Run the following command
-  ```bash
-  flank add helloWorld.R
-  
-  # Example output:
-  # localhost:8083/helloWorld.R
-  ```
-2. Add parameters in Flank
-   - Go to URL outputted above
-   - Click on "Edit" at the bottom
-  
+If you've run the command and it's in your history...
+```bash
+# check your history
+history
+# let's say the history number was 157, print that command without executing
+fc -ln 157 157
+# now add it to Flank
+fc -ln 157 157 | flank add
+```
+
+## Parameterize your script
+
+
 ## Always run the latest version of a script
 
 ## Strategies for scaling VMs up/down
