@@ -35,7 +35,7 @@ I'm a data analytics consultant, and I've built a browser <=> CLI tool to simpli
 
 **Annoyingly Complicated Default Solution:** Introduce Docker, a deployment process, a cloud running system like AWS Batch, and an orchestration tool like Airflow.
 
-**Simple Alternative:** Run the R scripts directly on a VM (no Docker/AWS Batch), automatically pull changes from GitHub (no deployment tools), and configure the pipeline DAG through Flank (no Airflow). Also store logs in regular files that are easily viewable/downloadable (no AWS Cloudwatch).
+**Simple Alternative:** Run the R scripts directly on a VM (no Docker/AWS Batch), automatically pull changes from GitHub (no deployment tools), and configure the pipeline DAG with Make (no Airflow). Runs natively on Mac/Linux with no dependencies that will ever break. Also store logs in regular files that are easily viewable/downloadable (no AWS Cloudwatch).
 
 **Optimized Solution:** Scale the VM down to a tiny instance size in off-hours, which makes the whole system cheaper than the serverless way.
 
