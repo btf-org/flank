@@ -1,5 +1,5 @@
 # Flank
-I'm a data analytics consultant, and I built the following to simplfy my work.
+I'm a data analytics consultant. Flank is a set of tools that I've built to speed up common tasks that annoyingly complicated in 2025.
 
 ### Examples
 - R
@@ -10,15 +10,15 @@ I'm a data analytics consultant, and I built the following to simplfy my work.
 - [Building a memory-intensive pipeline without Docker, Airflow, etc.](#building-a-memory-intensive-pipeline-without-docker-airflow-etc)
 
 ### Setup
-- Install Flank
+- [Install Flank](#install-flank)
   - Mac
   - Linux/Ubuntu
   - Windows
-- Start Flank Server
-- Update Flank
+- [Start Flank Server](#start-flank-server)
+- [Update Flank](#update-flank)
 
 ### Basics
-- Add Your Script to Flank 
+- [Add Your Script to Flank](#add-your-script-to-flank)
 
 # Examples
 ## Run an R script on a schedule
