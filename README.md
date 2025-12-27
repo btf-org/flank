@@ -1,5 +1,5 @@
 # Flank
-I'm a data analytics consultant, and I've built a brower/CLI tool to simplify some common tasks that annoyingly complicated in 2026.
+I'm a data analytics consultant, and I've built a browser<=>CLI tool to simplify some common tasks that annoyingly complicated in 2026.
 
 # Table of Contents
 ### Examples
