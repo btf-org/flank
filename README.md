@@ -1,13 +1,16 @@
 # Flank
-I'm a data analytics consultant, and I've built a browser <=> CLI tool to simplify some common tasks that annoyingly complicated in 2026.
+I'm a data analytics consultant, and I've built a browser <=> CLI tool to simplify some common tasks that are annoyingly complicated in 2026.
 
 # Table of Contents
-### Examples
+### Quick Examples
 - R
   - [Run an R script on a schedule](#run-an-r-script-on-a-schedule)
   - [Build a pipeline of R scripts](#build-a-pipeline-of-r-scripts)
-### Case Studies
-  - [Building a memory-intensive pipeline without Docker, Airflow, etc.](#building-a-memory-intensive-pipeline-without-docker-airflow-etc)
+  - [Run an R script with more memory than you've got on your laptop](#run-an-r-script-with-more-memory-than-youve-got-on-your-laptop)
+### Putting it all together
+  - [Build a memory-intensive pipeline without Docker, Airflow, etc.](#build-a-memory-intensive-pipeline-without-docker-airflow-etc)
+
+<br>
 
 # Examples
 
@@ -29,8 +32,10 @@ I'm a data analytics consultant, and I've built a browser <=> CLI tool to simpli
 5. Create a pipeline
    1. TBD
 
-# Case Studies
-## Building a memory-intensive pipeline without Docker, Airflow, etc.
+## Run an R script with more memory than you've got on your laptop
+TBD
+
+## Build a memory-intensive pipeline without Docker, Airflow, etc.
 **Common Problem:** Data Scienitst outgrew his laptop -- his nightly pipeline of R scripts needed ~200GB of memory.
 
 **Annoyingly Complicated Default Solution:** Introduce Docker, a deployment process, a cloud running system like AWS Batch, and an orchestration tool like Airflow.
@@ -39,7 +44,7 @@ I'm a data analytics consultant, and I've built a browser <=> CLI tool to simpli
 
 **Optimized Solution:** Scale the VM down to a tiny instance size in off-hours, which makes the whole system cheaper than the serverless way.
 
-**See:** [Run an R script on a schedule](#run-an-r-script-on-a-schedule), [Build a pipeline of R scripts](#build-a-pipeline-of-r-scripts), [Always run the latest version of a script](#always-run-the-latest-version-of-a-script), [Strategies for scaling VMs up/down](#strategies-for-scaling-vms-up-down)
+**See:** [Run an R script on a schedule](#run-an-r-script-on-a-schedule), [Build a pipeline of R scripts](#build-a-pipeline-of-r-scripts), [Always run the latest version of a script](#always-run-the-latest-version-of-a-script), [Strategies for scaling VMs up/down](#strategies-for-optimizing-vm-cost)
 
 # Setup
 ## Install Flank
@@ -109,4 +114,4 @@ fc -ln 157 157 | flank add
 
 ## Always run the latest version of a script
 
-## Strategies for scaling VMs up/down
+## Strategies for optimizing VM cost
