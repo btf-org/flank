@@ -6,7 +6,7 @@ I'm a data analytics consultant, and I've built a browser <=> CLI tool to simpli
 - R
   - [Run an R script on a schedule](#run-an-r-script-on-a-schedule)
   - [Build a pipeline of R scripts](#build-a-pipeline-of-r-scripts)
-  - [Run an R script with more memory than you've got on your laptop](#run-an-r-script-with-more-memory-than-youve-got-on-your-laptop)
+  - [Run an R script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
 ### Putting it all together
   - [Build a memory-intensive pipeline without Docker, Airflow, etc.](#build-a-memory-intensive-pipeline-without-docker-airflow-etc)
 
@@ -32,19 +32,11 @@ I'm a data analytics consultant, and I've built a browser <=> CLI tool to simpli
 5. Create a pipeline
    1. TBD
 
-## Run an R script with more memory than you've got on your laptop
-TBD
+## Run an R script with a lot of memory
+TODO
 
 ## Build a memory-intensive pipeline without Docker, Airflow, etc.
-**Common Problem:** Data Scienitst outgrew his laptop -- his nightly pipeline of R scripts needed ~200GB of memory.
-
-**Annoyingly Complicated Default Solution:** Introduce Docker, a deployment process, a cloud running system like AWS Batch, and an orchestration tool like Airflow.
-
-**Simple Alternative:** Run the R scripts directly on a VM (no Docker/AWS Batch), automatically pull changes from GitHub (no deployment tools), and configure the pipeline DAG with Make (no Airflow). Runs natively on Mac/Linux with no dependencies that will ever break. Also store logs in regular files that are easily viewable/downloadable (no AWS Cloudwatch).
-
-**Optimized Solution:** Scale the VM down to a tiny instance size in off-hours, which makes the whole system cheaper than the serverless way.
-
-**See:** [Run an R script on a schedule](#run-an-r-script-on-a-schedule), [Build a pipeline of R scripts](#build-a-pipeline-of-r-scripts), [Always run the latest version of a script](#always-run-the-latest-version-of-a-script), [Strategies for scaling VMs up/down](#strategies-for-optimizing-vm-cost)
+TODO
 
 # Setup
 ## Install Flank
@@ -99,18 +91,17 @@ Not available at this time
 
 ## Add Your Script to Flank
 
-If you've run the command and it's in your history...
-```bash
-# check your history
-history
-# let's say the history number was 157, print that command without executing
-fc -ln 157 157
-# now add it to Flank
-fc -ln 157 157 | flank add
-```
+1. Go to the Flank website
+2. Click on "Create Command" at the bottom
+3. After naming your command, paste whatever you would run from the command line into the box, e.g. `Rscript myscript.R --arg1=hello` or `python myscript.py`.
+4. [Parameterize your script](#parameterize-your-script)
 
 ## Parameterize your script
 
+(If you're already in the process of adding your script, skip to #3)
+1. Navigate to your command
+2. Click on "Edit" at the bottom
+3. Create parameterized values by substituting `%%varname%%`, e.g. if your CLI command is `Rscript myscript.R --arg1=hello` and you want to parameterize the "hello" part, change it to `Rscript myscript.R --arg1=%%arg1%%`
 
 ## Always run the latest version of a script
 
