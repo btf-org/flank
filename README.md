@@ -7,6 +7,10 @@ I'm a data analytics consultant, and I've built a browser <=> CLI tool to simpli
   - [Run an R script on a schedule](#run-an-r-script-on-a-schedule)
   - [Build a pipeline of R scripts](#build-a-pipeline-of-r-scripts)
   - [Run an R script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
+- Python
+  - [Run a Python script on a schedule](#run-an-r-script-on-a-schedule)
+  - [Build a pipeline of Python scripts](#build-a-pipeline-of-r-scripts)
+  - [Run a Python script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
 ### Putting it all together
   - [Build a memory-intensive pipeline without Docker, Airflow, etc.](#build-a-memory-intensive-pipeline-without-docker-airflow-etc)
 
