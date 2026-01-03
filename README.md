@@ -1,112 +1,28 @@
 # Flank
-I'm a data analytics consultant, and I've built a browser <=> CLI tool to simplify some common tasks that are annoyingly complicated in 2026.
 
-# Table of Contents
-### Quick Examples
-- R
-  - [Run an R script on a schedule](#run-an-r-script-on-a-schedule)
-  - [Build a pipeline of R scripts](#build-a-pipeline-of-r-scripts)
-  - [Run an R script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
-- Python
-  - [Run a Python script on a schedule](#run-an-r-script-on-a-schedule)
-  - [Build a pipeline of Python scripts](#build-a-pipeline-of-r-scripts)
-  - [Run a Python script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
-### Putting it all together
-  - [Build a memory-intensive pipeline without Docker, Airflow, etc.](#build-a-memory-intensive-pipeline-without-docker-airflow-etc)
+_The best part is no part._
+
+\- Elon
 
 <br>
 
-# Examples
+_Premature optimization is the root of all evil._ 
 
-## Run an R script on a schedule
+\- Knuth
 
-1. [Install Flank](#install-flank)
-2. [Start Flank Server](#start-flank-server)
-3. [Add your script to Flank](#add-your-script-to-flank)
-4. [Parameterize your script](#parameterize-your-script)
-5. Create a scheduled job
-   1. Navigate to your script in Flank
-   2. Click on "Create Cron" at the bottom
+# Everything is bloated
 
-## Build a pipeline of R scripts
-1. [Install Flank](#install-flank)
-2. [Start Flank Server](#start-flank-server)
-3. [Add 2 scripts to Flank](#add-your-script-to-flank)
-4. [Parameterize your scripts](#parameterize-your-script)
-5. Create a pipeline
-   1. TBD
+Recently, I needed to run a `curl` command on a timer and it took me ONE HOUR to do this in Azure. And I ended up using Python instead of `curl`.
 
-## Run an R script with a lot of memory
-TODO
+For fun, I spent another hour resarching the various cloud services involved, and 
 
-## Build a memory-intensive pipeline without Docker, Airflow, etc.
-TODO
+# Eliminating 20,000,000 LOC
+Flank is a 30-seconds-or-less software microwave for doing simple things quickly.
 
-# Setup
-## Install Flank
+# What can Flank do in 30 secs or less?
+Click on the link for your language 
 
-### Mac
-
-```bash
-brew tap btf-org/flank
-brew install btf-org/flank/flank
-```
-
-### Linux / Ubuntu / apt
-
-```bash
-# From any directory
-wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
-sudo apt install ./flank_0.1.36_amd64.deb
-```
-
-### Windows / Other Linux Distros
-
-Not available at this time
+<div style="display:flex;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1200px-Python-logo-notext.svg.png" width=75/></div>
 
 
-## Start Flank Server
-
-```bash
-flank start
-```
-
-## Update Flank
-
-### Mac
-```bash
-brew update # should update all your "taps", including btf-org/flank
-brew install btf-org/flank/flank
-```
-
-### Linux / Ubuntu
-
-```bash
-# From any directory
-wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
-sudo apt install ./flank_0.1.36_amd64.deb
-```
-
-### Windows / Other Linux Distros
-
-Not available at this time
-
-# Guides
-
-## Add Your Script to Flank
-
-1. Go to the Flank website
-2. Click on "Create Command" at the bottom
-3. After naming your command, paste whatever you would run from the command line into the box, e.g. `Rscript myscript.R --arg1=hello` or `python myscript.py`.
-4. [Parameterize your script](#parameterize-your-script)
-
-## Parameterize your script
-
-(If you're already in the process of adding your script, skip to #3)
-1. Navigate to your command
-2. Click on "Edit" at the bottom
-3. Create parameterized values by substituting `%%varname%%`, e.g. if your CLI command is `Rscript myscript.R --arg1=hello` and you want to parameterize the "hello" part, change it to `Rscript myscript.R --arg1=%%arg1%%`
-
-## Always run the latest version of a script
-
-## Strategies for optimizing VM cost
+[R logo] [Python logo]
