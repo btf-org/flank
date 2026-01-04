@@ -65,12 +65,6 @@ sudo apt install ./flank_0.1.36_amd64.deb
 Not available at this time
 
 
-## Start Flank Server
-
-```bash
-flank start
-```
-
 ## Update Flank
 
 ### Mac
