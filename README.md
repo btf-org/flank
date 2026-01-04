@@ -1,8 +1,10 @@
 # Flank
 
-_Premature optimization is the root of all evil._ 
+_Premature optimization is the root of all evil._  \- Knuth
 
-\- Knuth
+_Simple things should be simple._ \- Kay
+
+_The best part is_ no _part._ \- Elon
 
 # Everything is bloated
 
