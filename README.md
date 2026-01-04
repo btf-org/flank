@@ -4,18 +4,6 @@ _Premature optimization is the root of all evil._
 
 \- Knuth
 
-<br>
-
-_The best part is no part. The best process is no process._
-
-\- Elon
-
-<br>
-
-_Simple things should be simple._
-
-\- Kay
-
 # Everything is bloated
 
 Recently, I needed to run a `curl` command on a timer and it took me ONE HOUR to do this in Azure.
