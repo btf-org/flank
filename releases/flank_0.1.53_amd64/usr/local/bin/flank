@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+
+if [ "${BASH_SOURCE[0]}" == "${0}" ]; then
+    echo 'Script needs to be sourced, not executed, to get access to this shell'"'"'s history. Run as:'
+    echo ''
+    echo '   $ . flank'
+    echo ''
+    echo '   OR'
+    echo ''
+    echo '   $ source flank'
+    exit
+fi
+
+
+if pgrep -x "flankserver" > /dev/null; then
+    STATE="MAIN_MENU"
+else
+    STATE="SERVER_NOT_RUNNING"
+fi
+
+if [ -d /var/lib/flank ]; then
+    FLANK_ROOT=/var/lib/flank
+elif [ -d /opt/homebrew/var/flank ]; then
+    FLANK_ROOT=/opt/homebrew/var/flank
+elif [ -d /usr/local/var/flank ]; then
+    FLANK_ROOT=/usr/local/var/flank
+elif [ -n $(which brew) && $(brew --prefix) > 0 ]; then
+    FLANK_ROOT=$(brew --prefix)/var
+else 
+    echo "Cannot find flank root!"
+    exit
+fi
+
+while true; do
+    case "$STATE" in
+	SERVER_NOT_RUNNING)
+	    read -rp "Flank server is not running. Start? [y/n] " choice
+	    case "$choice" in
+		y) STATE="START_SERVER";;
+		n) STATE="MAIN_MENU" ;;
+		*) echo "Input y or n" ;;
+	    esac
+	    ;;
+	START_SERVER)
+	    nohup flankserver &
+	    PID=$!
+	    echo ""
+	    echo "flankserver started on port 8083 (PID=$PID)"
+	    echo "    http://localhost:8083"
+	    echo ""
+	    echo "You can kill it through this menu or by running"
+	    echo "    $ pkill -x flankserver"
+	    echo ""
+	    read -rp "Press enter to continue" choice
+	    echo ""
+	    STATE="MAIN_MENU"
+	    ;;
+        MAIN_MENU)
+            echo "=== Main Menu ==="
+            echo "C - Create Command"
+	    if pgrep -x "flankserver" > /dev/null; then
+		echo "K - Kill Server"
+	    else
+		echo "S - Start Server"
+	    fi
+	    echo "X - Exit"
+	    echo ""
+            read -rp "Choose an option: " choice
+            case "$choice" in
+                C) STATE="CREATE_CMD" ;;
+                # 2) STATE="SETTINGS" ;;
+                K) 
+		    pkill -x flankserver
+		    echo ""
+		    echo "Server killed..."
+		    echo ""
+		    read -rp "Press enter to continue" choice
+		    ;;
+		S) STATE="START_SERVER" ;;
+		X) STATE="EXIT" ;;
+                *)
+		    read -rp "Invalid Choice! Press enter to continue" choice
+		    echo ""
+		    ;;
+            esac
+            ;;
+        
+        CREATE_CMD)
+	    history | tail -20
+	    echo ''
+	    read -rp 'Pick history number: ' line_no
+	    CMD_FROM_HIST="cd "$(pwd)" && "$(fc -ln $line_no $line_no | sed 's/^[[:space:]]*//')
+	    echo "Adding this command to Flank:"
+	    echo '   '$CMD_FROM_HIST
+	    echo ''
+	    read -rp 'Choose a name: ' cmd_name
+	    while [ -d $FLANK_ROOT/$cmd_name ]; do
+		read -rp 'Name already exists! Choose another: ' cmd_name
+	    done
+
+	    mkdir $FLANK_ROOT/$cmd_name
+	    chmod 777 $FLANK_ROOT/$cmd_name
+	    echo $CMD_FROM_HIST > $FLANK_ROOT/$cmd_name/template.sh
+	    echo ''
+	    echo 'Command created!'
+	    echo '    http://localhost:8083'
+	    echo ''
+	    read -rp 'Press enter to continue' choice
+            STATE='MAIN_MENU'
+            ;;
+        
+        EXIT)
+	    echo ""
+            echo "Goodbye!"
+            break
+            ;;
+        
+        *)
+            echo "Unknown state: $STATE"
+            STATE="MAIN_MENU"
+            ;;
+    esac
+done
+
