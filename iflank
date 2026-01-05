@@ -406,7 +406,9 @@ home() {
 	echo '<a onclick="run('\''cd cmds'\'')">Commands</a>'
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '</div>'
-	echo '<div id="pFooter"></div>'
+	echo '<div id="pFooter">'
+	echo '<a onclick="run('\''history'\'')">History</a>'
+	echo '</div>'
 	echo '%PAGEEND%'
 }
 
@@ -417,7 +419,9 @@ flank_ls() {
 	echo '<div id="pBody">'
 	ls -1 | awk ' { print "<a onclick=\"run('\''cd "$0"'\'')\">"$0"</a>" } '
 	echo '</div>'
-	echo '<div id="pFooter"></div>'
+	echo '<div id="pFooter">'
+	echo '<a onclick="run('\''history'\'')">History</a>'
+	echo '</div>'
 	echo '%PAGEEND%'
 }
 flank_hist() {
@@ -491,7 +495,7 @@ run_form() {
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">Logs</a>'
+	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '<a onclick="run('\''editfileform'\'')">Edit</a>'
 	echo '<a onclick="run('\''crontab'\'')">Cron</a>'
 	echo '</div>'
@@ -520,7 +524,7 @@ edit_file_form() {
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">Logs</a>'
+	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
 }
@@ -533,7 +537,7 @@ flank_crontab() {
 	crontab -l
 	echo '</div>'
 	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">Logs</a>'
+	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
 }
@@ -547,7 +551,7 @@ create_cron_form() {
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">Logs</a>'
+	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
 }
