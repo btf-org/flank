@@ -48,12 +48,14 @@ int tsprintf(const char *fmt, ...)
 	int n;
 
 	/* Print the timestamp first */
+	// fprintf(stdout, "stdout: %d\n", fileno(stdout));
 	fprintf(stdout, "[%s] ", timestamp());
 
 	/* Then the user‑supplied formatted text */
 	va_start(ap, fmt);
 	n = vfprintf(stdout, fmt, ap);
 	va_end(ap);
+	fflush(stdout);
 
 	return n;
 }
@@ -240,6 +242,12 @@ int main(int argc, char *argv[])
 #ifdef __linux__
 			int event_fd = events[i].data.fd;
 #elif defined(__APPLE__) || defined(__FreeBSD__)
+			printf("fd=%lu flags=0x%x fflags=0x%x data=%ld\n",
+				events[i].ident,
+				events[i].flags,
+				events[i].fflags,
+				events[i].data);
+			fflush(stdout);
 			int event_fd = events[i].ident;
 #else
 #error "Unsupported platform"
@@ -289,6 +297,10 @@ int main(int argc, char *argv[])
 
 					pid = fork();
 					if (pid == 0) {
+						tsprintf("child dup2 STDIN %d => TO R %d\n", STDIN_FILENO, to_iflank_pipe_rw[0]);
+						tsprintf("child dup2 STDOUT %d => FROM W %d\n", STDOUT_FILENO, from_iflank_pipe_rw[1]);
+						tsprintf("child close TO W %d\n", to_iflank_pipe_rw[1]);
+						tsprintf("child close FROM R %d\n", from_iflank_pipe_rw[0]);
 						// Child process 
 						dup2(to_iflank_pipe_rw[0], STDIN_FILENO);	// in file descriptor table,
 						// point 0 at whatever file description 
@@ -303,7 +315,9 @@ int main(int argc, char *argv[])
 					} else {
 						// Parent process
 						close(to_iflank_pipe_rw[0]);	// close the "read" end of the "to" pipe (it's for the child)
+						tsprintf("parent close TO R %d\n", to_iflank_pipe_rw[0]);
 						close(from_iflank_pipe_rw[1]);	// close the "write" end of the "from" pipe (it's for the child) 
+						tsprintf("parent close FROM W %d\n", from_iflank_pipe_rw[1]);
 					}
 
 					int flags =
