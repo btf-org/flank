@@ -1,17 +1,10 @@
-# Flank
-I'm a data analytics consultant, and I've built a browser <=> CLI tool to simplify some common tasks that are annoyingly complicated in 2026.
+# Flank Examples - R
+## 30 seconds or less
+- [Run an R script on a schedule](#run-an-r-script-on-a-schedule)
+- [Build a pipeline of R scripts](#build-a-pipeline-of-r-scripts)
+- [Run an R script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
 
-# Table of Contents
-### Quick Examples
-- R
-  - [Run an R script on a schedule](#run-an-r-script-on-a-schedule)
-  - [Build a pipeline of R scripts](#build-a-pipeline-of-r-scripts)
-  - [Run an R script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
-- Python
-  - [Run a Python script on a schedule](#run-an-r-script-on-a-schedule)
-  - [Build a pipeline of Python scripts](#build-a-pipeline-of-r-scripts)
-  - [Run a Python script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
-### Putting it all together
+## Putting it all together
   - [Build a memory-intensive pipeline without Docker, Airflow, etc.](#build-a-memory-intensive-pipeline-without-docker-airflow-etc)
 
 <br>
@@ -64,12 +57,6 @@ sudo apt install ./flank_0.1.36_amd64.deb
 
 Not available at this time
 
-
-## Start Flank Server
-
-```bash
-flank start
-```
 
 ## Update Flank
 
