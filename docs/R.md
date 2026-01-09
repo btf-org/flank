@@ -14,19 +14,17 @@
 ## Run an R script on a schedule
 
 1. [Install Flank](#install-flank)
-2. [Start Flank Server](#start-flank-server)
-3. [Add your script to Flank](#add-your-script-to-flank)
-4. [Parameterize your script](#parameterize-your-script)
-5. Create a scheduled job
+2. [Add your script to Flank](#add-your-script-to-flank)
+3. [Parameterize your script](#parameterize-your-script)
+4. Create a scheduled job
    1. Navigate to your script in Flank
    2. Click on "Create Cron" at the bottom
 
 ## Build a pipeline of R scripts
 1. [Install Flank](#install-flank)
-2. [Start Flank Server](#start-flank-server)
-3. [Add 2 scripts to Flank](#add-your-script-to-flank)
-4. [Parameterize your scripts](#parameterize-your-script)
-5. Create a pipeline
+2. [Add 2 scripts to Flank](#add-your-script-to-flank)
+3. [Parameterize your scripts](#parameterize-your-script)
+4. Create a pipeline
    1. TBD
 
 ## Run an R script with a lot of memory
@@ -43,14 +41,15 @@ TODO
 ```bash
 brew tap btf-org/flank
 brew install btf-org/flank/flank
+brew services start flank
 ```
 
 ### Linux / Ubuntu / apt
 
 ```bash
 # From any directory
-wget https://github.com/btf-org/flank/releases/download/v0.1.36/flank_0.1.36_amd64.deb
-sudo apt install ./flank_0.1.36_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.56/flank_0.1.56_amd64.deb
+sudo apt install ./flank_0.1.56_amd64.deb
 ```
 
 ### Windows / Other Linux Distros
