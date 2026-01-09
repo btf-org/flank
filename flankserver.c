@@ -116,24 +116,46 @@ int main(int argc, char *argv[])
 	signal(SIGINT, sigint_handler);
 	signal(SIGTERM, sigint_handler);
 
-	char *iflank_path = "iflank";
-	char *iflank_name = "iflank";
 	struct session sessions[64] = { 0 };
 	if (strstr(argv[0], "fsl") != NULL) {
 		PORT = 8084;
 	}
+	const char *iflank_path = NULL;
+	int explicit_iflank_path = 0;
 	for (int i = 1; i + 1 < argc; ++i) {
 		if (strcmp(argv[i], "--iflank-path") == 0) {
+			explicit_iflank_path = 1;
 			iflank_path = argv[i + 1];
-			char *last_slash = strrchr(iflank_path, '/');
-			if (last_slash > 0) {
-				iflank_name = last_slash + 1;
-			} else {
-				iflank_name = last_slash;
-			}
 			break;
 		}
 	}
+	if(!explicit_iflank_path){
+#ifdef __linux__
+		const char *candidates[] = {
+			    "/usr/local/bin/iflank",
+				NULL
+		};
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+		const char *candidates[] = {
+			  "/opt/homebrew/bin/iflank",
+			    "/usr/local/bin/iflank",
+				NULL
+		};
+#else
+#error "Unsupported platform"
+#endif
+
+		for (int i = 0; candidates[i]; i++) {
+			  if (access(candidates[i], X_OK) == 0) {
+				      iflank_path = candidates[i];
+					    }
+		}
+	}
+	if (!iflank_path) {
+		    fprintf(stderr, "Error: iflank binary not found\n");
+			exit(1);
+	}
+
 	int client_fd;
 	struct sockaddr_in addr;
 	char buffer[BUF_SIZE];
@@ -275,7 +297,7 @@ int main(int argc, char *argv[])
 						// point 1 at whatever FD is write end of pipe
 						close(to_iflank_pipe_rw[1]);	// close the "write" end of the "to" pipe (it's for the parent)
 						close(from_iflank_pipe_rw[0]);	// close the "read" end of the "from" pipe (it's for the parent)
-						execlp(iflank_path, iflank_name, NULL);	// filename, argv[0] the name the program sees itself as, end of arg list
+						execlp(iflank_path, "iflank", NULL);	// filename, argv[0] the name the program sees itself as, end of arg list
 						perror("execlp");
 						exit(1);
 					} else {
