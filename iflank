@@ -747,7 +747,7 @@ while true; do
 
 	echo "choice $choice" 1>&2
 	echo "args $args" 1>&2
-	
+
 	case $choice in
 	cd)
 		PREV_CHOICE="$choice"

@@ -129,31 +129,31 @@ int main(int argc, char *argv[])
 			break;
 		}
 	}
-	if(!explicit_iflank_path){
+	if (!explicit_iflank_path) {
 #ifdef __linux__
 		const char *candidates[] = {
-			    "/usr/local/bin/iflank",
-				NULL
+			"/usr/local/bin/iflank",
+			NULL
 		};
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 		const char *candidates[] = {
-			  "/opt/homebrew/bin/iflank",
-			    "/usr/local/bin/iflank",
-				NULL
+			"/opt/homebrew/bin/iflank",
+			"/usr/local/bin/iflank",
+			NULL
 		};
 #else
 #error "Unsupported platform"
 #endif
 
 		for (int i = 0; candidates[i]; i++) {
-			  if (access(candidates[i], X_OK) == 0) {
-				      iflank_path = candidates[i];
-					    }
+			if (access(candidates[i], X_OK) == 0) {
+				iflank_path = candidates[i];
+			}
 		}
 	}
 	if (!iflank_path) {
-		    fprintf(stderr, "Error: iflank binary not found\n");
-			exit(1);
+		fprintf(stderr, "Error: iflank binary not found\n");
+		exit(1);
 	}
 
 	int client_fd;
