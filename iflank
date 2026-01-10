@@ -417,13 +417,16 @@ flank_ls() {
 	header_pwd
 	echo ""
 	echo '<div id="pBody">'
+	for f in */; do
+	  if [ -f "$f/template.sh" ]; then
+		  echo '   <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
+	  else 
+		  echo '📁 <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
+	  fi
+  done
 	for f in *; do
-	  if [ -d "$f" ] && [ -f "$f/template.sh" ]; then
-		  echo '   <a onclick="run('\''cd '"$f"'\'')">'"$f"'</a>'
-	  elif [ -d "$f" ]; then
-		  echo '📁 <a onclick="run('\''cd '"$f"'\'')">'"$f"'</a>'
-	  else
-		  echo '   <a onclick="run('\''cd '"$f"'\'')">'"$f"'</a>'
+	  if [ -f "$f" ]; then
+		  echo '   <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
 	  fi
   done
 	echo '</div>'
