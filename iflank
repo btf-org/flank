@@ -400,17 +400,17 @@ flank_ls() {
 	echo ""
 	echo '<div id="pBody">'
 	for f in *; do
-	  if [ -d "$f" ] && [ ! -f "$f/template.sh" ]; then
-		  echo '📁 <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
-	  fi
-  done
+		if [ -d "$f" ] && [ ! -f "$f/template.sh" ]; then
+			echo '📁 <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
+		fi
+	done
 	for f in *; do
-	  if [ -d "$f" ] && [ -f "$f/template.sh" ]; then
-		  echo '<span class="hidden">📁</span> <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
-	  elif [ -f "$f" ]; then
-		  echo '<span class="hidden">📁</span> '"$f"
-	  fi
-  done
+		if [ -d "$f" ] && [ -f "$f/template.sh" ]; then
+			echo '<span class="hidden">📁</span> <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
+		elif [ -f "$f" ]; then
+			echo '<span class="hidden">📁</span> '"$f"
+		fi
+	done
 	echo '</div>'
 	echo '<div id="pFooter">'
 	echo '<a onclick="run('\''history'\'')">History</a>'
