@@ -356,9 +356,7 @@ run_cmd() {
 
 safe_cd() {
 	cd "$1"
-	if [ "$PWD" == "$FLANK_ROOT" ]; then
-		home
-	elif [ -f template.sh ]; then
+	if [ -f template.sh ]; then
 		run_form
 	elif [ -f status ] || [ -f exec.sh ]; then
 		log_dir
@@ -396,37 +394,21 @@ readerr() {
 	exit 1
 }
 
-home() {
-	echo '%PAGESTART%'
-	header_pwd
-	# echo ''
-	echo ''
-	echo '<div id="pBody">'
-	echo 'Welcome to Flank! v0.1.56'
-	echo '<a onclick="run('\''cd cmds'\'')">Commands</a>'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
-	echo '%PAGEEND%'
-}
-
 flank_ls() {
 	echo '%PAGESTART%'
 	header_pwd
 	echo ""
 	echo '<div id="pBody">'
-	for f in */; do
-	  if [ -f "$f/template.sh" ]; then
-		  echo '   <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
-	  else 
+	for f in *; do
+	  if [ -d "$f" ] && [ ! -f "$f/template.sh" ]; then
 		  echo '📁 <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
 	  fi
   done
 	for f in *; do
-	  if [ -f "$f" ]; then
-		  echo '   <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
+	  if [ -d "$f" ] && [ -f "$f/template.sh" ]; then
+		  echo '<span class="hidden">📁</span> <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
+	  elif [ -f "$f" ]; then
+		  echo '<span class="hidden">📁</span> '"$f"
 	  fi
   done
 	echo '</div>'
