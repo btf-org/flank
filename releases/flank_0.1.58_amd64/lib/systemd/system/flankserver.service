@@ -1,0 +1,23 @@
+[Unit]
+Description=Flank Server
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/default/flank
+Type=simple
+User=${FLANK_USER}
+ExecStart=/usr/local/bin/flankserver
+
+Restart=on-failure
+RestartSec=5
+
+# Prevent infinite crash loops
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
