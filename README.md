@@ -1,8 +1,8 @@
 # Flank
 
-_Get it simpler, and then complicate it where it needs complications_  
+_Premature optimization is the root of all evil._  
 
-\- Paul McCartney
+\- Donald Knuth
 
 
 # Everything is bloated
