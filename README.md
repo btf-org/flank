@@ -1,10 +1,9 @@
 # Flank
 
-_Premature optimization is the root of all evil._  \- Knuth
+_Get it simpler, and then complicate it where it needs complications_  
 
-_Simple things should be simple._ \- Kay
+\- Paul McCartney
 
-_The best part is_ no _part._ \- Elon
 
 # Everything is bloated
 
