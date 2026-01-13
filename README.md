@@ -1,17 +1,12 @@
 # Flank
 
-_Premature optimization is the root of all evil._  
-
-\- Donald Knuth
-
-
-# Everything is bloated
+## Everything is bloated
 
 Recently, I needed to run a `curl` command on a timer and it took me ONE HOUR to do this in Azure.
 
 ChatGPT estimates that there are 20 million lines of Azure code running my cron job. WTF!?
 
-# 30 seconds or less
+## 30 seconds or less
 
 Flank is a 30-seconds-or-less software microwave for doing simple things quickly. It combines the best of modern UI with the power, speed, and flexibility of the CLI.
 
