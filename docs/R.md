@@ -48,8 +48,8 @@ brew services start flank
 
 ```bash
 # From any directory
-wget https://github.com/btf-org/flank/releases/download/v0.1.56/flank_0.1.56_amd64.deb
-sudo apt install ./flank_0.1.56_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.60/flank_0.1.60_amd64.deb
+sudo FLANK_USER=$(whoami) apt install ./flank_0.1.60_amd64.deb
 ```
 
 ### Windows / Other Linux Distros
