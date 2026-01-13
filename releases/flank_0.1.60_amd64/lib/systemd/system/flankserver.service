@@ -3,10 +3,9 @@ Description=Flank Server
 After=network.target
 
 [Service]
-EnvironmentFile=-/etc/default/flank
 Type=simple
-User=${FLANK_USER}
 ExecStart=/usr/local/bin/flankserver
+User=root
 
 Restart=on-failure
 RestartSec=5
