@@ -1,11 +1,11 @@
 # Flank Examples - R
-## 30 seconds or less
-- [Run an R script on a schedule](#run-an-r-script-on-a-schedule)
-- [Build a pipeline of R scripts](#build-a-pipeline-of-r-scripts)
-- [Run an R script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
 
-## Putting it all together
-  - [Build a memory-intensive pipeline without Docker, Airflow, etc.](#build-a-memory-intensive-pipeline-without-docker-airflow-etc)
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/>
+
+
+- [Run on a recurring schedule](#run-an-r-script-on-a-schedule)
+- [Build a pipeline](#build-a-pipeline-of-r-scripts)
+- [Run with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
 
 <br>
 
