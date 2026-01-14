@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flank</title>
+    <style>
+      #pHeader {
+        overflow-wrap: anywhere;
+        border-bottom: 1px solid black;
+        padding: 0.5rem;
+      }
+      .loading {
+        animation: borderpulse 1.4s ease-in-out infinite;
+      }
+      #pHeader a,
+      #pFooter a {
+        color: darkslateblue;
+      }
+      @keyframes borderpulse {
+        0%,
+        100% {
+          border-color: #666;
+        }
+        50% {
+          border-color: #fff;
+        }
+      }
+      #pBody {
+        overflow: auto;
+        flex: 1;
+        padding: 0.5rem;
+        white-space: pre;
+      }
+      #pFooter {
+        padding: 0.5rem;
+        border-top: 1px solid black;
+      }
+      textarea {
+        width: 100%;
+        height: 300px;
+      }
+      .h-100vh {
+        height: 100vh;
+      }
+      .font-family-monospace {
+        font-family: monospace;
+      }
+      .white-space-nowrap {
+        white-space: nowrap;
+      }
+      .white-space-pre {
+        white-space: pre-line;
+      }
+      .m-0 {
+        margin: 0rem;
+      }
+      .p-1_25 {
+        padding: 1.25rem;
+      }
+      .my-0_75 {
+        margin-top: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+      .border-1 {
+        border: 1px solid;
+      }
+      .hidden {
+        visibility: hidden;
+      }
+      .border-color-black {
+        border-color: black;
+      }
+      .font-size-1 {
+        font-size: 1rem;
+      }
+      a {
+        color: #0000ee;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      a:visited {
+        color: #551a8b;
+      }
+      .overflow-x-scroll {
+        overflow-x: scroll;
+      }
+      td {
+        padding: 0.15rem 1rem;
+        white-space: nowrap;
+      }
+      th {
+        text-align: left;
+        white-space: nowrap;
+      }
+      table tr:nth-child(even) {
+        background: #f0f0f0;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body class="font-family-monospace font-size-1 m-0 h-100vh">
+    <script>
+      let accumulatingResponse = "";
+      let accumulatingUrl = "";
+      let state = "outside";
+      let sid = sessionStorage.getItem("sid");
+      if (!sid) {
+        sid = randomBase62Id();
+        sessionStorage.setItem("sid", sid);
+      }
+
+      function randomBase62Id() {
+        const bytes = new Uint8Array(8);
+        crypto.getRandomValues(bytes);
+
+        // Split into two 32-bit numbers: hi and lo
+        let hi =
+          ((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3]) >>>
+          0;
+
+        let lo =
+          ((bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7]) >>>
+          0;
+
+        const alphabet =
+          "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        let out = "";
+
+        // Manual 64-bit division by 62
+        for (let i = 0; i < 11; i++) {
+          // Combine hi + lo as a 64-bit value and divide by 62
+          const rem = (((hi % 62) * (2 ** 32 % 62)) % 62) + (lo % 62);
+          const digit = rem % 62;
+          out = alphabet[digit] + out;
+
+          // Compute new 64-bit value = floor((hi<<32 | lo) / 62)
+          const newHi = Math.floor(hi / 62);
+          const carry = hi % 62;
+          const mid = carry * 2 ** 32 + lo;
+          const newLo = Math.floor(mid / 62);
+
+          hi = newHi;
+          lo = newLo;
+        }
+
+        return out;
+      }
+      async function iflankForm(cmd) {
+        const form = document.getElementById("form");
+        const fd = new FormData(form);
+        try {
+          await fetch(window.location.origin + "/iflank", {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain",
+              "X-Session-ID": sid,
+            },
+            body: cmd + " " + new URLSearchParams(fd).toString() + "\n",
+          });
+        } catch (err) {
+          console.error(err);
+          document.body.textContent = "Error reaching server: " + err.message;
+          return;
+        }
+      }
+      async function run(cmd) {
+        try {
+          await fetch(window.location.origin + "/iflank", {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain",
+              "X-Session-ID": sid,
+            },
+            body: cmd + "\n",
+          });
+        } catch (err) {
+          console.error(err);
+          document.body.textContent = "Error reaching server: " + err.message;
+          return;
+        }
+      }
+      function setLoading(value) {
+        if (value) {
+          document.getElementById("pHeader").classList.add("loading");
+          document.getElementById("pFooter").classList.add("loading");
+        } else {
+          document.getElementById("pHeader").classList.remove("loading");
+          document.getElementById("pFooter").classList.remove("loading");
+        }
+      }
+      async function longPoll() {
+        const response = await fetch(window.location.origin + "/iflank", {
+          method: "GET",
+          headers: { "X-Session-ID": sid },
+        });
+        let thisText = await response.text();
+        for (let i = 0; i < thisText.length; i++) {
+          if (thisText[i] == "%" && thisText.startsWith("%PAGESTART%\n", i)) {
+            accumulatingResponse = "";
+            state = "insidePage";
+            i += "%PAGESTART%\n".length - 1;
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%PAGEEND%\n", i)
+          ) {
+            const prevState = state;
+            i += "%PAGEEND%\n".length - 1;
+            if (prevState == "insidePage") {
+              document.body.innerHTML = accumulatingResponse;
+              accumulatingResponse = "";
+              state = "outside";
+            }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%TABLEHEADSTART%\n", i)
+          ) {
+            accumulatingResponse = "";
+            state = "insideTableHead";
+            i += "%TABLEHEADSTART%\n".length - 1;
+            setLoading(true);
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%TABLEHEADEND%\n", i)
+          ) {
+            const prevState = state;
+            i += "%TABLHEADEND%\n".length - 1;
+            if (prevState == "insideTableHead") {
+              const thead = document.getElementById("thead");
+              thead.innerHTML = accumulatingResponse;
+              accumulatingResponse = "";
+              state = "outside";
+              setLoading(false);
+            }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%APPENDTRSTART%\n", i)
+          ) {
+            accumulatingResponse = "";
+            state = "insideTableRowAppend";
+            i += "%APPENDTRSTART%\n".length - 1;
+            setLoading(true);
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%APPENDTREND%\n", i)
+          ) {
+            const prevState = state;
+            i += "%APPENDTREND%\n".length - 1;
+            if (prevState == "insideTableRowAppend") {
+              const tbody = document.getElementById("tbody");
+              tbody.insertAdjacentHTML("beforeend", accumulatingResponse);
+              accumulatingResponse = "";
+              state = "outside";
+              setLoading(false);
+            }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%APPENDPAGEBODYSTART%\n", i)
+          ) {
+            accumulatingResponse = "";
+            state = "insidePageBodyAppend";
+            i += "%APPENDPAGEBODYSTART%\n".length - 1;
+            setLoading(true);
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%APPENDPAGEBODYEND%\n", i)
+          ) {
+            const prevState = state;
+            i += "%APPENDPAGEBODYEND%\n".length - 1;
+            if (prevState == "insidePageBodyAppend") {
+              const pBody = document.getElementById("pBody");
+              pBody.insertAdjacentHTML("beforeend", accumulatingResponse);
+              accumulatingResponse = "";
+              state = "outside";
+              setLoading(false);
+            }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%STREAMPAGEBODYSTART%\n", i)
+          ) {
+            accumulatingResponse = "";
+            state = "insidePageBodyStream";
+            i += "%STREAMPAGEBODYSTART%\n".length - 1;
+            setLoading(true);
+          } else if (state.startsWith("inside")) {
+            accumulatingResponse += thisText[i];
+          }
+        }
+        if (state == "insideTableRowAppend") {
+          let validHtml = "";
+          let remainder = accumulatingResponse;
+          for (let j = accumulatingResponse.length - 1; j >= 0; j--) {
+            if (
+              accumulatingResponse[j] === "\n" &&
+              accumulatingResponse.endsWith("</tr>\n", j + 1)
+            ) {
+              validHtml = accumulatingResponse.slice(0, j + 1);
+              remainder = accumulatingResponse.slice(j + 1);
+              break;
+            }
+          }
+          const tbody = document.getElementById("tbody");
+          tbody.insertAdjacentHTML("beforeend", validHtml);
+          accumulatingResponse = remainder;
+        } else if (state == "insidePageBodyAppend") {
+          const pBody = document.getElementById("pBody");
+          pBody.insertAdjacentHTML("beforeend", accumulatingResponse);
+          accumulatingResponse = "";
+        } else if (state == "insidePageBodyStream") {
+          const pBody = document.getElementById("pBody");
+          pBody.insertAdjacentHTML("beforeend", accumulatingResponse);
+          accumulatingResponse = "";
+        }
+
+        // history.pushState({}, "", "/derp");
+
+        longPoll();
+      }
+      async function setup() {
+        longPoll();
+        run("refresh");
+      }
+
+      setup();
+    </script>
+  </body>
+</html>
