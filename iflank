@@ -799,22 +799,15 @@ while true; do
 			key="${kv%%=*}"
 			val="${kv#*=}"
 			export "$key=$val"
-			echo '$key=$val' 1>&2
-			echo "$key=$val" 1>&2
 			if [ "$arg_keys" == '' ]; then
 				arg_keys="\$$key"
 			else
 				arg_keys="$arg_keys \$$key"
 			fi
 		done
-		echo "arg_keys: $arg_keys" 1>&2
 		create_cmd_form_exec=$(envsubst "$arg_keys" <<<"$create_cmd_form_sh")
-		echo "create_cmd_form_exec: $create_cmd_form_exec" 1>&2
-		echo "--- script_contents ---" 1>&2
-		set | grep script_contents 1>&2
-		echo "--- cmd_name ---" 1>&2
-		set | grep cmd_name 1>&2
 		eval "$create_cmd_form_exec"
+		# feels like this should be a pop...
 		safe_cd "$PWD"
 		;;
 	savefile)
