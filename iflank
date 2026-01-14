@@ -558,6 +558,7 @@ create_cron_form() {
 	echo '<div id="pBody">'
 	echo '<form id="form" method="POST">'
 	echo 'cron_expression' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
+	grep -oE '\${([^}]+)}' template.sh | sed 's/^${//; s/}$//' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
 	echo '<div><button type="button" onclick="iflankForm('\''createcron .'\'')">Save</button></div>'
 	echo '</form>'
 	echo '</div>'
@@ -852,13 +853,19 @@ while true; do
 		# createcron <dir> <k=v&k=v>
 		# everything after first space, then space delimited
 		split_kvs=$(echo "${args#* }" | tr '&' ' ')
-		# echo "split kvs" 1>&2
-		# echo "$split_kvs" 1>&2
-		first_value="${split_kvs#*=}"
-		url_decoded=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${first_value})")
-		new_cron_line="$url_decoded iflank run ${PWD}/template.sh"
-		# echo "new_cron_line" 1>&2
-		# echo "$new_cron_line" 1>&2
+		echo "split kvs" 1>&2
+		echo "$split_kvs" 1>&2
+		first_kv="${split_kvs%% *}"
+		echo "first_kv" 1>&2
+		echo "$first_kv" 1>&2
+		first_value="${first_kv#*=}"
+		echo "first_value" 1>&2
+		echo "$first_value" 1>&2
+		cron_expr=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${first_value})")
+		rest_kvs="${split_kvs#* }"
+		new_cron_line="$cron_expr $(which iflank) run ${PWD}/template.sh $rest_kvs"
+		echo "new_cron_line" 1>&2
+		echo "$new_cron_line" 1>&2
 		(
 			crontab -l 2>/dev/null
 			echo "$new_cron_line"
