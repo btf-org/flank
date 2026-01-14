@@ -521,11 +521,11 @@ edit_file_form() {
 		BEGIN {
 			# read and escape template file
 			while ((getline line < "template.sh") > 0) {
-				gsub(/&/, "&amp;", line);
-				gsub(/</, "&lt;", line);
-				gsub(/>/, "&gt;", line);
-				gsub(/"/, "&quot;", line);
-				gsub(/\t/, "&#9;", line);
+				gsub(/&/, "\\&amp;", line);
+				gsub(/</, "\\&lt;", line);
+				gsub(/>/, "\\&gt;", line);
+				gsub(/"/, "\\&quot;", line);
+				gsub(/\t/, "\\&#9;", line);
 				template = template line "\n"
 			}
 			close("template.sh")
