@@ -797,7 +797,8 @@ while true; do
 		# don't quote, so that spaces (i.e. array separation of elements) are preserved
 		for kv in $split_kvs; do
 			key="${kv%%=*}"
-			val="${kv#*=}"
+			raw_val="${kv#*=}"
+			val=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${raw_val})")
 			export "$key=$val"
 			if [ "$arg_keys" == '' ]; then
 				arg_keys="\$$key"
