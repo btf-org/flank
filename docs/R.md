@@ -3,9 +3,9 @@
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/>
 
 
-- [Run on a recurring schedule](#run-an-r-script-on-a-schedule)
-- [Build a pipeline](#build-a-pipeline-of-r-scripts)
-- [Run with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
+- [Run a script on a schedule](#run-an-r-script-on-a-schedule)
+- [Build a pipeline of scripts](#build-a-pipeline-of-r-scripts)
+- [Run a script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
 
 <br>
 
@@ -13,12 +13,9 @@
 
 ## Run an R script on a schedule
 
-1. [Install Flank](#install-flank)
+1. Install Flank ([see here](#install-flank))
 2. [Add your script to Flank](#add-your-script-to-flank)
-3. [Parameterize your script](#parameterize-your-script)
-4. Create a scheduled job
-   1. Navigate to your script in Flank
-   2. Click on "Create Cron" at the bottom
+3. Create a cron job
 
 ## Build a pipeline of R scripts
 1. [Install Flank](#install-flank)
