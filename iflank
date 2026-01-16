@@ -419,15 +419,108 @@ flank_ls() {
 	echo '</div>'
 	echo '%PAGEEND%'
 }
+awk_parse_vars='
+# match annotation lines
+/^# *\$\{[A-Za-z_][A-Za-z0-9_]*\} / {
+	line = $0
+	match(line, /\$\{[A-Za-z_][A-Za-z0-9_]*\}/)
+    var = substr(line, RSTART, RLENGTH)
+
+    # strip "# ${var} "
+    sub(/^# *\$\{[A-Za-z_][A-Za-z0-9_]*\} */, "", line)
+
+	if (var_concat[var] == "") {
+		var_concat[var] = line
+	} else {
+		var_concat[var] = var_concat[var] " " line
+	}
+}
+
+# non-comment lines → extract vars
+!/^[[:space:]]*#/ {
+    while (match($0, /\$\{[A-Za-z_][A-Za-z0-9_]*\}/)) {
+        v = substr($0, RSTART, RLENGTH)
+        seen[v] = 1
+        $0 = substr($0, RSTART + RLENGTH)
+    }
+}
+
+END {
+    for (v in seen) {
+		n = split(var_concat[v], values, /(^|[[:space:]][[:space:]]*)@[a-z][a-z]*/)
+		for(j in values){
+			sub(/^[[:space:]]*/, "", values[j])
+			sub(/[[:space:]]*$/, "", values[j])
+		}
+		s = var_concat[v]
+		i = 1
+		while (match(s, /(^|[[:space:]][[:space:]]*)@[a-z][a-z]*/)) {
+			key = substr(s, RSTART, RLENGTH)
+			# strip leading spaces
+			sub(/^ */, "", key)
+			s = substr(s, RSTART + RLENGTH)
+			ann[key] = values[i+1]
+			i++
+		}
+
+		ctrl["@ignore"] = 0
+		ctrl["@description"] = ""
+		ctrl["@type"] = "text"
+		ctrl["@colspan"] = 2
+		ctrl["@capturetab"] = 0
+		for (key in ann){
+			if (key == "@ignore"){
+				ctrl["@ignore"] = 1
+			} else if (key == "@description") {
+				ctrl["@description"] = ann[key]
+			} else if (key == "@type") {
+				ctrl["@type"] = ann[key]
+				if (ann[key] == "textarea" && !("@colspan" in ann)) {
+					ctrl["@colspan"] = 6
+				}
+			} else if (key == "@colspan") {
+				ctrl["@colspan"] = ann[key]
+			} else if (key == "@capturetab") {
+				ctrl["@capturetab"] = 1
+			}
+		}	
+
+		varname_stripped=v
+		sub(/^ *\$\{/, "", varname_stripped)
+		sub(/\} *$/, "", varname_stripped)
+		html = "<div class=\"col-start-1 col-span-"ctrl["@colspan"]"\"><div>"varname_stripped"</div>"
+		if(ctrl["@type"] == "textarea"){
+			html=html"<textarea class=\"w-100p\" "
+		} else {
+			html=html"<input class=\"w-100p\" "
+		}
+		if(ctrl["@capturetab"]){
+			html=html"onkeydown=\"tab(event, this)\" "
+		}
+		html=html"name=\""varname_stripped"\""
+		if(ctrl["@type"] == "textarea"){
+			html=html"></textarea>"
+		} else {
+			html=html"/>"
+		}
+		html = html"</div>"
+		print html
+		delete ann
+    }
+}'
 create_cmd_form() {
-	create_cmd_form_sh='echo '\''${script_contents}'\'' > ./${cmd_name}/template.sh'
+	create_cmd_form_sh='
+# ${script_contents} @type textarea @capturetab
+# ${cmd_name} @colspan 2
+echo '\''${script_contents}'\'' > ./${cmd_name}/template.sh
+'
 	echo '%PAGESTART%'
 	header_pwd
 	echo ''
 	echo '<div id="pBody">'
-	echo '<form id="form" method="POST">'
-	grep -oE '\${([^}]+)}' <<< "$create_cmd_form_sh" | sed 's/^${//; s/}$//' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
-	echo '<div><button type="button" onclick="iflankForm('\''save_cmd'\'')">Run</button></div>'
+	echo '<form id="form" class="grid gap-2 max-w-42" method="POST">'
+	awk "$awk_parse_vars" <<< "$create_cmd_form_sh"
+	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''save_cmd'\'')">Save</button></div>'
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'

@@ -52,9 +52,30 @@
       .white-space-pre {
         white-space: pre-line;
       }
+			.grid {
+				display: grid;
+			}
+			.grid-cols-6 {
+				grid-template-columns: repeat(6, minmax(0, 1fr));
+			}
+			.col-start-1 {
+				grid-column-start: 1;
+			}
+			.col-span-1 { grid-column: span 1 / span 1; }
+			.col-span-2 { grid-column: span 2 / span 2; }
+			.col-span-3 { grid-column: span 3 / span 3; }
+			.col-span-4 { grid-column: span 4 / span 4; }
+			.col-span-5 { grid-column: span 5 / span 5; }
+			.col-span-6 { grid-column: span 6 / span 6; }
       .m-0 {
         margin: 0rem;
       }
+			.max-w-42 {
+				max-width: 42rem;
+			}
+			.gap-2 {
+				gap: 2rem;
+			}
       .p-1_25 {
         padding: 1.25rem;
       }
@@ -62,6 +83,9 @@
         margin-top: 0.75rem;
         margin-bottom: 0.75rem;
       }
+			.w-100p {
+				width:100%;
+			}
       .border-1 {
         border: 1px solid;
       }
@@ -117,6 +141,20 @@
         sessionStorage.setItem("sid", sid);
       }
 
+			function tab(event, el){
+				if (event.key === 'Tab') {
+					event.preventDefault();
+
+					const start = el.selectionStart;
+					const end = el.selectionEnd;
+
+					// Insert tab character
+					el.value = el.value.substring(0, start) + '\t' + el.value.substring(end);
+
+					// Move cursor after the tab
+					el.selectionStart = el.selectionEnd = start + 1;
+				}
+			}
       function randomBase62Id() {
         const bytes = new Uint8Array(8);
         crypto.getRandomValues(bytes);
