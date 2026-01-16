@@ -91,22 +91,6 @@ sudo FLANK_USER=$(whoami) apt install ./flank_0.1.60_amd64.deb
 
 Not available at this time
 
-# Guides
-
-## Add Your Script to Flank
-
-1. Go to the Flank website
-2. Click on "Create Command" at the bottom
-3. After naming your command, paste whatever you would run from the command line into the box, e.g. `Rscript myscript.R --arg1=hello` or `python myscript.py`.
-4. [Parameterize your script](#parameterize-your-script)
-
-## Parameterize your script
-
-(If you're already in the process of adding your script, skip to #3)
-1. Navigate to your command
-2. Click on "Edit" at the bottom
-3. Create parameterized values by substituting `%%varname%%`, e.g. if your CLI command is `Rscript myscript.R --arg1=hello` and you want to parameterize the "hello" part, change it to `Rscript myscript.R --arg1=%%arg1%%`
-
 ## Always run the latest version of a script
 
 ## Strategies for optimizing VM cost
