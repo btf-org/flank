@@ -188,7 +188,7 @@ BEGIN {
             val = substr(pairs[i], eq+1)
             if (length(key) > 0) {
 				vars[key] = val
-				print "val parse "i" "val
+				# print "val parse "i" "val
 			}
         }
     }
@@ -213,8 +213,8 @@ BEGIN {
 			val = "${" varname "}"
 		}
 
-		print "val: "val
-		print "length(val): "length(val)
+		# print "val: "val
+		# print "length(val): "length(val)
 
 		line = substr(line,1,start-1) val substr(line,end+1)
 		pos = start + length(val)   # move past this replacement
