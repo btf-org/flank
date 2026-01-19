@@ -52,6 +52,8 @@ TODO
 
 ### Mac
 
+(If you haven't installed Homebrew, [see here](https://brew.sh/))
+
 ```bash
 brew tap btf-org/flank
 brew install btf-org/flank/flank
