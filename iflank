@@ -939,13 +939,7 @@ while true; do
 				varlist="${varlist}${unit_sep}${decoded_kv}"
 			fi
         done
-		echo "args: $args" 1>&2
-		#varlist_encoded=$(echo "$args" | tr '&' "$unit_sep")
-		#echo "varlist_encoded: $varlist_encoded" 1>&2
-		#varlist=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${varlist_encoded})"
-		echo "varlist: $varlist" 1>&2
 		create_cmd_form_exec=$(awk -v VARLIST="$varlist" "$awk_envsubst" <<<"$create_cmd_form_sh")
-		echo "create_cmd_form_exec: $create_cmd_form_exec" 1>&2
 		eval "$create_cmd_form_exec"
 		# feels like this should be a pop...
 		safe_cd "$PWD"
