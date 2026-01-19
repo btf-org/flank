@@ -177,6 +177,49 @@ kill_tree() {
 	# kill the parent itself
 	kill -TERM "$parent" 2>/dev/null
 }
+awk_envsubst='
+BEGIN {
+	unit_sep = sprintf("%c", 28)  # ASCII 034 in awk
+    n = split(VARLIST, pairs, unit_sep)
+    for (i = 1; i <= n; i++) {
+        eq = index(pairs[i], "=")
+        if (eq > 0) {
+            key = substr(pairs[i], 1, eq-1)
+            val = substr(pairs[i], eq+1)
+            if (length(key) > 0) {
+				vars[key] = val
+			}
+        }
+    }
+}
+/^# *\$\{[A-Za-z_][A-Za-z0-9_]*\} / {
+	next
+}
+!/^[[:space:]]*#/ {
+	line = $0
+
+	# Replace variables 
+	# Loop until no more ${VAR} matches
+	pos = 1
+	while (match(substr(line,pos), /\$\{[A-Za-z_][A-Za-z0-9_]*\}/)) {
+		start = RSTART + pos - 1
+		end = start + RLENGTH - 1
+		varname = substr(line, start+2, RLENGTH-3)
+
+		if (varname in vars) {
+			val = vars[varname]
+		} else {
+			val = "${" varname "}"
+		}
+
+		line = substr(line,1,start-1) val substr(line,end+1)
+		pos = start + length(val)   # move past this replacement
+	}
+
+	# Print reconstructed line
+	print line
+
+}'
 run_cmd() {
 	# iflank  run   <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
 	# run_cmd fg|bg <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
@@ -185,7 +228,8 @@ run_cmd() {
 	local p_path="$1"
 	shift
 	local p_output_key=''
-	local arg_keys=''
+	local varlist=''
+	local unit_sep=$(printf "\034")
 
 	# Positional args are local to a function so `shift` doesn't unset
 	# the positional args at the script level
@@ -193,17 +237,13 @@ run_cmd() {
 		case "$1" in
 		--output_key)
 			shift
-			local p_output_key="$1"
+			p_output_key="$1"
 			;;
 		*)
-			local key="${1%%=*}"
-			local val="${1#*=}"
-			#eval "export $key=\$val"
-			export "$key=$val"
-			if [ "$arg_keys" == '' ]; then
-				local arg_keys="\$$key"
+			if [ "$varlist" == '' ]; then
+				varlist="$1"
 			else
-				local arg_keys="$arg_keys \$$key"
+				varlist="${varlist}${unit_sep}$1"
 			fi
 			;;
 		esac
@@ -251,7 +291,7 @@ run_cmd() {
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
 		cp "$p_path" $cmd_run_dir/exec.sh
 	else
-		envsubst "$arg_keys" <$cmd_dir/template.sh >$cmd_run_dir/exec.sh
+		awk -v VARLIST="$varlist" "$awk_envsubst" template.sh >$cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
@@ -886,21 +926,26 @@ while true; do
 		PREV_ARGS="$PREV_ARGS"
 		# save_cmd <k=v&k=v>
 		create_cmd_form_sh='mkdir ${cmd_name} && printf '\''%s\n'\'' '\''${script_contents}'\'' > ./${cmd_name}/template.sh'
-		split_kvs=$(echo "$args" | tr '&' ' ')
-		arg_keys=''
-		# don't quote, so that spaces (i.e. array separation of elements) are preserved
-		for kv in $split_kvs; do
-			key="${kv%%=*}"
-			raw_val="${kv#*=}"
-			val=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${raw_val})")
-			export "$key=$val"
-			if [ "$arg_keys" == '' ]; then
-				arg_keys="\$$key"
+		unit_sep=$(printf "\034")
+        split_kvs=$(echo "$args" | tr '&' ' ')
+		varlist=''
+        # don't quote, so that spaces (i.e. array separation of elements) are preserved
+        for kv in $split_kvs; do
+			# printf can get fucked up by the unit separator, so do that after
+			decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
+			if [ "$varlist" == '' ]; then
+				varlist="$decoded_kv"
 			else
-				arg_keys="$arg_keys \$$key"
+				varlist="${varlist}${unit_sep}${decoded_kv}"
 			fi
-		done
-		create_cmd_form_exec=$(envsubst "$arg_keys" <<<"$create_cmd_form_sh")
+        done
+		echo "args: $args" 1>&2
+		#varlist_encoded=$(echo "$args" | tr '&' "$unit_sep")
+		#echo "varlist_encoded: $varlist_encoded" 1>&2
+		#varlist=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${varlist_encoded})"
+		echo "varlist: $varlist" 1>&2
+		create_cmd_form_exec=$(awk -v VARLIST="$varlist" "$awk_envsubst" <<<"$create_cmd_form_sh")
+		echo "create_cmd_form_exec: $create_cmd_form_exec" 1>&2
 		eval "$create_cmd_form_exec"
 		# feels like this should be a pop...
 		safe_cd "$PWD"
