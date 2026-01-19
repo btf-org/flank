@@ -929,7 +929,11 @@ while true; do
 		PREV_CHOICE="$PREV_CHOICE"
 		PREV_ARGS="$PREV_ARGS"
 		# save_cmd <k=v&k=v>
-		create_cmd_form_sh='mkdir ${cmd_name} && printf '\''%s\n'\'' '\''${script_contents}'\'' > ./${cmd_name}/template.sh'
+		create_cmd_form_sh='
+sc=$(cat << '\''EOF'\''
+${script_contents}
+EOF)
+mkdir ${cmd_name} && printf '\''%s\n'\'' "$sc" > ./${cmd_name}/template.sh'
 		unit_sep="FLNKDLM"
         split_kvs=$(echo "$args" | tr '&' ' ')
 		varlist=''
