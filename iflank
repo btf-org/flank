@@ -180,7 +180,7 @@ kill_tree() {
 awk_envsubst='
 BEGIN {
 	unit_sep = sprintf("%c", 28)  # ASCII 034 in awk
-    n = split(VARLIST, pairs, unit_sep)
+    n = split(ENVIRON["VARLIST"], pairs, unit_sep)
     for (i = 1; i <= n; i++) {
         eq = index(pairs[i], "=")
         if (eq > 0) {
@@ -291,7 +291,7 @@ run_cmd() {
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
 		cp "$p_path" $cmd_run_dir/exec.sh
 	else
-		awk -v VARLIST="$varlist" "$awk_envsubst" template.sh >$cmd_run_dir/exec.sh
+		VARLIST="$varlist" awk "$awk_envsubst" template.sh >$cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
@@ -939,7 +939,8 @@ while true; do
 				varlist="${varlist}${unit_sep}${decoded_kv}"
 			fi
         done
-		create_cmd_form_exec=$(awk -v VARLIST="$varlist" "$awk_envsubst" <<<"$create_cmd_form_sh")
+		create_cmd_form_exec=$(VARLIST="$varlist" awk "$awk_envsubst" <<<"$create_cmd_form_sh")
+		echo $create_cmd_form_exec 1>&2
 		eval "$create_cmd_form_exec"
 		# feels like this should be a pop...
 		safe_cd "$PWD"
