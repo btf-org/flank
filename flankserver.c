@@ -424,6 +424,12 @@ int main(int argc, char *argv[])
 						index_html_path =
 						    "/opt/homebrew/share/flank/index.html";
 						found = 1;
+					} else if (access
+						   ("/usr/local/share/flank/index.html",
+						    F_OK) == 0) {
+						index_html_path =
+						    "/usr/local/share/flank/index.html";
+						found = 1;
 					} else {
 						tsprintf
 						    ("    ERROR: index.html not found\n");
