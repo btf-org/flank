@@ -179,7 +179,7 @@ kill_tree() {
 }
 awk_envsubst='
 BEGIN {
-	unit_sep = sprintf("%c", 28)  # ASCII 034 in awk
+	unit_sep = "FLNKDLM" # sprintf("%c", 28)  # ASCII 034 in awk
     n = split(ENVIRON["VARLIST"], pairs, unit_sep)
     for (i = 1; i <= n; i++) {
         eq = index(pairs[i], "=")
@@ -188,6 +188,7 @@ BEGIN {
             val = substr(pairs[i], eq+1)
             if (length(key) > 0) {
 				vars[key] = val
+				print "val parse "i" "val
 			}
         }
     }
@@ -212,6 +213,9 @@ BEGIN {
 			val = "${" varname "}"
 		}
 
+		print "val: "val
+		print "length(val): "length(val)
+
 		line = substr(line,1,start-1) val substr(line,end+1)
 		pos = start + length(val)   # move past this replacement
 	}
@@ -229,7 +233,7 @@ run_cmd() {
 	shift
 	local p_output_key=''
 	local varlist=''
-	local unit_sep=$(printf "\034")
+	local unit_sep="FLNKDLM"
 
 	# Positional args are local to a function so `shift` doesn't unset
 	# the positional args at the script level
@@ -926,7 +930,7 @@ while true; do
 		PREV_ARGS="$PREV_ARGS"
 		# save_cmd <k=v&k=v>
 		create_cmd_form_sh='mkdir ${cmd_name} && printf '\''%s\n'\'' '\''${script_contents}'\'' > ./${cmd_name}/template.sh'
-		unit_sep=$(printf "\034")
+		unit_sep="FLNKDLM"
         split_kvs=$(echo "$args" | tr '&' ' ')
 		varlist=''
         # don't quote, so that spaces (i.e. array separation of elements) are preserved
@@ -939,8 +943,13 @@ while true; do
 				varlist="${varlist}${unit_sep}${decoded_kv}"
 			fi
         done
+		echo "varlist: $varlist" 1>&2
+		printf "printf varlist: %s\n" "$varlist" 1>&2
+		echo "awk vvvvv" 1>&2
+		VARLIST="$varlist" awk "$awk_envsubst" <<<"$create_cmd_form_sh" 1>&2
+		echo "awk ^^^^^" 1>&2
 		create_cmd_form_exec=$(VARLIST="$varlist" awk "$awk_envsubst" <<<"$create_cmd_form_sh")
-		echo $create_cmd_form_exec 1>&2
+		echo "ccfme: $create_cmd_form_exec" 1>&2
 		eval "$create_cmd_form_exec"
 		# feels like this should be a pop...
 		safe_cd "$PWD"
