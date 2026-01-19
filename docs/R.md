@@ -22,7 +22,7 @@ If you run into any problems, shoot me an email at anguspmitchell@gmail.com
 (Assuming your R script is already written and lives in file on your machine...)
 
 1. **Install Flank** - [See here](#install-flank)
-2. **Go to the Flank website** - This will be at <a href="http://localhost:8083" target="_blank">http://localhost:8083</a> by default
+2. **Go to the Flank website** - This will be at http://localhost:8083 by default
 3. **Add your script to Flank** - From the website , click on "Create Cmd" on the bottom bar
 4. **Create a cron job** - If you're not already, drill into your newly created command and click on "Create Cron" on the bottom bar
 5. **View Logs** - If you're not already, drill into your newly created command and click "History" on the bottom bar
