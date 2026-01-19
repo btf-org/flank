@@ -3,7 +3,7 @@
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/>
 
 - Quick Hitters
-  - [Run a script on a schedule and view the logs](#run-an-r-script-on-a-schedule)
+  - [Run a script on a schedule (and view the logs)](#run-an-r-script-on-a-schedule)
   - [Build a pipeline of scripts](#build-a-pipeline-of-r-scripts)
   - [Run a script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
 - Guides
@@ -51,6 +51,8 @@ TODO
 ## Install Flank
 
 ### Mac
+
+(If you haven't installed Homebrew, [see here](https://brew.sh/))
 
 ```bash
 brew tap btf-org/flank
