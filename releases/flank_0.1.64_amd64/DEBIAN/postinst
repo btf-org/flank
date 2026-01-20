@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+mkdir -p /var/lib/flank
+chmod 777 /var/lib/flank
+
+if [ -n "$FLANK_USER" ]; then
+	sed -i 's/User=.*/User='"$FLANK_USER"'/' /lib/systemd/system/flankserver.service
+fi
+
+systemctl daemon-reload || true
+systemctl enable flankserver || true
+systemctl start flankserver || true
+

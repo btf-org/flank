@@ -1,0 +1,217 @@
+#!/usr/bin/env bash
+
+PAGE='HOME'
+PROMPT='iflank> '
+if [ -d /var/lib/flank ]; then
+    FLANK_ROOT=/var/lib/flank
+elif [ -d /opt/homebrew/var/flank ]; then
+    FLANK_ROOT=/opt/homebrew/var/flank
+elif [ -d /usr/local/var/flank ]; then
+    FLANK_ROOT=/usr/local/var/flank
+elif [ -n $(which brew) && $(brew --prefix) > 0 ]; then
+    FLANK_ROOT=$(brew --prefix)/var
+else 
+    echo "Cannot find flank root!"
+    exit
+fi
+PS_VERSION=''
+
+cd $FLANK_ROOT
+while true; do
+    case "$PAGE" in
+	HOME)
+	    echo 'Welcome to Flank!'
+	    echo ''
+	    echo '(C)ommands / (P)rocesses'
+	    echo ''
+	    printf '\0'
+	    read -rp "$PROMPT" choice
+	    case $choice in
+		C)
+		    PAGE='FS'
+		    ;;
+		P)
+		    PAGE='PS'
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	PS)
+	    if [ -z $PS_VERSION ]; then
+		if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
+		    PS_VERSION='procps'
+		else
+		    PS_VERSION='bsd'
+		fi
+	    fi
+	    # [F]LDT will match on FLOGDIR but it won't match on itself
+	    if [ $PS_VERSION == 'procps' ]; then 
+		ps e | grep [F]LOGDIR 
+	    else
+		ps | grep [F]LOGDIR 
+	    fi
+	    echo ''
+	    echo '(B)ack / (K)ill <pid> / (L)ogs <pid>'
+	    echo ''
+	    printf '\0'
+	    read -rp "$PROMPT" choice args
+	    case $choice in 
+		B)
+		    PAGE='HOME'
+		    ;;
+		K)
+		    kill $args 
+		    PAGE='PS'
+		    ;;
+		L)
+		    if [ $PS_VERSION == 'procps' ]; then 
+			log_dir=$(ps e $args | tail +2 | grep -o 'FLOGDIR=[^[:space:]]*' | cut -c 9-)
+		    else
+			log_dir=$(ps $args | tail +2 | grep -o 'FLOGDIR=[^[:space:]]*' | cut -c 9-)
+		    fi
+		    # echo 'args: '$args' log_dir: '$log_dir' ps tail: '$(ps $args | tail +2 | grep -o 'FLOGDIR=[^[:space]]*')
+		    cd $log_dir
+		    PAGE='LOG_DIR'
+
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	FS)
+	    pwd
+	    echo ""
+	    ls -1
+	    echo ""
+	    echo "Next: (G)oto <name>"
+	    echo ""
+	    printf '\0'
+	    read -rp "$PROMPT" choice arg
+	    case $choice in
+		G)
+		    cd $arg
+		    if [ -f template.sh ]; then
+			PAGE='CMD'
+		    else
+			PAGE='FS'
+		    fi
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	CMD)
+	    pwd
+	    echo ''
+	    echo 'Next: (R)un / (L)ogs / (H)ome'
+	    echo ''
+	    printf '\0'
+	    read -rp "$PROMPT" choice
+	    case $choice in
+		R)
+		    datetime=$(date -Iseconds)
+		    flogdir=$(pwd)/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-16)
+		    if ! mkdir -p $flogdir 2> /dev/null; then
+			# include seconds
+			flogdir=$(pwd)/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-19)
+			if ! mkdir -p $flogdir 2> /dev/null; then
+			    i=1
+			    flogdir_base=$flogdir
+			    flogdir=$flogdir_base'_'$i
+			    until mkdir -p $flogdir 2> /dev/null ; do
+				i=$(($i + 1))
+				flogdir=$flogdir_base'_'$i
+			    done
+			fi
+		    fi
+		    if [ -z $PS_VERSION ]; then
+			if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
+			    PS_VERSION='procps'
+			else
+			    PS_VERSION='bsd'
+			fi
+		    fi
+		    if [ $PS_VERSION == 'procps' ]; then
+			# On procps, the prepended env variable actually shows up
+			FLOGDIR=$flogdir nohup bash -c "$(cat template.sh)" 1> $flogdir/stdout.log 2> $flogdir/stderr.log &
+		    else
+			# The ; after $FLOGDIR is there to make this a compound command
+			# For whatever reason that forces Mac `ps` to print the whole command
+			# Also the space before the semicolon keeps the text parsing consistent with
+			# parsing the env variables on the procps version
+			nohup bash -c "FLOGDIR=$flogdir ; $(cat template.sh)" 1> $flogdir/stdout.log 2> $flogdir/stderr.log &
+		    fi
+		    PAGE='CMD'
+		    ;;
+		L)
+		    cd runs
+		    PAGE='LOGS'
+		    ;;
+		H)
+		    cd $FLANK_ROOT
+		    PAGE='HOME'
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	LOGS)
+	    pwd
+	    echo ''
+	    ls -1
+	    echo ''
+	    echo 'Next: (O)pen :name / (B)ack'
+	    printf '\0'
+	    read -rp "$PROMPT" choice args
+	    case $choice in
+		O)
+		    cd $args
+		    PAGE='LOG_DIR'
+		    ;;
+		B)
+		    cd ..
+		    PAGE='CMD'
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	LOG_DIR)
+	    pwd
+	    echo ''
+	    echo 'Next: Std (O)ut / Std (E)rr / Other (L)ogs / (B)ack to Cmd'
+	    printf '\0'
+	    read -rp "$PROMPT" choice args
+	    case $choice in
+		O)
+		    cat stdout.log
+		    echo ''
+		    ;;
+		E) 
+		    cat stderr.log
+		    echo ''
+		    ;;
+		L)
+		    cd ..
+		    PAGE='LOGS'
+		    ;;
+		B)
+		    cd ../..
+		    PAGE='CMD'
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	*)
+	    echo "Got into weird state. Hit Ctrl-C to quit"
+	    ;;
+    esac
+done

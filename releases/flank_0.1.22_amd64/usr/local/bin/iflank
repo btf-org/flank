@@ -1,0 +1,316 @@
+#!/usr/bin/env bash
+
+run_cmd() {
+    if [ "$1" != 'bg' ] && [ "$1" != 'fg' ]; then
+	echo "first parameter $1 must be 'fg' or 'bg'"
+	exit
+    fi
+    if [ -n "$2" ]; then
+	if [ ! -f "$2" ]; then
+	    echo "file: $2"' does not exist!'
+	    exit
+	fi
+	local cmd_dir=$(dirname "$2")
+	if [ $(basename "$cmd_dir") == 'saved_configs' ]; then
+	    local cmd_dir=$(dirname "$cmd_dir")
+	fi
+    else
+	local cmd_dir=$(pwd)
+    fi
+
+    local datetime=$(date '+%Y-%m-%dT%Hh%Mm%Ss')
+    local flogdatedir=$cmd_dir/runs/$(echo $datetime | cut -c -10)
+    mkdir -p $flogdatedir
+    local flogdir=$cmd_dir/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-17)
+    if ! mkdir $flogdir 2> /dev/null; then
+	# include seconds
+	flogdir=$cmd_dir/runs/$(echo $datetime | cut -c -10)/$(echo $datetime | cut -c 12-20)
+	if ! mkdir $flogdir 2> /dev/null; then
+	    local i=2
+	    local flogdir_base=$flogdir
+	    flogdir=$flogdir_base'_'$i
+	    until mkdir $flogdir 2> /dev/null ; do
+		i=$(($i + 1))
+		flogdir=$flogdir_base'_'$i
+	    done
+	fi
+    fi
+
+    if [ -n "$2" ]; then
+	if [ $(basename "$2") == 'template.make' ]; then
+	    cp "$2" $flogdir/exec.make
+	else
+	    cp "$2" $flogdir/exec.sh
+	fi
+    else
+	if [ -f "$cmd_dir/template.make" ]; then
+	    cp $cmd_dir/template.make $flogdir/exec.make
+	else
+	    cp $cmd_dir/template.sh $flogdir/exec.sh
+	fi
+    fi
+
+    local PID=''
+    handle_int(){
+      if [ -n "$PID" ]; then
+        echo "hiiii $PID"
+        printf 'ExitCode:\t%d\nEndTime:\t%d' $((128 + $(kill -l SIGINT))) $(date '+%s') >> $flogdir/status
+	kill -s SIGINT $PID
+	exit
+      fi
+    }
+    handle_term(){
+      if [ -n "$PID" ]; then
+        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $((128 + $(kill -l SIGTERM))) $(date '+%s') >> $flogdir/status
+	kill -s SIGTERM $PID
+	exit
+      fi
+    }
+    handle_kill(){
+      if [ -n "$PID" ]; then
+        printf 'ExitCode:\t%d\nEndTime:\t%d\n' $((128 + $(kill -l SIGKILL))) $(date '+%s') >> $flogdir/status
+	kill -s SIGKILL $PID
+	exit
+      fi
+    }
+    if [ "$1" == 'fg' ]; then
+	trap handle_int INT
+	trap handle_term TERM
+	trap handle_kill KILL
+    fi
+    # Subtle quoting things:
+    #  - $? needs to be escaped as \$? in "" or it will immediately evaluate
+    #  - $(date) needs to be single quoted or it will immediately evaluate
+    #  - $? needs to be evaluated before $(date) or it will return the exit code of $(date)
+    if [ -f "$flogdir/exec.make" ]; then
+	if [ "$1" == 'bg' ]; then
+	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; make -j -f $flogdir/exec.make all 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" > testtest &
+	else
+	    printf 'StartTime:\t%s\n' $(date "+%s") > $flogdir/status
+	    make -j -f $flogdir/exec.make all 1> $flogdir/stdout.log 2> $flogdir/stderr.log & 
+	    PID=$!
+	    wait $PID
+	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? $(date "+%s") >> $flogdir/status
+	fi
+    else
+	if [ "$1" == 'bg' ]; then
+	    nohup bash -c "printf 'StartTime:\t%s\n' "'$(date "+%s")'" > $flogdir/status; bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> $flogdir/status" > /dev/null &
+	else
+	    printf 'StartTime:\t%s\n' $(date "+%s") > $flogdir/status
+	    bash $flogdir/exec.sh 1> $flogdir/stdout.log 2> $flogdir/stderr.log & 
+	    PID=$!
+	    wait $PID
+	    printf 'ExitCode:\t%d\nEndTime:\t%d\n' $? $(date "+%s") >> $flogdir/status
+	fi
+    fi
+}
+
+if [ -n "$1" ]; then 
+    if [ "$1" == 'run_fg' ] || [ "$1" == 'run_bg' ]; then
+	if [ -z "$2" ]; then
+	    echo 'Missing path to saved config `iflank run_bg <path>` / iflank run_fg <path>'
+	    exit
+	fi
+
+	if [ "$1" == 'run_fg' ]; then
+	    run_cmd "fg" "$2"
+	else
+	    run_cmd "bg" "$2"
+	fi
+
+	exit
+    else
+	echo 'Positional parameter not recognized. Valid: `iflank run <path>`'
+	exit
+    fi
+fi
+
+PAGE='HOME'
+PROMPT='iflank> '
+if [ -d /var/lib/flank ]; then
+    FLANK_ROOT=/var/lib/flank
+elif [ -d /opt/homebrew/var/flank ]; then
+    FLANK_ROOT=/opt/homebrew/var/flank
+elif [ -d /usr/local/var/flank ]; then
+    FLANK_ROOT=/usr/local/var/flank
+elif [ -n $(which brew) && $(brew --prefix) > 0 ]; then
+    FLANK_ROOT=$(brew --prefix)/var
+else 
+    echo "Cannot find flank root!"
+    exit
+fi
+PS_VERSION=''
+
+cd $FLANK_ROOT
+while true; do
+    case "$PAGE" in
+	HOME)
+	    echo 'Welcome to Flank!'
+	    echo ''
+	    echo '(C)ommands / (P)rocesses'
+	    echo ''
+	    printf '\0'
+	    read -rp "$PROMPT" choice
+	    case $choice in
+		C)
+		    PAGE='FS'
+		    ;;
+		P)
+		    PAGE='PS'
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	PS)
+	    if [ -z $PS_VERSION ]; then
+		if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
+		    PS_VERSION='procps'
+		else
+		    PS_VERSION='bsd'
+		fi
+	    fi
+	    if [ $PS_VERSION == 'procps' ]; then 
+		ps -eo pid,args | grep "$FLANK_ROOT/.*/exec\." | grep -v "grep .*$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
+	    else
+		ps -x | grep "$FLANK_ROOT""/.*/exec\." | grep -v "grep .*""$FLANK_ROOT" | grep -v "bash -c printf .*StartTime"
+	    fi
+	    echo ''
+	    echo '(B)ack / (K)ill <pid> / (L)ogs <pid>'
+	    echo ''
+	    printf '\0'
+	    read -rp "$PROMPT" choice args
+	    case $choice in 
+		B)
+		    PAGE='HOME'
+		    ;;
+		K)
+		    kill $args 
+		    PAGE='PS'
+		    ;;
+		L)
+		    if [ -z $PS_VERSION ]; then
+			if [ -n "$(ps --version 2> /dev/null | grep procps)" ]; then 
+			    PS_VERSION='procps'
+			else
+			    PS_VERSION='bsd'
+			fi
+		    fi
+		    if [ $PS_VERSION == 'procps' ]; then 
+			log_dir=$(ps e $args | grep -o "$FLANK_ROOT""[^[:space:]]*/exec.sh" | xargs dirname)
+		    else
+			log_dir=$(ps $args | grep -o "$FLANK_ROOT""[^[:space:]]*/exec.sh" | xargs dirname)
+		    fi
+		    cd $log_dir
+		    PAGE='LOG_DIR'
+
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	FS)
+	    pwd
+	    echo ""
+	    ls -1
+	    echo ""
+	    echo "Next: (G)oto <name>"
+	    echo ""
+	    printf '\0'
+	    read -rp "$PROMPT" choice arg
+	    case $choice in
+		G)
+		    cd $arg
+		    if [ -f template.* ]; then
+			PAGE='CMD'
+		    else
+			PAGE='FS'
+		    fi
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	CMD)
+	    pwd
+	    echo ''
+	    echo 'Next: (R)un / (L)ogs / (H)ome'
+	    echo ''
+	    printf '\0'
+	    read -rp "$PROMPT" choice
+	    case $choice in
+		R)
+		    run_cmd 'bg'
+		    PAGE='CMD'
+		    ;;
+		L)
+		    cd runs
+		    PAGE='LOGS'
+		    ;;
+		H)
+		    cd $FLANK_ROOT
+		    PAGE='HOME'
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	LOGS)
+	    pwd
+	    echo ''
+	    ls -1
+	    echo ''
+	    echo 'Next: (O)pen :name / (B)ack'
+	    printf '\0'
+	    read -rp "$PROMPT" choice args
+	    case $choice in
+		O)
+		    cd $args
+		    PAGE='LOG_DIR'
+		    ;;
+		B)
+		    cd ..
+		    PAGE='CMD'
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	LOG_DIR)
+	    pwd
+	    echo ''
+	    echo 'Next: Std (O)ut / Std (E)rr / Other (L)ogs / (B)ack to Cmd'
+	    printf '\0'
+	    read -rp "$PROMPT" choice args
+	    case $choice in
+		O)
+		    cat stdout.log
+		    echo ''
+		    ;;
+		E) 
+		    cat stderr.log
+		    echo ''
+		    ;;
+		L)
+		    cd ..
+		    PAGE='LOGS'
+		    ;;
+		B)
+		    cd ../..
+		    PAGE='CMD'
+		    ;;
+		*)
+		    read -rp "Invalid choice! Hit [Enter] to continue"
+		    ;;
+	    esac
+	    ;;
+	*)
+	    echo "Got into weird state. Hit Ctrl-C to quit"
+	    ;;
+    esac
+done

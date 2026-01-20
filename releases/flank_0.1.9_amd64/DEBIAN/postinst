@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+mkdir -p /var/lib/flank
+chown root:root /var/lib/flank
+

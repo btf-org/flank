@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+mkdir -p /var/lib/flank
+chmod 777 /var/lib/flank
+
