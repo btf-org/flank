@@ -556,8 +556,11 @@ create_cmd_form() {
 	create_cmd_form_sh='
 # ${script_contents} @type textarea @capturetab
 # ${cmd_name} @colspan 2
-echo '\''${script_contents}'\'' > ./${cmd_name}/template.sh
-'
+sc=$(cat << '\''EOF'\''
+${script_contents}
+EOF)
+mkdir ${cmd_name} && printf '\''%s\n'\'' "$sc" > ./${cmd_name}/template.sh'
+
 	echo '%PAGESTART%'
 	header_pwd
 	echo ''
