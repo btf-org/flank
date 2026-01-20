@@ -652,7 +652,8 @@ run_form() {
 	echo '<div id="pFooter">'
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '<a onclick="run('\''editfileform'\'')">Edit</a>'
-	echo '<a onclick="run('\''crontab'\'')">Cron</a>'
+	echo '<a onclick="run('\''crontab_list'\'')">View Cron</a>'
+	echo '<a onclick="run('\''createcronform'\'')">Create Cron</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
 }
@@ -684,11 +685,10 @@ edit_file_form() {
 	echo '%PAGEEND%'
 }
 
-flank_crontab() {
+crontab_list() {
 	echo '%PAGESTART%'
 	header_pwd
 	echo '<div id="pBody">'
-	echo '<button type="button" onclick="run('\''createcronform'\'')">Create</button>'
 	crontab -l
 	echo '</div>'
 	echo '<div id="pFooter">'
@@ -979,10 +979,10 @@ while true; do
 		PREV_CHOICE='cd'
 		PREV_ARGS="$PWD"
 		;;
-	crontab)
+	crontab_list)
 		PREV_CHOICE="$choice"
 		PREV_ARGS="$args"
-		flank_crontab
+		crontab_list
 		;;
 	editfileform)
 		PREV_CHOICE="$choice"
@@ -1018,7 +1018,7 @@ while true; do
 			crontab -l 2>/dev/null
 			echo "$new_cron_line"
 		) | crontab -
-		flank_crontab
+		crontab_list
 		;;
 	kill)
 		PREV_CHOICE="$PREV_CHOICE"
