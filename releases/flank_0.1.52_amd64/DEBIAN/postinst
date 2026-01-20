@@ -1,9 +1,0 @@
-#!/bin/bash
-set -e
-mkdir -p /var/lib/flank
-chmod 777 /var/lib/flank
-
-systemctl daemon-reload || true
-systemctl enable flankserver || true
-systemctl start flankserver || true
-
