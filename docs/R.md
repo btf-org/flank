@@ -3,7 +3,7 @@
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/>
 
 #### Quick Hitters
-- [Run a script on a schedule (and view the logs)](#run-an-r-script-on-a-schedule)
+- [Run a script on a schedule (and view the logs)](#docs/run_script_on_schedule.md)
 - [Build a pipeline of scripts](#build-a-pipeline-of-r-scripts)
 - [Run a script with a lot of memory](#run-an-r-script-with-a-lot-of-memory)
 
@@ -17,18 +17,6 @@
 If you run into any problems, shoot me an email at anguspmitchell@gmail.com
 
 # Examples
-
-## Run an R script on a schedule
-
-(Assuming your R script is already written and lives in file on your machine...)
-
-1. **Install Flank** - [See here](/docs/install_flank.md)
-2. **Go to the Flank website** - This will be at http://localhost:8083 by default
-3. **Add your script to Flank** - From the website , click on "Create Cmd" on the bottom bar
-4. **Create a cron job** - If you're not already, drill into your newly created command and click on "Create Cron" on the bottom bar
-5. **View Logs** - If you're not already, drill into your newly created command and click "History" on the bottom bar
-
-**Next:** Always pull the latest version of the script from a repo
 
 ## Build a pipeline of R scripts
 
