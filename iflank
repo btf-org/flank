@@ -570,7 +570,7 @@ create_cmd_form() {
 	echo ''
 	echo '<div id="pBody">'
 	echo '<form id="form" class="grid gap-2 max-w-42" method="POST">'
-	awk "$awk_parse_vars" <<< "$create_cmd_form_sh"
+	awk "$awk_parse_vars" <<<"$create_cmd_form_sh"
 	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''save_cmd'\'')">Save</button></div>'
 	echo '</form>'
 	echo '</div>'
@@ -937,10 +937,10 @@ while true; do
 		PREV_ARGS="$PREV_ARGS"
 		# save_cmd <k=v&k=v>
 		unit_sep="FLNKDLM"
-        split_kvs=$(echo "$args" | tr '&' ' ')
+		split_kvs=$(echo "$args" | tr '&' ' ')
 		varlist=''
-        # don't quote, so that spaces (i.e. array separation of elements) are preserved
-        for kv in $split_kvs; do
+		# don't quote, so that spaces (i.e. array separation of elements) are preserved
+		for kv in $split_kvs; do
 			# printf can get fucked up by the unit separator, so do that after
 			decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
 			if [ "$varlist" == '' ]; then
@@ -948,7 +948,7 @@ while true; do
 			else
 				varlist="${varlist}${unit_sep}${decoded_kv}"
 			fi
-        done
+		done
 		echo "varlist: $varlist" 1>&2
 		printf "printf varlist: %s\n" "$varlist" 1>&2
 		echo "awk vvvvv" 1>&2
