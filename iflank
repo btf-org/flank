@@ -558,7 +558,7 @@ END {
 create_cmd_form_sh='
 # ${cmd_name} @colspan 2
 # ${script_contents} @type textarea @capturetab
-# ${script_contents} @description Wrap a variable in ${} to expose it as an input.
+# ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank/blob/main/docs/create_cmd.md">See docs</a> for more details.
 sc=$(cat << '\''EOF'\''
 ${script_contents}
 EOF)
