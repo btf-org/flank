@@ -1,8 +1,0 @@
-Package: flank
-Version: 0.1.56
-Section: utils
-Priority: optional
-Architecture: amd64
-Maintainer: Angus Mitchell <anguspmitchell@gmail.com>
-Description: A CLI wrapper for building and sharing tools
-Depends: awk, time, gettext-base
