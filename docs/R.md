@@ -21,7 +21,7 @@ If you run into any problems, shoot me an email at anguspmitchell@gmail.com
 
 (Assuming your R script is already written and lives in file on your machine...)
 
-1. **Install Flank** - [See here](#install-flank)
+1. **Install Flank** - [See here](/docs/install_flank.md)
 2. **Go to the Flank website** - This will be at http://localhost:8083 by default
 3. **Add your script to Flank** - From the website , click on "Create Cmd" on the bottom bar
 4. **Create a cron job** - If you're not already, drill into your newly created command and click on "Create Cron" on the bottom bar
@@ -46,52 +46,6 @@ TODO
 
 ## Build a memory-intensive pipeline without Docker, Airflow, etc.
 TODO
-
-# Setup
-## Install Flank
-
-### Mac
-
-(If you haven't installed Homebrew, [see here](https://brew.sh/))
-
-```bash
-brew tap btf-org/flank
-brew install btf-org/flank/flank
-brew services start flank
-```
-
-### Linux / Ubuntu / apt
-
-```bash
-# From any directory
-wget https://github.com/btf-org/flank/releases/download/v0.1.60/flank_0.1.60_amd64.deb
-sudo FLANK_USER=$(whoami) apt install ./flank_0.1.60_amd64.deb
-```
-
-### Windows / Other Linux Distros
-
-Not available at this time
-
-
-## Update Flank
-
-### Mac
-```bash
-brew update # should update all your "taps", including btf-org/flank
-brew install btf-org/flank/flank
-```
-
-### Linux / Ubuntu
-
-```bash
-# From any directory
-wget https://github.com/btf-org/flank/releases/download/v0.1.60/flank_0.1.60_amd64.deb
-sudo FLANK_USER=$(whoami) apt install ./flank_0.1.60_amd64.deb
-```
-
-### Windows / Other Linux Distros
-
-Not available at this time
 
 ## Always run the latest version of a script
 
