@@ -533,6 +533,9 @@ END {
 		sub(/^ *\$\{/, "", varname_stripped)
 		sub(/\} *$/, "", varname_stripped)
 		html = "<div class=\"col-start-1 col-span-"ctrl["@colspan"]"\"><div>"varname_stripped"</div>"
+		if(ctrl["@description"] != ""){
+			html=html"<div class=\"font-size-0_8\">"ctrl["@description"]"</div>"
+		}
 		if(ctrl["@type"] == "textarea"){
 			html=html"<textarea class=\"w-100p\" "
 		} else {
@@ -553,8 +556,9 @@ END {
     }
 }'
 create_cmd_form_sh='
-# ${script_contents} @type textarea @capturetab
 # ${cmd_name} @colspan 2
+# ${script_contents} @type textarea @capturetab
+# ${script_contents} @description Wrap a variable in ${} to expose it as an input.
 sc=$(cat << '\''EOF'\''
 ${script_contents}
 EOF)
