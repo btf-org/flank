@@ -30,3 +30,13 @@ Don't see your language? Flank supports anything that can be run from the comman
 |:--------:|-|
 | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/> | [Examples]() |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1200px-Python-logo-notext.svg.png" width=60/> | [Examples]() |
+
+## Full Docs
+
+- [Troubleshooting]()
+- [Upgrading]()
+- [More]()
+
+## Contact
+
+Shoot me an email at anguspmitchell@gmail.com
