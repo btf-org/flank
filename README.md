@@ -2,7 +2,7 @@
 
 Flank is a 30-seconds-or-less software microwave for doing simple things quickly. 
 
-## First Example
+## Quickstart
 
 Install Flank, go to the website, and you'll find it comes with a simple web scraper
 
@@ -18,8 +18,9 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 
 ## Other Use Cases
 
-- Running sports gambling scripts at 2 AM
-- Turning a SQL query into a dashboard
+- [Running sports gambling scripts at 2 AM]()
+- [Turning a SQL query into a dashboard]()
+- [Building a mobile-friendly site to run things away from your desk]()
 
 ## Language-by-Language Examples
 
