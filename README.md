@@ -8,7 +8,7 @@ Flank is a 30-seconds-or-less software microwave for doing simple things quickly
 
     #### Mac
     ```bash
-    brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
+    brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank && open http://localhost:8083
     ```
 
     #### Linux / Ubuntu / apt
