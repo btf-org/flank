@@ -11,3 +11,45 @@ systemctl daemon-reload || true
 systemctl enable flankserver || true
 systemctl start flankserver || true
 
+get_public_ip() {
+	# AWS
+	local ip
+	if TOKEN=$(curl -sX PUT "http://169.254.169.254/latest/api/token" \
+	-H "X-aws-ec2-metadata-token-ttl-seconds: 21600"); then
+		ip=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+			http://169.254.169.254/latest/meta-data/public-ipv4)
+		[ -n "$ip" ] && echo "$ip" && return
+	fi
+
+	# GCP
+	ip=$(curl -s --max-time 1 -H "Metadata-Flavor: Google" \
+	http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip)
+	[ -n "$ip" ] && echo "$ip" && return
+
+	# Azure
+	ip=$(curl -s --max-time 1 -H "Metadata:true" \
+	"http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/publicIpAddress?api-version=2021-02-01&format=text")
+	[ -n "$ip" ] && echo "$ip" && return
+
+	# Fallback
+	curl -s https://api.ipify.org
+}
+
+
+public_ip=$(get_public_ip)
+if [ -n "$public_ip" ]; then
+	echo ''
+	echo 'Flank is running at:'
+	echo '  http://'"$public_ip"':8083'
+	echo ''
+	echo "If unreachable, check that security group allows TCP on port 8083"
+	echo ''
+else
+	echo ''
+	echo 'Could not detect public IP of this machine'
+	echo 'Flank should be reachable at:'
+	echo '  http://<public-ip-address>:8083'
+	echo ''		
+fi
+
+exit 0
