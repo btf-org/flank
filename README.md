@@ -4,7 +4,9 @@ Flank is a utility to help you manage your script runs.
 
 # Quickstart
 
-Install Flank, go to the website, and you'll find it comes with a simple web scraper
+1. Install Flank
+2. Go to the website
+3. Click on "Quickstarts"
 
 #### Mac
 ```bash
