@@ -26,10 +26,14 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 
 Don't see your language? Flank supports anything that can be run from the command line on a Mac or Linux machine.
 
-| Language | |
-|:--------:|-|
-| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/> | [Examples]() |
-| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1200px-Python-logo-notext.svg.png" width=60/> | [Examples]() |
+| Language | Examples |
+|:--------:|----------|
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/> | [R Examples]() |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1200px-Python-logo-notext.svg.png" width=60/> | [Python Examples]() |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" width=80/> | [Node Examples]() |
+| <img src="https://rust-lang.org/logos/rust-logo-512x512.png" width=60/> | [Rust Examples]() |
+| <img src="https://logonoid.com/images/sql-server-logo.png" width=80/>| [SQL Server Examples]() |
+| <img src="https://images.icon-icons.com/2415/PNG/512/postgresql_plain_wordmark_logo_icon_146390.png" width=70/> | [Postgres Examples]() |
 
 ## Full Docs
 
