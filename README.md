@@ -24,7 +24,7 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 
 ## Language-by-Language Examples
 
-Flank supports anything that can be run from the command line on a Mac or Linux machine.
+Don't see your language? Flank supports anything that can be run from the command line on a Mac or Linux machine.
 
 | Language | |
 |:--------:|-|
