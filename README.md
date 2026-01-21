@@ -1,8 +1,8 @@
 # Flank
 
-Flank is a 30-seconds-or-less software microwave for doing simple things quickly. 
+Flank is a utility to help you manage your script runs. 
 
-## Quickstart
+# Quickstart
 
 Install Flank, go to the website, and you'll find it comes with a simple web scraper
 
@@ -16,13 +16,13 @@ brew tap btf-org/flank && brew install btf-org/flank/flank && brew services star
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
 ```
 
-## Other Use Cases
+# Other Use Cases
 
 - [Running sports gambling scripts at 2 AM]()
 - [Turning a SQL query into a dashboard]()
 - [Building a mobile-friendly site to run things away from your desk]()
 
-## Language-by-Language Examples
+# Language-by-Language Examples
 
 Don't see your language? Flank supports anything that can be run from the command line on a Mac or Linux machine.
 
