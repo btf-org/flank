@@ -13,7 +13,7 @@ Flank is a 30-seconds-or-less software microwave for doing simple things quickly
 
     #### Linux / Ubuntu / apt
     ```
-    wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
+    wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
     ```
 
 2. Go to the Flank website - http://localhost:8083
