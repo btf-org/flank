@@ -2,11 +2,29 @@
 
 Flank is a 30-seconds-or-less software microwave for doing simple things quickly. 
 
-## Everything is bloated
+## Quickstart - Scrape a website at 2 AM
 
-Recently, I needed to run a `curl` command on a timer and it took me ONE HOUR to do this in Azure.
+1. Install Flank
 
-ChatGPT estimates that there are 20 million lines of Azure code running my cron job. WTF!?
+    #### Mac
+    ```bash
+    brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank && open http://localhost:8083
+    ```
+
+    #### Linux / Ubuntu / apt
+    ```
+    wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
+    ```
+
+2. Go to the Flank website - http://localhost:8083
+3. Click on `Create Cmd` on the bottom bar
+4. Paste this into the box
+
+    ```bash
+   
+    ```
+5. Click on `Create Cron` on the bottom bar and paste in `0 2 * * *` into the `cron_expression`
+6. Make sure your computer is on at 2 AM (for Mac users, check out Amphetamine)
 
 ## 30 seconds or less
 
@@ -14,4 +32,6 @@ ChatGPT estimates that there are 20 million lines of Azure code running my cron 
 
 Check out the list of things that should take 30 seconds or less:
 
-<a href="/docs/R.md"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.google.com"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1200px-Python-logo-notext.svg.png" width=60/></a>
+
+- [R](/docs/R.md)
+- [Python](/docs/R.md)
