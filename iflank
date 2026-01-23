@@ -668,7 +668,7 @@ run_form() {
 	awk 'match($0, /[[:space:]]*#[[:space:]]*@description[[:space:]]*/) { print "<div>" substr($0, RSTART + RLENGTH) "</div>"; exit }' template.sh
 	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
 	awk "$awk_parse_vars" template.sh
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''run .'\'')">Save</button></div>'
+	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''run .'\'')">Run</button></div>'
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'
