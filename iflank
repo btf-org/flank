@@ -682,6 +682,7 @@ run_form() {
 edit_file_form() {
 	echo '%PAGESTART%'
 	header_pwd
+
 	echo '<div id="pBody">'
 	echo '<form id="form" method="POST">'
 	echo 'file' | awk ' 
