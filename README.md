@@ -1,37 +1,48 @@
 # Flank
 
-Flank is a 30-seconds-or-less software microwave for doing simple things quickly. 
+Flank is a utility to help you manage your script runs. 
 
-## Quickstart - Scrape a website at 2 AM
+# Quickstart
 
 1. Install Flank
+2. Go to the website
+3. Click on "Quickstarts"
 
-    #### Mac
-    ```bash
-    brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank && open http://localhost:8083
-    ```
+#### Mac
+```bash
+brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank && open http://localhost:8083
+```
 
-    #### Linux / Ubuntu / apt
-    ```
-    wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
-    ```
+#### Linux / Ubuntu / apt
+```
+wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
+```
 
-2. Go to the Flank website - http://localhost:8083
-3. Click on `Create Cmd` on the bottom bar
-4. Paste this into the box
+# Other Use Cases
 
-    ```bash
-   
-    ```
-5. Click on `Create Cron` on the bottom bar and paste in `0 2 * * *` into the `cron_expression`
-6. Make sure your computer is on at 2 AM (for Mac users, check out Amphetamine)
+- [Running sports gambling scripts at 2 AM]()
+- [Turning a SQL query into a dashboard]()
+- [Building a mobile-friendly site to run things away from your desk]()
 
-## 30 seconds or less
+# Language-by-Language Examples
 
+Don't see your language? Flank supports anything that can be run from the command line on a Mac or Linux machine.
 
+| Language | Examples |
+|:--------:|----------|
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/> | [R Examples]() |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1200px-Python-logo-notext.svg.png" width=60/> | [Python Examples]() |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" width=80/> | [Node Examples]() |
+| <img src="https://rust-lang.org/logos/rust-logo-512x512.png" width=60/> | [Rust Examples]() |
+| <img src="https://logonoid.com/images/sql-server-logo.png" width=80/>| [SQL Server Examples]() |
+| <img src="https://images.icon-icons.com/2415/PNG/512/postgresql_plain_wordmark_logo_icon_146390.png" width=70/> | [Postgres Examples]() |
 
-Check out the list of things that should take 30 seconds or less:
+## Full Docs
 
+- [Troubleshooting]()
+- [Upgrading]()
+- [More]()
 
-- [R](/docs/R.md)
-- [Python](/docs/R.md)
+## Contact
+
+Shoot me an email at anguspmitchell@gmail.com
