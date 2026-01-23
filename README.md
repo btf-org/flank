@@ -6,7 +6,7 @@ Flank is a utility to help you manage your script runs.
 
 1. Install Flank
 2. Go to the website
-3. Click on "Quickstarts"
+3. Click on `Quickstarts` folder
 
 #### Mac
 ```bash
