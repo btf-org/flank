@@ -44,7 +44,7 @@ Small sample size, but thus far the pattern seems to be: **\[Some engineer\]** i
 |----------|------------------|----------------------|-----------------|
 | Tim | SQL Server | Expose SQL queries to business folks | BI tools |
 | Rob | Python Lambdas | Run scripts away from his desk | AWS Console |
-| Nik | R | Run his scripts in a pipeline | Orchestration tools |
+| Nik | R | Schedule his scripts in a pipeline | Orchestration tools |
 
 
 # Full Docs
