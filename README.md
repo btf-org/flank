@@ -36,9 +36,9 @@ Flank is a thin wrapper around the command line. You run commands and view outpu
 | <img src="https://logonoid.com/images/sql-server-logo.png" width=80/>| [SQL Server Examples](/docs/not_written_yet.md) |
 | <img src="https://images.icon-icons.com/2415/PNG/512/postgresql_plain_wordmark_logo_icon_146390.png" width=70/> | [Postgres Examples](/docs/not_written_yet.md) |
 
-# Systems built so far?
+# Systems built with Flank so far
 
-So far, the pattern seems to be: \[Some engineer\] is handy with \[some programming language\] and wants to do \[some simple thing\] but is frustrated by the complexity of \[the current way of doing that thing\]
+Small sample size, but thus far the pattern seems to be: **\[Some engineer\]** is handy with **\[some programming language\]** and wants to do **\[some simple thing\]** but is frustrated by the complexity of **\[the current way of doing that thing\]**
 
 | Engineer | is handy with... | and wants to... | but is frustrated by... |
 |----------|------------------|----------------------|-----------------|
