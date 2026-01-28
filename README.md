@@ -20,9 +20,9 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 
 # How do you use it?
 
-Flank is a thin web wrapper around the command line.
+Flank is a thin wrapper around the command line. You run commands and view output.
 
-<img width="2338" height="1934" alt="Screenshot 2026-01-28 at 7 29 27 AM" src="https://github.com/user-attachments/assets/b73bbc3a-dfc1-441e-9f8f-229b93fea25b" />
+<img width="2600" height="2132" alt="Screenshot 2026-01-28 at 10 59 30 AM" src="https://github.com/user-attachments/assets/894fc7f6-da7e-4e63-a124-42dff7f6693f" />
 
 
 # Language-by-Language Examples
@@ -36,7 +36,7 @@ Flank is a thin web wrapper around the command line.
 | <img src="https://logonoid.com/images/sql-server-logo.png" width=80/>| [SQL Server Examples](/docs/not_written_yet.md) |
 | <img src="https://images.icon-icons.com/2415/PNG/512/postgresql_plain_wordmark_logo_icon_146390.png" width=70/> | [Postgres Examples](/docs/not_written_yet.md) |
 
-# How has it been used so far?
+# Systems built so far?
 
 So far, the pattern seems to be: \[Some engineer\] is handy with \[some programming language\] and wants to do \[some simple thing\] but is frustrated by the complexity of \[the current way of doing that thing\]
 
