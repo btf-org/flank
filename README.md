@@ -27,7 +27,7 @@ Flank is basically a thin web wrapper around the command line
 
 | Language | Examples |
 |:--------:|----------|
-| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/> | [R Examples]() |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/> | [R Examples](/docs/not_written_yet.md) |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1200px-Python-logo-notext.svg.png" width=60/> | [Python Examples]() |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" width=80/> | [Node Examples]() |
 | <img src="https://rust-lang.org/logos/rust-logo-512x512.png" width=60/> | [Rust Examples]() |
@@ -47,9 +47,9 @@ So far, the pattern seems to be: \[Some engineer\] is handy with \[some programm
 
 # Full Docs
 
-- [Troubleshooting]()
-- [Upgrading]()
-- [More]()
+- [Troubleshooting](/docs/not_written_yet.md)
+- [Upgrading](/docs/not_written_yet.md)
+- [More](/docs/not_written_yet.md)
 
 # Contact
 
