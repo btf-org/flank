@@ -20,7 +20,9 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 
 # How do you use it?
 
-Flank is a thin web wrapper around the command line
+Flank is a thin web wrapper around the command line.
+
+<img width="2338" height="1934" alt="Screenshot 2026-01-28 at 7 29 27 AM" src="https://github.com/user-attachments/assets/b73bbc3a-dfc1-441e-9f8f-229b93fea25b" />
 
 
 # Language-by-Language Examples
