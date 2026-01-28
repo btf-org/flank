@@ -2,7 +2,7 @@
 
 Flank is a utility to help you manage your script runs. 
 
-# Quickstart
+# Quickstart - Hello World
 
 1. Install Flank
 2. Go to the website
@@ -18,15 +18,12 @@ brew tap btf-org/flank && brew install btf-org/flank/flank && brew services star
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
 ```
 
-# Other Use Cases
+# How do you use it?
 
-- [Running sports gambling scripts at 2 AM]()
-- [Turning a SQL query into a dashboard]()
-- [Building a mobile-friendly site to run things away from your desk]()
+Flank is basically a thin web wrapper around the command line
+
 
 # Language-by-Language Examples
-
-Don't see your language? Flank supports anything that can be run from the command line on a Mac or Linux machine.
 
 | Language | Examples |
 |:--------:|----------|
@@ -37,12 +34,23 @@ Don't see your language? Flank supports anything that can be run from the comman
 | <img src="https://logonoid.com/images/sql-server-logo.png" width=80/>| [SQL Server Examples]() |
 | <img src="https://images.icon-icons.com/2415/PNG/512/postgresql_plain_wordmark_logo_icon_146390.png" width=70/> | [Postgres Examples]() |
 
-## Full Docs
+# How has it been used so far?
+
+So far, the pattern seems to be: \[Some engineer\] is handy with \[some programming language\] and wants to do \[some simple thing\] but is frustrated by the complexity of \[the current way of doing that thing\]
+
+| Engineer | is handy with... | and wants to... | but is frustrated by... |
+|----------|------------------|----------------------|-----------------|
+| Tim | SQL Server | Expose SQL queries to business folks | BI tools |
+| Rob | Python Lambdas | Run scripts away from his desk | AWS Console |
+| Nik | R | Run his scripts in a pipeline | Orchestration tools |
+
+
+# Full Docs
 
 - [Troubleshooting]()
 - [Upgrading]()
 - [More]()
 
-## Contact
+# Contact
 
 Shoot me an email at anguspmitchell@gmail.com
