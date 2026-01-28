@@ -18,7 +18,7 @@ brew tap btf-org/flank && brew install btf-org/flank/flank && brew services star
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
 ```
 
-# How do you use it?
+# Same mental model as the command line
 
 Flank is a thin wrapper around the command line. You run commands and view output.
 
