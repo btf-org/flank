@@ -38,7 +38,7 @@ Flank is a thin wrapper around the command line. You run commands and view outpu
 
 # Systems built with Flank so far
 
-Small sample size, but thus far the pattern seems to be: **\[Some engineer\]** is handy with **\[some programming language\]** and wants to do **\[some simple thing\]** but is frustrated by the complexity of **\[the current way of doing that thing\]**
+Flank seems to have found the most utility with engineers who are really handy with one language and are frustrated with the constellation of "auxiliary tooling" that's needed to accomplish simple tasks these days. 
 
 | Engineer | is handy with... | and wants to... | but is frustrated by... |
 |----------|------------------|----------------------|-----------------|
