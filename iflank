@@ -62,7 +62,7 @@ FNR==1 && NR!=1 {
 	if(nickname != ""){
 	filename=nickname"-"filename;
 	}
-	link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
+	link = "<a href=\"_files"dir"/console.log\" download=\""filename"\">Download Output</a>"
 	linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
 
 	print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, status, maxRSSGiB;
@@ -140,7 +140,7 @@ END {
 	if(nickname != ""){
 	filename=nickname"-"filename;
 	}
-	link = "<a href=\""dir"/console.log\" download=\""filename"\">Download Output</a>"
+	link = "<a href=\"_files"dir"/console.log\" download=\""filename"\">Download Output</a>"
 	linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
 
 	print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, status, maxRSSGiB;
@@ -646,7 +646,7 @@ flank_hist() {
 	fi
 	{
 
-		find $extended_flag . -type f $regex_flag -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
+		find $extended_flag "$PWD" -type f $regex_flag -regex '.*/[0-9]{4}-[0-9]{2}-[0-9]{2}/[0-9]{2}h[0-9]{2}m([0-9]{2}s(_[0-9]+)?)?/status' |
 			sed -E 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2}/.*)/status#\1\t&#' |
 			sort -nr |
 			cut -f2 |
@@ -768,7 +768,7 @@ log_dir() {
 	if [ ! -f console.log ]; then
 		disabled_class='class="disabled"'
 	fi
-	echo '<a '"$disabled_class"' href="'"$PWD/console.log"'" download="'"$filename"'">Download Output</a>'
+	echo '<a '"$disabled_class"' href="'"_files${PWD}/console.log"'" download="'"$filename"'">Download Output</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
 
