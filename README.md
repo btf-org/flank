@@ -4,9 +4,9 @@ Flank is a utility to help you manage your script runs.
 
 # Quickstart
 
-<details open>
+<details>
   
-  <summary><h3>Python / Mac</h3></summary>
+  <summary>Python / Mac</summary>
 
 ---
 
@@ -33,7 +33,7 @@ It'll be something like http://localhost:8083/myscript.py. From here, you'll fin
 
 <details>
   
-  <summary><h3>Python / Linux</h3></summary>
+  <summary>Python / Linux</summary>
 
 ---
 
@@ -61,7 +61,7 @@ It'll be something like http://localhost:8083/myscript.py. From here, you'll fin
 
 <details>
   
-  <summary><h3>R / Mac</h3></summary>
+  <summary>R / Mac</summary>
 
 ---
 
@@ -87,7 +87,7 @@ It'll be something like http://localhost:8083/myscript.R. From here, you'll fini
 </details>
 <details>
   
-  <summary><h3>R / Linux</h3></summary>
+  <summary>R / Linux</summary>
 
 ---
 
