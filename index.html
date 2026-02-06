@@ -213,7 +213,7 @@
         const form = document.getElementById("form");
         const fd = new FormData(form);
         try {
-          await fetch(window.location.origin + "/iflank", {
+          await fetch(window.location.origin + "/_iflank", {
             method: "POST",
             headers: {
               "Content-Type": "text/plain",
@@ -229,7 +229,7 @@
       }
       async function run(cmd) {
         try {
-          await fetch(window.location.origin + "/iflank", {
+          await fetch(window.location.origin + "/_iflank", {
             method: "POST",
             headers: {
               "Content-Type": "text/plain",
@@ -253,7 +253,7 @@
         }
       }
       async function longPoll() {
-        const response = await fetch(window.location.origin + "/iflank", {
+        const response = await fetch(window.location.origin + "/_iflank", {
           method: "GET",
           headers: { "X-Session-ID": sid },
         });

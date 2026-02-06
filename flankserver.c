@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
 					//     ("    Session Found: s_idx=%d sid=%s r/w=%d/%d\n", s_idx,
 					//      sessions[s_idx].sid, sessions[s_idx].r_fd, sessions[s_idx].w_fd);
 				}
-				if (strcmp(path, "/iflank") == 0
+				if (strcmp(path, "/_iflank") == 0
 				    && strcmp(sid, "") != 0 && s_idx == -1) {
 					for (int j = 0; j < 64; j++) {
 						if (sessions[j].sid[0] == '\0') {
@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
 					     sessions[s_idx].r_fd,
 					     sessions[s_idx].w_fd);
 				}
-				if (strcmp(path, "/iflank") == 0
+				if (strcmp(path, "/_iflank") == 0
 				    && strcmp(method, "POST") == 0) {
 					write(sessions[s_idx].w_fd, body,
 					      buffer + http_bytes_read - body);
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
 					write(client_fd, header,
 					      sizeof(header) - 1);
 					tsprintf("    Body: %s\n", body);
-				} else if (strcmp(path, "/iflank") == 0
+				} else if (strcmp(path, "/_iflank") == 0
 					   && strcmp(method, "GET") == 0) {
 					if (s_idx > -1
 					    &&
