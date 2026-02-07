@@ -4,43 +4,20 @@ Flank is a utility to help you manage your script runs.
 
 # Quickstart
 
-The first step is to run one of your scripts through Flank.
+The first step is to run a script through Flank.
 
 <details>
   
-  <summary>Python / Mac</summary>
+  <summary><strong>Python</strong></summary>
 
 ---
 
-#### 1. Install Flank
+#### 1a. Install Flank (Mac)
 ```bash
 brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
 ```
 
-#### 2. Add your script to Flank
-
-(Swap out `myscript.py` for whatever your script name is)
-
-```
-iflank add myscript.py
-```
-
-#### 3. Follow the link outputted by the previous command
-
-It'll be something like http://localhost:8083/myscript.py. From here, you'll finish configuring and then be able to do things.
-
----
-
-</details>
-
-<details>
-  
-  <summary>Python / Linux</summary>
-
----
-
-#### 1. Install Flank
-
+#### 1b. Install Flank (Linux)
 ```bash
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
 ```
@@ -63,37 +40,16 @@ It'll be something like http://localhost:8083/myscript.py. From here, you'll fin
 
 <details>
   
-  <summary>R / Mac</summary>
+  <summary><strong>R</strong></summary>
 
 ---
 
-#### 1. Install Flank
+#### 1a. Install Flank (Mac)
 ```bash
 brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
 ```
 
-#### 2. Add your script to Flank
-
-(Swap out `myscript.R` for whatever your script name is)
-
-```
-iflank add myscript.R
-```
-
-#### 3. Follow the link outputted by the previous command
-
-It'll be something like http://localhost:8083/myscript.R. From here, you'll finish configuring and then be able to do things.
-
----
-
-</details>
-<details>
-  
-  <summary>R / Linux</summary>
-
----
-
-#### 1. Install Flank
+#### 1b. Install Flank (Linux)
 
 ```bash
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
