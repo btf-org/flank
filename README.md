@@ -2,7 +2,7 @@
 
 Flank is a utility to help you manage your script runs. 
 
-# Quickstart - Run a scripthttps://github.com/btf-org/flank/blob/main/README.md
+# Quickstart - Run a script
 
 The first step is to run one of the scripts on your computer through Flank.
 
