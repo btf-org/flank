@@ -2,13 +2,12 @@
 
 Flank is a utility to help you manage your script runs. 
 
-# Quickstart - Run a script
+# Quickstart - Run a scripthttps://github.com/btf-org/flank/blob/main/README.md
 
 The first step is to run one of the scripts on your computer through Flank.
 
 <details>
-  
-  <summary><strong>Python</strong></summary>
+  <summary>strong>Python</strong></summary>
 
 ---
 
@@ -81,9 +80,9 @@ Once you've run a script through Flank, check out some of the possible next step
 
 # Possible Next Steps
 
-- Use your phone to run a script away from your desk
-- Schedule a script to run later (and view logs afterwards)
-- Put a hyperlink to a script execution in some other documentation
+- Use your phone to run a script away from your desk [[Guide]()]
+- Schedule a script to run later (and view logs afterwards) [[Guide]()]
+- Put a hyperlink to a script execution in some other documentation [[Guide]()]
 
 # 80/20 Replacement For...
 
