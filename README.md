@@ -84,7 +84,7 @@ Once you've run a script through Flank, check out some of the possible next step
 - Schedule a script to run later (and view logs afterwards) [[Guide]()]
 - Customize the page where you run the script from [[Guide]()]
 
-## 80/20 Replacement For...
+## Flank is an 80/20 Replacement for...
 
 <details>
   
