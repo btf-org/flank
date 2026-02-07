@@ -2,7 +2,7 @@
 
 Flank is a utility to help you manage your script runs. 
 
-# Quickstart
+## Quickstart
 
 The first step is to **run one of the scripts on your computer** through Flank.
 
@@ -78,13 +78,13 @@ Once you've run a script through Flank, check out some of the possible next step
 
 </details>
 
-# Possible Next Steps
+## Possible Next Steps
 
 - Use your phone to run a script away from your desk [[Guide]()]
 - Schedule a script to run later (and view logs afterwards) [[Guide]()]
 - Customize the page where you run the script from [[Guide]()]
 
-# 80/20 Replacement For...
+## 80/20 Replacement For...
 
 <details>
   
@@ -134,14 +134,14 @@ Todo
 
 </details>
 
-# How do you use Flank?
+## How do you use Flank?
 
 Flank works like the command line. You run commands, and you view output.
 
 <img width="2600" height="2132" alt="Screenshot 2026-01-28 at 10 59 30 AM" src="https://github.com/user-attachments/assets/894fc7f6-da7e-4e63-a124-42dff7f6693f" />
 
 
-# Language-by-Language Examples
+## Language-by-Language Examples
 
 | Language | Examples |
 |:--------:|----------|
@@ -152,12 +152,12 @@ Flank works like the command line. You run commands, and you view output.
 | <img src="https://logonoid.com/images/sql-server-logo.png" width=80/>| [SQL Server Examples](/docs/not_written_yet.md) |
 | <img src="https://images.icon-icons.com/2415/PNG/512/postgresql_plain_wordmark_logo_icon_146390.png" width=70/> | [Postgres Examples](/docs/not_written_yet.md) |
 
-# Full Docs
+## Full Docs
 
 - [Troubleshooting](/docs/not_written_yet.md)
 - [Upgrading](/docs/not_written_yet.md)
 - [More](/docs/not_written_yet.md)
 
-# Contact
+## Contact
 
 Shoot me an email at anguspmitchell@gmail.com
