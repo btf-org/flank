@@ -81,7 +81,7 @@ Once you've run a script through Flank, check out some of the possible next step
 
 # Possible Next Steps
 
-- Use your phone to run a script on your computer
+- Use your phone to run a script away from your desk
 - Schedule a script and view logs afterwards
 - Put a hyperlink to a script execution in some other documentation
 
