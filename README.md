@@ -115,7 +115,7 @@ It'll be something like http://localhost:8083/myscript.R. From here, you'll fini
 
 # How do you use it?
 
-Flank is a thin wrapper around the command line. You run commands and view output.
+Flank works like the command line. You run commands, and you view output.
 
 <img width="2600" height="2132" alt="Screenshot 2026-01-28 at 10 59 30 AM" src="https://github.com/user-attachments/assets/894fc7f6-da7e-4e63-a124-42dff7f6693f" />
 
