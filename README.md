@@ -2,13 +2,12 @@
 
 Flank is a utility to help you manage your script runs. 
 
-# Quickstart
+## ⚡️ Quickstart ⚡️
 
-The first step is to run a script through Flank.
+The first step is to **run a script on your computer** through Flank.
 
 <details>
-  
-  <summary><strong>Python</strong></summary>
+  <summary>Python</summary>
 
 ---
 
@@ -30,9 +29,13 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 iflank add myscript.py
 ```
 
-#### 3. Follow the link outputted by the previous command
+#### 3. Finish configuration
 
-It'll be something like http://localhost:8083/myscript.py. From here, you'll finish configuring and then be able to do things.
+Follow the link outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.py).
+
+#### 4. Run it!
+
+Once you've run a script through Flank, check out some of the possible next steps below.
 
 ---
 
@@ -40,7 +43,7 @@ It'll be something like http://localhost:8083/myscript.py. From here, you'll fin
 
 <details>
   
-  <summary><strong>R</strong></summary>
+  <summary>R</summary>
 
 ---
 
@@ -63,28 +66,88 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 iflank add myscript.R
 ```
 
-#### 3. Follow the link outputted by the previous command
+#### 3. Finish configuration
 
-It'll be something like http://localhost:8083/myscript.R. From here, you'll finish configuring and then be able to do things.
+Follow the link outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.R).
+
+#### 4. Run it!
+
+Once you've run a script through Flank, check out some of the possible next steps below.
 
 ---
 
 </details>
 
-# Possible Next Steps
+## ... After the Quickstart
 
-- Run a script from your phone
-- Display script output as an HTML table
-- Schedule a script
+Here are some possible next steps:
 
-# How do you use it?
+- Use your phone to run a script away from your desk [[Guide]()]
+- Schedule a script to run later (and view logs afterwards) [[Guide]()]
+- Customize the page where you run the script from [[Guide]()]
+
+## Alternatives
+
+Flank is an **80/20 replacement** for a variety of tools. It strives to do the common things in a simple way.
+
+<details>
+  
+  <summary>BI Tools</summary>
+
+---
+
+Todo
+
+---
+
+</details>
+
+<details>
+  
+  <summary>Orchestration Tools</summary>
+
+---
+
+Todo
+
+---
+
+</details>
+
+<details>
+  
+  <summary>Internal Websites</summary>
+
+---
+
+Todo
+
+---
+
+</details>
+
+<details>
+  
+  <summary>Serverless Functions</summary>
+
+---
+
+Todo
+
+---
+
+</details>
+
+[^1]: Note
+
+## What does it look like?
 
 Flank works like the command line. You run commands, and you view output.
 
 <img width="2600" height="2132" alt="Screenshot 2026-01-28 at 10 59 30 AM" src="https://github.com/user-attachments/assets/894fc7f6-da7e-4e63-a124-42dff7f6693f" />
 
 
-# Language-by-Language Examples
+## Language-by-Language Examples
 
 | Language | Examples |
 |:--------:|----------|
@@ -95,23 +158,12 @@ Flank works like the command line. You run commands, and you view output.
 | <img src="https://logonoid.com/images/sql-server-logo.png" width=80/>| [SQL Server Examples](/docs/not_written_yet.md) |
 | <img src="https://images.icon-icons.com/2415/PNG/512/postgresql_plain_wordmark_logo_icon_146390.png" width=70/> | [Postgres Examples](/docs/not_written_yet.md) |
 
-# Systems built with Flank so far
-
-Flank seems to have found the most utility with engineers who are really handy with one language and are frustrated with the constellation of "auxiliary tooling" that's needed to accomplish simple tasks these days. 
-
-| Engineer | is handy with... | and wants to... | but is frustrated by... |
-|----------|------------------|----------------------|-----------------|
-| Tim | SQL Server | Expose SQL queries to business folks | BI tools |
-| Rob | Python Lambdas | Run scripts away from his desk | AWS Console |
-| Nik | R | Schedule his scripts in a pipeline | Orchestration tools |
-
-
-# Full Docs
+## Full Docs
 
 - [Troubleshooting](/docs/not_written_yet.md)
 - [Upgrading](/docs/not_written_yet.md)
 - [More](/docs/not_written_yet.md)
 
-# Contact
+## Contact
 
 Shoot me an email at anguspmitchell@gmail.com
