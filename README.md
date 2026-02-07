@@ -4,41 +4,20 @@ Flank is a utility to help you manage your script runs.
 
 # Quickstart
 
-<details open>
+The first step is to run a script through Flank.
+
+<details>
   
-  <summary><h3>Python / Mac</h3></summary>
+  <summary><strong>Python</strong></summary>
 
 ---
 
-#### 1. Install Flank
+#### 1a. Install Flank (Mac)
 ```bash
 brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
 ```
 
-#### 2. Add your script to Flank
-
-(Swap out `myscript.py` for whatever your script name is)
-
-```
-iflank add myscript.py
-```
-
-#### 3. Follow the link outputted by the previous command
-
-It'll be something like http://localhost:8083/myscript.py. From here, you'll finish configuring and then be able to do things.
-
----
-
-</details>
-
-<details>
-  
-  <summary><h3>Python / Linux</h3></summary>
-
----
-
-#### 1. Install Flank
-
+#### 1b. Install Flank (Linux)
 ```bash
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
 ```
@@ -61,37 +40,16 @@ It'll be something like http://localhost:8083/myscript.py. From here, you'll fin
 
 <details>
   
-  <summary><h3>R / Mac</h3></summary>
+  <summary><strong>R</strong></summary>
 
 ---
 
-#### 1. Install Flank
+#### 1a. Install Flank (Mac)
 ```bash
 brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
 ```
 
-#### 2. Add your script to Flank
-
-(Swap out `myscript.R` for whatever your script name is)
-
-```
-iflank add myscript.R
-```
-
-#### 3. Follow the link outputted by the previous command
-
-It'll be something like http://localhost:8083/myscript.R. From here, you'll finish configuring and then be able to do things.
-
----
-
-</details>
-<details>
-  
-  <summary><h3>R / Linux</h3></summary>
-
----
-
-#### 1. Install Flank
+#### 1b. Install Flank (Linux)
 
 ```bash
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
@@ -112,10 +70,16 @@ It'll be something like http://localhost:8083/myscript.R. From here, you'll fini
 ---
 
 </details>
+
+# Possible Next Steps
+
+- Run a script from your phone
+- Display script output as an HTML table
+- Schedule a script
 
 # How do you use it?
 
-Flank is a thin wrapper around the command line. You run commands and view output.
+Flank works like the command line. You run commands, and you view output.
 
 <img width="2600" height="2132" alt="Screenshot 2026-01-28 at 10 59 30 AM" src="https://github.com/user-attachments/assets/894fc7f6-da7e-4e63-a124-42dff7f6693f" />
 
