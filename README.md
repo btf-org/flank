@@ -30,9 +30,13 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 iflank add myscript.py
 ```
 
-#### 3. Follow the link outputted by the previous command
+#### 3. Finish configuration
 
-It'll be something like http://localhost:8083/myscript.py. From here, you'll finish configuring and then be able to do things.
+Follow the link outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.py).
+
+#### 4. Run it!
+
+Once you've run a script through Flank, check out some of the possible next steps below.
 
 ---
 
@@ -63,9 +67,13 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 iflank add myscript.R
 ```
 
-#### 3. Follow the link outputted by the previous command
+#### 3. Finish configuration
 
-It'll be something like http://localhost:8083/myscript.R. From here, you'll finish configuring and then be able to do things.
+Follow the link outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.R).
+
+#### 4. Run it!
+
+Once you've run a script through Flank, check out some of the possible next steps below.
 
 ---
 
@@ -73,9 +81,9 @@ It'll be something like http://localhost:8083/myscript.R. From here, you'll fini
 
 # Possible Next Steps
 
-- Run a script from your phone
-- Display script output as an HTML table
-- Schedule a script
+- Use your phone to run a script on your computer
+- Schedule a script and view logs afterwards
+- Put a hyperlink to a script execution in some other documentation
 
 # How do you use it?
 
