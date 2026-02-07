@@ -2,9 +2,9 @@
 
 Flank is a utility to help you manage your script runs. 
 
-## Quickstart
+## ⚡️ Quickstart ⚡️
 
-The first step is to **run one of the scripts on your computer** through Flank.
+The first step is to **run a script on your computer** through Flank.
 
 <details>
   <summary>Python</summary>
@@ -78,13 +78,17 @@ Once you've run a script through Flank, check out some of the possible next step
 
 </details>
 
-## Possible Next Steps
+## ... After the Quickstart
+
+Here are some possible next steps:
 
 - Use your phone to run a script away from your desk [[Guide]()]
 - Schedule a script to run later (and view logs afterwards) [[Guide]()]
 - Customize the page where you run the script from [[Guide]()]
 
-## Flank is an 80/20 Replacement for...
+## Alternatives
+
+Flank is an **80/20 replacement** for a variety of tools. It strives to do the common things in a simple way.
 
 <details>
   
@@ -134,7 +138,9 @@ Todo
 
 </details>
 
-## How do you use Flank?
+[^1]: Note
+
+## What does it look like?
 
 Flank works like the command line. You run commands, and you view output.
 
