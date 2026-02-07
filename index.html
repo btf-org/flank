@@ -381,7 +381,7 @@
       }
       async function setup() {
         longPoll();
-        if(window.location.pathname === '/'){
+        if (window.location.pathname === "/") {
           run("cd ~");
         } else {
           run("cd ~" + window.location.pathname);

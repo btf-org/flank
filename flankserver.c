@@ -404,9 +404,10 @@ int main(int argc, char *argv[])
 					    ("    => will write back to lpr_fd=%d\n",
 					     sessions[s_idx].long_poll_req_fd);
 					continue;
-				} else if(strncmp("/_files", path, 7) == 0) {
+				} else if (strncmp("/_files", path, 7) == 0) {
 					if (access(path + 7, F_OK) == 0) {
-						int fd = open(path + 7, O_RDONLY);
+						int fd =
+						    open(path + 7, O_RDONLY);
 						struct stat st;
 						fstat(fd, &st);
 						off_t filesize = st.st_size;
@@ -444,7 +445,7 @@ int main(int argc, char *argv[])
 						write(client_fd, header,
 						      sizeof(header) - 1);
 					}
-				} else  {
+				} else {
 					const char *index_html_path = NULL;
 
 					int found = 0;

@@ -402,14 +402,13 @@ run_cmd() {
 safe_cd() {
 	local d="$1"
 	case "$d" in
-		'~')
-			d=$FLANK_ROOT
-			;;
-		'~/'*)
-			d="${FLANK_ROOT}/${d#'~/'}"
-			;;
-		*)
-			;;
+	'~')
+		d=$FLANK_ROOT
+		;;
+	'~/'*)
+		d="${FLANK_ROOT}/${d#'~/'}"
+		;;
+	*) ;;
 	esac
 	cd "$d"
 	if [ -f template.sh ]; then
@@ -868,7 +867,7 @@ flank_error() {
 	echo '%PAGEEND%'
 }
 
-add_cmd(){
+add_cmd() {
 	# add_cmd <wd> <params>
 	local wd=$1
 	shift
@@ -886,7 +885,7 @@ add_cmd(){
 		echo 'WARNING: '"$FLANK_ROOT/$*"' already exists. Creating '"$dir_name"
 	fi
 	mkdir "${FLANK_ROOT}/${dir_name}"
-	cat > "${FLANK_ROOT}/${dir_name}/template.sh" << EOF
+	cat >"${FLANK_ROOT}/${dir_name}/template.sh" <<EOF
 # This bash script runs your Python script like you'd run it from the CLI
 
 # ---- Directory -----
