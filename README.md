@@ -4,6 +4,8 @@ Flank is a utility to help you manage your script runs.
 
 # Quickstart
 
+The first step is to run one of your scripts through Flank.
+
 <details>
   
   <summary>Python / Mac</summary>
@@ -112,6 +114,12 @@ It'll be something like http://localhost:8083/myscript.R. From here, you'll fini
 ---
 
 </details>
+
+# Possible Next Steps
+
+- Run a script from your phone
+- Display script output as an HTML table
+- Schedule a script
 
 # How do you use it?
 
