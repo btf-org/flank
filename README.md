@@ -85,6 +85,56 @@ Once you've run a script through Flank, check out some of the possible next step
 - Schedule a script to run later (and view logs afterwards)
 - Put a hyperlink to a script execution in some other documentation
 
+# 80/20 Replacement For...
+
+<details>
+  
+  <summary>BI Tools</summary>
+
+---
+
+Todo
+
+---
+
+</details>
+
+<details>
+  
+  <summary>Orchestration Tools</summary>
+
+---
+
+Todo
+
+---
+
+</details>
+
+<details>
+  
+  <summary>Internal Websites</summary>
+
+---
+
+Todo
+
+---
+
+</details>
+
+<details>
+  
+  <summary>Serverless Functions</summary>
+
+---
+
+Todo
+
+---
+
+</details>
+
 # How do you use it?
 
 Flank works like the command line. You run commands, and you view output.
