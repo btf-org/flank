@@ -7,7 +7,7 @@ Flank is a utility to help you manage your script runs.
 The first step is to run one of the scripts on your computer through Flank.
 
 <details>
-  <summary>strong>Python</strong></summary>
+  <summary><strong>Python</strong></summary>
 
 ---
 
