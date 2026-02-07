@@ -381,7 +381,11 @@
       }
       async function setup() {
         longPoll();
-        run("refresh");
+        if(window.location.pathname === '/'){
+          run("cd ~");
+        } else {
+          run("cd ~" + window.location.pathname);
+        }
       }
 
       setup();

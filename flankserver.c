@@ -404,7 +404,47 @@ int main(int argc, char *argv[])
 					    ("    => will write back to lpr_fd=%d\n",
 					     sessions[s_idx].long_poll_req_fd);
 					continue;
-				} else if (strcmp(path, "/") == 0) {
+				} else if(strncmp("/_files", path, 7) == 0) {
+					if (access(path + 7, F_OK) == 0) {
+						int fd = open(path + 7, O_RDONLY);
+						struct stat st;
+						fstat(fd, &st);
+						off_t filesize = st.st_size;
+						char header[256];
+						int header_len;
+						header_len =
+						    snprintf(header,
+							     sizeof(header),
+							     "HTTP/1.1 200 OK\r\n"
+							     "Content-Type: text/html\r\n"
+							     "Connection: close\r\n"
+							     "Content-Length: %lld\r\n"
+							     "\r\n", (long long)
+							     filesize);
+						write(client_fd, header, header_len);	// forward to client
+						ssize_t n;
+						while ((n =
+							read(fd, buffer,
+							     BUF_SIZE)) > 0) {
+							write(client_fd, buffer,
+							      n);
+						}
+						close(fd);
+
+					} else {
+						tsprintf
+						    ("    ERROR: path not supported: %s\n",
+						     path);
+						// char header[256];
+						// int header_len;
+						char header[] =
+						    "HTTP/1.1 404 Not Found\r\n"
+						    "Connection: close\r\n"
+						    "Content-Length: 0\r\n\r\n";
+						write(client_fd, header,
+						      sizeof(header) - 1);
+					}
+				} else  {
 					const char *index_html_path = NULL;
 
 					int found = 0;
@@ -461,46 +501,6 @@ int main(int argc, char *argv[])
 						}
 						close(fd);
 					} else {
-						char header[] =
-						    "HTTP/1.1 404 Not Found\r\n"
-						    "Connection: close\r\n"
-						    "Content-Length: 0\r\n\r\n";
-						write(client_fd, header,
-						      sizeof(header) - 1);
-					}
-				} else if(strncmp("/_files", path, 7) == 0) {
-					if (access(path + 7, F_OK) == 0) {
-						int fd = open(path + 7, O_RDONLY);
-						struct stat st;
-						fstat(fd, &st);
-						off_t filesize = st.st_size;
-						char header[256];
-						int header_len;
-						header_len =
-						    snprintf(header,
-							     sizeof(header),
-							     "HTTP/1.1 200 OK\r\n"
-							     "Content-Type: text/html\r\n"
-							     "Connection: close\r\n"
-							     "Content-Length: %lld\r\n"
-							     "\r\n", (long long)
-							     filesize);
-						write(client_fd, header, header_len);	// forward to client
-						ssize_t n;
-						while ((n =
-							read(fd, buffer,
-							     BUF_SIZE)) > 0) {
-							write(client_fd, buffer,
-							      n);
-						}
-						close(fd);
-
-					} else {
-						tsprintf
-						    ("    ERROR: path not supported: %s\n",
-						     path);
-						// char header[256];
-						// int header_len;
 						char header[] =
 						    "HTTP/1.1 404 Not Found\r\n"
 						    "Connection: close\r\n"

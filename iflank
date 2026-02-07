@@ -400,7 +400,18 @@ run_cmd() {
 }
 
 safe_cd() {
-	cd "$1"
+	local d="$1"
+	case "$d" in
+		'~')
+			d=$FLANK_ROOT
+			;;
+		'~/'*)
+			d="${FLANK_ROOT}/${d#'~/'}"
+			;;
+		*)
+			;;
+	esac
+	cd "$d"
 	if [ -f template.sh ]; then
 		run_form
 	elif [ -f status ] || [ -f exec.sh ]; then
