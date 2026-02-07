@@ -7,7 +7,7 @@ Flank is a utility to help you manage your script runs.
 The first step is to **run one of the scripts on your computer** through Flank.
 
 <details>
-  <summary><strong>Python</strong></summary>
+  <summary>Python</summary>
 
 ---
 
@@ -43,7 +43,7 @@ Once you've run a script through Flank, check out some of the possible next step
 
 <details>
   
-  <summary><strong>R</strong></summary>
+  <summary>R</summary>
 
 ---
 
@@ -82,7 +82,7 @@ Once you've run a script through Flank, check out some of the possible next step
 
 - Use your phone to run a script away from your desk [[Guide]()]
 - Schedule a script to run later (and view logs afterwards) [[Guide]()]
-- Put a hyperlink to a script execution in some other documentation [[Guide]()]
+- Customize the page where you run the script from [[Guide]()]
 
 # 80/20 Replacement For...
 
@@ -134,7 +134,7 @@ Todo
 
 </details>
 
-# How do you use it?
+# How do you use Flank?
 
 Flank works like the command line. You run commands, and you view output.
 
@@ -151,17 +151,6 @@ Flank works like the command line. You run commands, and you view output.
 | <img src="https://rust-lang.org/logos/rust-logo-512x512.png" width=60/> | [Rust Examples](/docs/not_written_yet.md) |
 | <img src="https://logonoid.com/images/sql-server-logo.png" width=80/>| [SQL Server Examples](/docs/not_written_yet.md) |
 | <img src="https://images.icon-icons.com/2415/PNG/512/postgresql_plain_wordmark_logo_icon_146390.png" width=70/> | [Postgres Examples](/docs/not_written_yet.md) |
-
-# Systems built with Flank so far
-
-Flank seems to have found the most utility with engineers who are really handy with one language and are frustrated with the constellation of "auxiliary tooling" that's needed to accomplish simple tasks these days. 
-
-| Engineer | is handy with... | and wants to... | but is frustrated by... |
-|----------|------------------|----------------------|-----------------|
-| Tim | SQL Server | Expose SQL queries to business folks | BI tools |
-| Rob | Python Lambdas | Run scripts away from his desk | AWS Console |
-| Nik | R | Schedule his scripts in a pipeline | Orchestration tools |
-
 
 # Full Docs
 
