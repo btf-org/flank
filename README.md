@@ -165,7 +165,7 @@ print(f"Generated table for {args.city}: {len(filtered_df)} rows")
 
 ## The Anti-Pitch
 
-Flank is an 80/20 tool. It is a wrapper around the command line, and then a simple interface on top of that. It is necessarily limited by 1) OS-level resource limits and 2) UI/UX simplicity.
+Flank is an 80/20 tool. If your primary use cases lie outside the 80% of common use cases, you should probably use another tool.
 
 Limitations across various use cases:
 
@@ -184,12 +184,10 @@ Todo
 <details>
   
   <summary><strong>Internal Tools</strong> (vs. Retool, custom apps, React)</summary>
-
----
-
-Todo
-
----
+  <br>
+Don't use Flank if
+- The complexity of your app lies in the UI/UX
+- Polished UI/UX is more important than developer efficiency
 
 </details>
  
