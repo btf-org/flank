@@ -121,7 +121,7 @@ print(f"Generated table for {args.city}: {len(filtered_df)} rows")
 
 ## An 80/20 Alternative
 
-I use Flank as an 80/20 alternative to a wide-variety of cloud tools and frameworks.*
+I use Flank as an 80/20 alternative to a wide-variety of cloud tools that are designed for a scale that, in practice, I rarely reach.*
 
 <details>
   
