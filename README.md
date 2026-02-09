@@ -83,8 +83,8 @@ Once you've run a script through Flank, check out some of the possible next step
 Here are some possible next steps:
 
 - Use your phone to run a script away from your desk [[Guide]()]
-- Schedule a script to run later (and view logs afterwards) [[Guide]()]
-- Customize the page where you run the script from [[Guide]()]
+- Schedule a script to run later (and view the logs afterwards) [[Guide]()]
+- Customize the input fields to your script script [[Guide]()]
 
 ## "Script-First" Development
 
