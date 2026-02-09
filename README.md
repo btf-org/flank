@@ -88,7 +88,7 @@ Here are some possible next steps:
 
 ## "Script-First" Development
 
-Flank provides a simple interface for running your scripts. And then it shows the output in a browser.
+Flank automatically builds UI for running your scripts. And then it shows the output in a browser.
 
 So, instead of building a website to show a table, you could just output an HTML table from a Python script, and then run that script through Flank.
 
