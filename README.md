@@ -113,7 +113,7 @@ filtered_df.to_html('output.html', index=False)
 print(f"Generated table for {args.city}: {len(filtered_df)} rows")
 ```
 
-#### The "runner" script that Flank uses
+#### The "runner" script that Flank generates and you tweak
 
 #### The inputs are dynamically pulled from the "runner script"
 
