@@ -86,9 +86,42 @@ Here are some possible next steps:
 - Schedule a script to run later (and view logs afterwards) [[Guide]()]
 - Customize the page where you run the script from [[Guide]()]
 
-## Alternatives
+## "Script-First" Development
 
-Flank is an **80/20 replacement** for a variety of tools. It strives to do the common things in a simple way.
+Flank provides a simple interface for running your scripts. And then it shows the output in a browser.
+
+So, instead of building a website to show a table, you could just output an HTML table from a Python script, and then run that script through Flank.
+
+#### Example: Python script that outputs HTML
+```python
+import pandas as pd
+import argparse
+
+# Set up argument parser
+parser = argparse.ArgumentParser(description='Filter data by city')
+parser.add_argument('--city', default='New York', help='City to filter by')
+args = parser.parse_args()
+
+df = pd.DataFrame({
+    'Name': ['Alice', 'Bob', 'Charlie', 'Diana'],
+    'Age': [25, 30, 35, 28],
+    'City': ['New York', 'London', 'New York', 'Paris']
+})
+
+filtered_df = df[df['City'] == args.city]
+filtered_df.to_html('output.html', index=False)
+print(f"Generated table for {args.city}: {len(filtered_df)} rows")
+```
+
+#### The "runner" script that Flank uses
+
+#### The inputs are dynamically pulled from the "runner script"
+
+#### Flank forwards `stdout` from your CLI to the browser
+
+## An 80/20 Alternative
+
+I use Flank as an 80/20 alternative to a wide-variety of cloud tools and frameworks.*
 
 <details>
   
@@ -113,7 +146,7 @@ Todo
 ---
 
 </details>
-
+ 
 <details>
   
   <summary>Internal Websites</summary>
@@ -138,25 +171,8 @@ Todo
 
 </details>
 
-[^1]: Note
+<sub>\* When I say "Flank", "Flank" is really just a wrapper around (and interface on top of) the Unix toolset.</sub>
 
-## What does it look like?
-
-Flank works like the command line. You run commands, and you view output.
-
-<img width="2600" height="2132" alt="Screenshot 2026-01-28 at 10 59 30 AM" src="https://github.com/user-attachments/assets/894fc7f6-da7e-4e63-a124-42dff7f6693f" />
-
-
-## Language-by-Language Examples
-
-| Language | Examples |
-|:--------:|----------|
-| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/1200px-R_logo.svg.png" width=75/> | [R Examples](/docs/not_written_yet.md) |
-| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1200px-Python-logo-notext.svg.png" width=60/> | [Python Examples](/docs/not_written_yet.md) |
-| <img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" width=80/> | [Node Examples](/docs/not_written_yet.md) |
-| <img src="https://rust-lang.org/logos/rust-logo-512x512.png" width=60/> | [Rust Examples](/docs/not_written_yet.md) |
-| <img src="https://logonoid.com/images/sql-server-logo.png" width=80/>| [SQL Server Examples](/docs/not_written_yet.md) |
-| <img src="https://images.icon-icons.com/2415/PNG/512/postgresql_plain_wordmark_logo_icon_146390.png" width=70/> | [Postgres Examples](/docs/not_written_yet.md) |
 
 ## Full Docs
 
