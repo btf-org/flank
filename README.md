@@ -86,7 +86,7 @@ Here are some possible next steps:
 - Schedule a script to run later (and view the logs afterwards) [[Guide]()]
 - Customize the input fields to your script script [[Guide]()]
 
-## "Script-First" Development
+## Example of "Script-First" Development
 
 Flank automatically builds UI for running your scripts. And then it shows the output in a browser.
 
