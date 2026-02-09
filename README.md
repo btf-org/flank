@@ -90,7 +90,7 @@ Here are some possible next steps:
 
 Flank automatically builds UI for running your scripts. And then it shows the output in a browser.
 
-So, instead of building a website to show a table, you could just output an HTML table from a Python script, and then run that script through Flank.
+So, instead of building a website to show a table, you could make your Python script return HTML, and then run that script through Flank.
 
 #### Example: Python script that outputs HTML
 ```python
