@@ -78,7 +78,7 @@ Once you've run a script through Flank, check out some of the possible next step
 
 </details>
 
-## ... After the Quickstart
+## Next Steps
 
 Here are some possible next steps:
 
