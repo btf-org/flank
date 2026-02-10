@@ -29,13 +29,19 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 iflank add myscript.py
 ```
 
-#### 3. Finish configuration
+#### 3. Confirm that the Flank-generated "wrapper script" is correct
 
-Follow the link outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.py).
+Flank will create a "wrapper script" that:
 
-#### 4. Run it!
+1. `cd`s into the directory of your script
+2. If detected, activates your virtual environment
+3. Runs your script
 
-Once you've run a script through Flank, check out some of the possible next steps below.
+By following the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.js?edit), you'll be able to confirm that Flank filled these out correctly, and you can tweak if need be.
+
+#### 4. Run your script and view output in the browser
+
+You should be presented with a page with \[ Run \] button where you can trigger your script. Run it and you should see the output in the browser. 
 
 ---
 
@@ -66,13 +72,18 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 iflank add myscript.R
 ```
 
-#### 3. Finish configuration
+#### 3. Confirm that the Flank-generated "wrapper script" is correct
 
-Follow the link outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.R).
+Flank will create a "wrapper script" that:
 
-#### 4. Run it!
+1. `cd`s into the directory of your script
+2. Runs your script
 
-Once you've run a script through Flank, check out some of the possible next steps below.
+By following the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.R?edit), you'll be able to confirm that Flank filled these out correctly, and you can tweak if need be.
+
+#### 4. Run your script and view output in the browser
+
+You should be presented with a page with \[ Run \] button where you can trigger your script. Run it and you should see the output in the browser. 
 
 ---
 
@@ -103,13 +114,18 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 iflank add myscript.js
 ```
 
-#### 3. Finish configuration
+#### 3. Confirm that the Flank-generated "wrapper script" is correct
 
-Follow the link outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.js).
+Flank will create a "wrapper script" that:
 
-#### 4. Run it!
+1. `cd`s into the directory of your script
+2. Runs your script
 
-Once you've run a script through Flank, check out some of the possible next steps below.
+By following the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.js?edit), you'll be able to confirm that Flank filled these out correctly, and you can tweak if need be.
+
+#### 4. Run your script and view output in the browser
+
+You should be presented with a page with \[ Run \] button where you can trigger your script. Run it and you should see the output in the browser. 
 
 ---
 
@@ -195,33 +211,26 @@ You could even edit the "wrapper script" so that it runs every 3 seconds, making
   
 ## The Anti-Pitch
 
-Flank is an "80/20" tool, so it's a bad fit for many situations.
+Flank is an "80/20" tool, so certain assumptions make it a bad fit for certain scenarios:
 
-### User actions can't be modeled as input → output
+- Flank models user actions as input → output
+  - ❌ Chatbots
+  - ❌ Map applications
+  - ❌ Dashboards with distinct, side-by-side components
+- Flank assumes user actions can be accomplished with a script
+  - ❌ Editing proprietary document formats (Word, Photoshop, etc)
+- Flank assumes the benefits of self-hosting (especially around security) outweigh the inconvenience of setting it up
+  - ❌ DB security isn't a concern and a hosted app is faster to setup
+- Flank runs on one machine
+  - ❌ Combined workload exceeds what a single machine can handle
+- Flank tries to be 0-dependency, but for pipelining it relies on `make`
+  - ❌ Advanced pipeline behavior, like runtime dynamic graphs
+- Flank assumes that writing scripts is easier/faster than the alternative
+  - ❌ Your org won't allow you to publish anything without a design review anyway
+  - ❌ You already have some scaffolding for writing/delivering "script-y logic" (e.g. an API hooked up to some app builder)
+  - ❌ Apps where the bulk of the work is in the CSS/design
 
-Flank works like the CLI. You punch in some input and you get back some output. This works for some problems. It's a bad fit for other problems, such as...
-
-- ❌ Chatbots
-- ❌ Map applications
-- ❌ Rich text editing
-- ❌ Live, multi-user apps
-- ❌ Dashboards with distinct, side-by-side components
-
-### Your UI is highly styled or very interactive
-
-The Flank UI is defined by the outputs of scripts. Scripts are not the best place to write heaps of CSS and JS. Some examples:
-
-- ❌ Lots of color-coding
-- ❌ Lots of popups
-- ❌ CSS needs to be consistent with some other project
-- ❌ Displaying lots of photos or videos
-- ❌ Rich editing of text or any other media
-
-### Your users are all technical enough to use the CLI
-
-- ❌ Scripts for other devs to run
-
-For more specific musings on alternative tools, see thoughts on [Reporting / Dashboards](), [Internal Tools](), [Scheduling / Pipelines](), [Deploying Scripts to the Cloud](), [Chat-Based Interfaces](), and [Developer Tools]().
+For more details on alternative tools, see thoughts on [Reporting / Dashboards](), [Internal Tools](), [Scheduling / Pipelines](), [Deploying Scripts to the Cloud](), [Chat-Based Interfaces](), and [Developer Tools]().
 
 ## Full Docs
 
