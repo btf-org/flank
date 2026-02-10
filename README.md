@@ -213,25 +213,15 @@ In this way, you can build dashboards, reports, internal tools, and CRUD apps by
 
 Flank is an "80/20" tool, so certain assumptions make it a bad fit for certain scenarios:
 
-- Flank models user actions as input → output
-  - ❌ Chatbots
-  - ❌ Map applications
-  - ❌ Dashboards with distinct, side-by-side components
-- Flank assumes user actions can be accomplished with a script
-  - ❌ Editing proprietary document formats (Word, Photoshop, etc)
-  - ❌ The real complexity of your app lies in the CSS/design
-- Flank assumes the benefits of self-hosting (especially around security) outweigh the inconvenience of setting it up
-  - ❌ DB security isn't a concern and a hosted app is faster to setup
-- Flank runs on one machine
-  - ❌ Combined workload exceeds what a single machine can handle
-- Flank tries to be 0-dependency, but for pipelining it relies on `make`
-  - ❌ Advanced pipeline behavior, like runtime dynamic graphs
-- Flank assumes that the browser is the right delivery mechanism
-  - ❌ Applications that need to be available offline
-  - ❌ Applications that should live within another app (e.g. Slack)
-- Flank assumes that writing scripts is easier/faster than the alternative
-  - ❌ Your org won't allow you to publish anything without a design review anyway
-  - ❌ You already have some scaffolding for writing/delivering "script-y logic" (e.g. an API hooked up to some app builder)
+| Assumption / Constraint | Bad Fits |
+| ---------- | -------- |
+| User actions can be modeled as input → output | ❌ Chatbots<br>❌ Map applications<br>❌ Dashboards with distinct, side-by-side components |
+| User actions can be accomplished with a script | ❌ Editing proprietary document formats (Word, Photoshop, etc)<br>❌ The real complexity of your app lies in the CSS/design |
+| You'll want to run everything in your cloud | ❌ You just need to connect your DB to a hosted app-builder |
+| The browser is the right delivery mechanism | ❌ Applications that need to be available offline<br>❌ Applications that should live within another app (e.g. Slack) |
+| Writing scripts is easier/faster than the alternative | ❌ You're not allowed to deploy anything without a design review<br>❌ You've already got scaffolding for delivering "script-y logic" |
+| Flank runs on one machine | ❌ Combined workload exceeds what a single machine can handle |
+| Flank tries to be 0-dependency, but pipelines rely on `make` | ❌ Advanced pipeline behavior, like runtime dynamic graphs |
 
 
 For more details on alternative tools, see thoughts on [Reporting / Dashboards](/docs/not_written_yet.md), [Internal Tools](/docs/not_written_yet.md), [Scheduling / Pipelines](/docs/not_written_yet.md), [Deploying Scripts to the Cloud](/docs/not_written_yet.md), [Chat-Based Interfaces](/docs/not_written_yet.md), and [Developer Tools](/docs/not_written_yet.md).
