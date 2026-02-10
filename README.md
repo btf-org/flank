@@ -219,6 +219,7 @@ Flank is an "80/20" tool, so certain assumptions make it a bad fit for certain s
   - ❌ Dashboards with distinct, side-by-side components
 - Flank assumes user actions can be accomplished with a script
   - ❌ Editing proprietary document formats (Word, Photoshop, etc)
+  - ❌ The real complexity of your app lies in the CSS/design
 - Flank assumes the benefits of self-hosting (especially around security) outweigh the inconvenience of setting it up
   - ❌ DB security isn't a concern and a hosted app is faster to setup
 - Flank runs on one machine
@@ -231,7 +232,7 @@ Flank is an "80/20" tool, so certain assumptions make it a bad fit for certain s
 - Flank assumes that writing scripts is easier/faster than the alternative
   - ❌ Your org won't allow you to publish anything without a design review anyway
   - ❌ You already have some scaffolding for writing/delivering "script-y logic" (e.g. an API hooked up to some app builder)
-  - ❌ The real complexity of your app lies in the CSS/design
+
 
 For more details on alternative tools, see thoughts on [Reporting / Dashboards](/docs/not_written_yet.md), [Internal Tools](/docs/not_written_yet.md), [Scheduling / Pipelines](/docs/not_written_yet.md), [Deploying Scripts to the Cloud](/docs/not_written_yet.md), [Chat-Based Interfaces](/docs/not_written_yet.md), and [Developer Tools](/docs/not_written_yet.md).
 
