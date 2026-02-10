@@ -4,7 +4,7 @@ Flank is a utility to make your scripts more powerful.
 
 ## ⚡️ Quickstart ⚡️
 
-The first step is to **run a script on your computer** through Flank.
+In the quickstart, you will run a script on your computer through Flank.
 
 <details>
   <summary>Python</summary>
