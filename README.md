@@ -201,15 +201,14 @@ python city-filter.py --city ${city}
 
 ## Script-Driven Development
 
-In the output of your script, you can include HTML tables, data graphics, and links to run other scripts (every script in Flank has a unique URL)
+In the output of your script, you can include:
 
-With nothing more than a script, you can build...
+- HTML tables [[Guide](/docs/not_written_yet.md)]
+- Data graphics [[Guide](/docs/not_written_yet.md)]
+- Links to run other scripts (every script in Flank has a unique URL)  [[Guide](/docs/not_written_yet.md)]
 
-- Dashboards
-- Reports
-- Internal tools
-- CRUD apps
-  
+In this way, you can build dashboards, reports, internal tools, and CRUD apps by just writing scripts.
+
 ## The Anti-Pitch
 
 Flank is an "80/20" tool, so certain assumptions make it a bad fit for certain scenarios:
