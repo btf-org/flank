@@ -43,6 +43,14 @@ By following the hyperlink outputted by `iflank add` (it'll be something like ht
 
 You should be presented with a page with \[ Run \] button where you can trigger your script. Run it and you should see the output in the browser. 
 
+#### 5. Next Steps
+
+Here are some possible next steps:
+
+- Use your phone to run a script away from your desk [[Guide](/docs/not_written_yet.md)]
+- Schedule a script to run later (and view the logs afterwards) [[Guide](/docs/not_written_yet.md)]
+- Customize the input fields to your script [[Guide](/docs/not_written_yet.md)]
+  
 ---
 
 </details>
@@ -85,6 +93,14 @@ By following the hyperlink outputted by `iflank add` (it'll be something like ht
 
 You should be presented with a page with \[ Run \] button where you can trigger your script. Run it and you should see the output in the browser. 
 
+#### 5. Next Steps
+
+Here are some possible next steps:
+
+- Use your phone to run a script away from your desk [[Guide](/docs/not_written_yet.md)]
+- Schedule a script to run later (and view the logs afterwards) [[Guide](/docs/not_written_yet.md)]
+- Customize the input fields to your script [[Guide](/docs/not_written_yet.md)]
+  
 ---
 
 </details>
@@ -127,6 +143,14 @@ By following the hyperlink outputted by `iflank add` (it'll be something like ht
 
 You should be presented with a page with \[ Run \] button where you can trigger your script. Run it and you should see the output in the browser. 
 
+#### 5. Next Steps
+
+Here are some possible next steps:
+
+- Use your phone to run a script away from your desk [[Guide](/docs/not_written_yet.md)]
+- Schedule a script to run later (and view the logs afterwards) [[Guide](/docs/not_written_yet.md)]
+- Customize the input fields to your script [[Guide](/docs/not_written_yet.md)]
+  
 ---
 
 </details>
