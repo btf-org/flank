@@ -123,7 +123,7 @@ Here are some possible next steps:
 - Schedule a script to run later (and view the logs afterwards) [[Guide](/docs/not_written_yet.md)]
 - Customize the input fields to your script [[Guide](/docs/not_written_yet.md)]
 
-## Python script → Website
+## Python script output → Website
 
 When you add your script to Flank, Flank creates a command line script for running __your__ script. Using the "runner script" as a template, Flank generates a website for running your script. And when you run it, the output appears in the browser.
 
