@@ -176,7 +176,9 @@ Used in this way, you can build dashboards, reports, internal tools, and CRUD ap
 
 ## The Anti-Pitch
 
-Flank is generic tools that can be used in a variety of ways,* but it is very much an "80/20" tool. See below for situations where Flank is not a great fit:
+Flank is generic tools that can be used in a variety of ways,* but it is very much an "80/20" tool.
+
+See below for situations where Flank is not a great fit:
 
 
 <details>
