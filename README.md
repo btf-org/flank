@@ -255,8 +255,6 @@ For more details on alternative tools, see thoughts on [Reporting / Dashboards](
 - [Upgrading](/docs/not_written_yet.md)
 - [More](/docs/not_written_yet.md)
 
-## About the project
-
-I'm a data engineering consultant. I like Unix. I don't like Azure. I've tried to add as little as possible to Flank, but whenever I'm sufficiently annoyed with doing some task, I've tried to figure out some way to expose it through Flank. 
+## Contact
 
 If you have any questions, feel free to shoot me an email at anguspmitchell@gmail.com
