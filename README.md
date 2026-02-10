@@ -217,7 +217,7 @@ Flank is an "80/20" tool, so certain assumptions make it a bad fit for certain s
 | ---------- | -------- |
 | User actions can be modeled as input → output | ❌ Chatbots<br>❌ Map applications<br>❌ Dashboards with distinct, side-by-side components |
 | User actions can be accomplished with a script | ❌ Editing proprietary document formats (Word, Photoshop, etc)<br>❌ The real complexity of your app lies in the CSS/design |
-| You'll want to run everything in your cloud | ❌ You just need to connect your DB to a hosted app-builder |
+| You'll want to run everything in your cloud | ❌ It's easier to just connect your DB to a hosted app-builder |
 | The browser is the right delivery mechanism | ❌ Applications that need to be available offline<br>❌ Applications that should live within another app (e.g. Slack) |
 | Writing scripts is easier/faster than the alternative | ❌ You're not allowed to deploy anything without a design review<br>❌ You've already got scaffolding for delivering "script-y logic" |
 | Flank runs on one machine | ❌ Combined workload exceeds what a single machine can handle |
