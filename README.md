@@ -176,7 +176,7 @@ Used in this way, you can build dashboards, reports, internal tools, and CRUD ap
 
 ## The Anti-Pitch
 
-Flank is an 80/20 tool. If your primary use cases lie outside the 80% of common use cases, you should probably use another tool.
+Flank is generic tool* that can be used for many tasks, but it is very much an "80/20" tool.
 
 
 <details>
@@ -188,6 +188,7 @@ Flank is an 80/20 tool. If your primary use cases lie outside the 80% of common 
 Todo
 
 ---
+
 
 </details>
 
@@ -226,6 +227,7 @@ Todo
 
 </details>
 
+<sub>\* It's just a wrapper around the command line, and then an interface on top of that wrapper</sub>
 
 ## Full Docs
 
