@@ -156,11 +156,11 @@ cd /Users/anguspmitchell/Workspace/data-proc/city-filter.py
 python city-filter.py --city ${city}
 ```
 
-#### The inputs are dynamically pulled from the "runner script"
+#### Example: Template page generated from "runner script"
 
 <img/>
 
-#### Flank forwards `stdout` from your CLI to the browser
+#### Example: Flank forwards `stdout` from your CLI to the browser
 
 <img/>
 
