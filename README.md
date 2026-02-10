@@ -125,7 +125,7 @@ Here are some possible next steps:
 
 ## Python script → Website
 
-When you add your script to Flank, Flank creates a "runner script" (in Bash). Using the "runner script" as a template, Flank generates a website for running your script. And when you run it, the output appears in the browser.
+When you add your script to Flank, Flank creates a command line script for running __your__ script. Using the "runner script" as a template, Flank generates a website for running your script. And when you run it, the output appears in the browser.
 
 #### Example: Python script that outputs HTML
 ```python
@@ -148,9 +148,12 @@ filtered_df.to_html('output.html', index=False)
 print(f"Generated table for {args.city}: {len(filtered_df)} rows")
 ```
 
-#### The "runner" script that Flank generates and you tweak
+#### Example: The "runner script" created by Flank
 
 ```bash
+cd /Users/anguspmitchell/Workspace/data-proc/city-filter.py
+. ./venv/bin/activate
+python city-filter.py --city ${city}
 ```
 
 #### The inputs are dynamically pulled from the "runner script"
@@ -175,7 +178,6 @@ Used in this way, you can build dashboards, reports, internal tools, and CRUD ap
 
 Flank is an 80/20 tool. If your primary use cases lie outside the 80% of common use cases, you should probably use another tool.
 
-More details:
 
 <details>
   
