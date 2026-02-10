@@ -239,6 +239,6 @@ Todo
 
 ## About the project
 
-I've always had a love/hate relationship with computers, but I was enchanted when I really learned about the Unix ecosystem. I felt close to machine, like I was playing an instrument. Basically the opposite of using Microsoft Azure. The first iteration of this project was a collaborative terminal. The second iteration was a fremium web application. This third iteration is an open-source package that includes the best of the first two iterations.
+I've a data engineering consultant. I like Unix. I don't like Azure. Over the course of my projects, I've collected what I considered to be nifty ideas from Unix and baked them into this project.
 
 If you have any questions, feel free to shoot me an email at anguspmitchell@gmail.com
