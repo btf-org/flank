@@ -131,21 +131,14 @@ You should be presented with a page with \[ Run \] button where you can trigger 
 
 </details>
 
-## Next Steps
 
-Here are some possible next steps:
+## Build a website from a script
 
-- Use your phone to run a script away from your desk [[Guide](/docs/not_written_yet.md)]
-- Schedule a script to run later (and view the logs afterwards) [[Guide](/docs/not_written_yet.md)]
-- Customize the input fields to your script [[Guide](/docs/not_written_yet.md)]
+Flank is a website that wraps your CLI.
 
-## Run your script from the browser
+When you add a script to Flank, Flank wraps your script with another script. Using this "wrapper script" as a template, Flank generates a website for running your script. And when you run it, the output appears in the browser.
 
-Flank is a wrapper around the CLI and then a website on top of that wrapper.
-
-When you add your script to Flank, Flank wraps your script with another script. Using the "wrapper script" as a template, Flank generates a website for running your script. And when you run it, the output appears in the browser.
-
-#### Example: Python script that outputs HTML
+#### Example: `city_filter.py`
 ```python
 import pandas as pd
 import argparse
@@ -174,7 +167,7 @@ cd /Users/anguspmitchell/Workspace/data-proc/city-filter.py
 python city-filter.py --city ${city}
 ```
 
-#### Example: Template page generated from "runner script"
+#### Example: Template page generated from the "wrapper script"
 
 <img/>
 
@@ -205,9 +198,6 @@ And then in Flank you see an HTML table...
 
 <img/>
 
-You could even edit the "wrapper script" so that it runs every 3 seconds, making this a constantly-updating dashboard...
-
-<gif>
   
 ## The Anti-Pitch
 
