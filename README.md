@@ -168,13 +168,14 @@ python city-filter.py --city ${city}
 
 ## Script-Driven Development
 
-In the output of your script, you can include:
+In the output of your script, you can include HTML tables, data graphics, and links to run other scripts (every script in Flank has a unique URL)
 
-- HTML tables
-- Data graphics
-- Links to run other scripts (every script in Flank has a unique URL)
+With nothing more than a script, you can build...
 
-Used in this way, you can build dashboards, reports, internal tools, and CRUD apps by just writing scripts.
+- Dashboards
+- Reports
+- Internal tools
+- CRUD apps
 
 For example, the previous script could return an HTML table...
 
@@ -194,60 +195,29 @@ You could even edit the "wrapper script" so that it runs every 3 seconds, making
   
 ## The Anti-Pitch
 
-Flank is a generic tool that can be used in a variety of ways,* but it is very much an "80/20" tool.
+I think of Flank as an "80/20" tool, and some of the design decisions make it a bad fit for a certain situations
 
-See below for situations where Flank is not a great fit:
+### User actions can't be modeled as input → output
 
+Flank works like the CLI. You punch in some input and you get back some output. This works for some problems. It's a bad fit for other problems, such as...
 
-<details>
-  
-  <summary><strong>Reporting / Dashboards</strong> (vs. Tableau, Looker, Metabase, etc.)</summary>
+- ❌ Chatbots
+- ❌ Map applications
+- ❌ Rich text editing
+- ❌ Live, multi-user apps
+- ❌ Dashboards with distinct components
 
----
+### Your UI is highly styled or very interactive
 
-Todo
+The Flank UI is defined by the outputs of scripts. Scripts are not the best place to write heaps of CSS and JS. Some examples:
 
----
+- ❌ Lots of color-coding
+- ❌ Lots of popups
+- ❌ CSS consistency with some other project
 
+### 
 
-</details>
-
-<details>
-  
-  <summary><strong>Internal Tools</strong> (vs. Retool, custom apps, React)</summary>
-  <br>
-Don't use Flank if:
-
-- **The complexity of your app lies in the UI/UX**
-- **Polished UI/UX is more important than developer efficiency**
-
-</details>
- 
-<details>
-  
-  <summary><strong>Scheduling / Pipelines</strong> (vs. Airflow, Step Functions, etc.)</summary>
-
----
-
-Todo
-
----
-
-</details>
-
-<details>
-  
-  <summary><strong>Deploying Scripts to the Cloud</strong> (vs. Lambda, Cloud Functions, containers)</summary>
-
----
-
-Todo
-
----
-
-</details>
-
-<sub>\* Flank is just a wrapper around the command line, and then an interface on top of that wrapper. So it has the same flexibilty as the CLI, but many of the same limitations, namely the UI paradigm (input/output) and the limitations of a single machine.</sub>
+For more specific musings on alternative tools, see thoughts on [Reporting / Dashboards](), [Internal Tools](), [Scheduling / Pipelines](), [Deploying Scripts to the Cloud](), [Chat-Based Interfaces](), and [Developer Tools]().
 
 ## Full Docs
 
