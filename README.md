@@ -215,6 +215,9 @@ Flank is an "80/20" tool, so certain assumptions make it a bad fit for certain s
   - ❌ Combined workload exceeds what a single machine can handle
 - Flank tries to be 0-dependency, but for pipelining it relies on `make`
   - ❌ Advanced pipeline behavior, like runtime dynamic graphs
+- Flank assumes that the browser is the right delivery mechanism
+  - ❌ Applications that need to be available offline
+  - ❌ Applications that should live within another app (e.g. Slack)
 - Flank assumes that writing scripts is easier/faster than the alternative
   - ❌ Your org won't allow you to publish anything without a design review anyway
   - ❌ You already have some scaffolding for writing/delivering "script-y logic" (e.g. an API hooked up to some app builder)
