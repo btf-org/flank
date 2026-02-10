@@ -195,7 +195,7 @@ You could even edit the "wrapper script" so that it runs every 3 seconds, making
   
 ## The Anti-Pitch
 
-I think of Flank as an "80/20" tool, and some of the design decisions make it a bad fit for a certain situations
+Flank is an "80/20" tool, so it's a bad fit for many situations.
 
 ### User actions can't be modeled as input → output
 
@@ -205,7 +205,7 @@ Flank works like the CLI. You punch in some input and you get back some output. 
 - ❌ Map applications
 - ❌ Rich text editing
 - ❌ Live, multi-user apps
-- ❌ Dashboards with distinct components
+- ❌ Dashboards with distinct, side-by-side components
 
 ### Your UI is highly styled or very interactive
 
@@ -213,9 +213,13 @@ The Flank UI is defined by the outputs of scripts. Scripts are not the best plac
 
 - ❌ Lots of color-coding
 - ❌ Lots of popups
-- ❌ CSS consistency with some other project
+- ❌ CSS needs to be consistent with some other project
+- ❌ Displaying lots of photos or videos
+- ❌ Rich editing of text or any other media
 
-### 
+### Your users are all technical enough to use the CLI
+
+- ❌ Scripts for other devs to run
 
 For more specific musings on alternative tools, see thoughts on [Reporting / Dashboards](), [Internal Tools](), [Scheduling / Pipelines](), [Deploying Scripts to the Cloud](), [Chat-Based Interfaces](), and [Developer Tools]().
 
