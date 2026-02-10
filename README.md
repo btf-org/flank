@@ -121,13 +121,11 @@ Here are some possible next steps:
 
 - Use your phone to run a script away from your desk [[Guide](/docs/not_written_yet.md)]
 - Schedule a script to run later (and view the logs afterwards) [[Guide](/docs/not_written_yet.md)]
-- Customize the input fields to your script script [[Guide](/docs/not_written_yet.md)]
+- Customize the input fields to your script [[Guide](/docs/not_written_yet.md)]
 
-## Script-Driven Development
+## Python script → Website
 
-Flank automatically builds UI for running your scripts. And then it shows the output in a browser.
-
-So, instead of building a website to show a table, you could make your Python script return HTML, and then run that script through Flank.
+When you add your script to Flank, Flank creates a "runner script" (in Bash). Using the "runner script" as a template, Flank generates a website for running your script. And when you run it, the output appears in the browser.
 
 #### Example: Python script that outputs HTML
 ```python
@@ -162,6 +160,16 @@ print(f"Generated table for {args.city}: {len(filtered_df)} rows")
 #### Flank forwards `stdout` from your CLI to the browser
 
 <img/>
+
+## Script-Driven Development
+
+In the output of your script, you can include:
+
+- HTML tables
+- Data graphics
+- Links to run other scripts (every script in Flank has a unique URL)
+
+Used in this way, you can build dashboards, reports, internal tools, and CRUD apps by **just writing code in your favorite language.**
 
 ## The Anti-Pitch
 
@@ -224,7 +232,5 @@ Todo
 - [More](/docs/not_written_yet.md)
 
 ## About the project
-
-
 
 Shoot me an email at anguspmitchell@gmail.com
