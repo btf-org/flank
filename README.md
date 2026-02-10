@@ -172,11 +172,11 @@ In the output of your script, you can include:
 - Data graphics
 - Links to run other scripts (every script in Flank has a unique URL)
 
-Used in this way, you can build dashboards, reports, internal tools, and CRUD apps by **just writing code in your favorite language.**
+Used in this way, you can build dashboards, reports, internal tools, and CRUD apps by just writing scripts.
 
 ## The Anti-Pitch
 
-Flank is generic tool* that can be used for many tasks, but it is very much an "80/20" tool.
+Flank is generic tools that can be used in a variety of ways,* but it is very much an "80/20" tool. See below for situations where Flank is not a great fit:
 
 
 <details>
@@ -227,7 +227,7 @@ Todo
 
 </details>
 
-<sub>\* It's just a wrapper around the command line, and then an interface on top of that wrapper</sub>
+<sub>\* Flank is just a wrapper around the command line, and then an interface on top of that wrapper. So it has the same flexibilty as the CLI and many of the same limitations.</sub>
 
 ## Full Docs
 
