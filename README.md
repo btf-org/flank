@@ -188,6 +188,10 @@ And then in Flank you see an HTML table...
 
 <img/>
 
+You could even edit the "wrapper script" so that it runs every 3 seconds, making this a constantly-updating dashboard...
+
+<gif>
+  
 ## The Anti-Pitch
 
 Flank is a generic tool that can be used in a variety of ways,* but it is very much an "80/20" tool.
