@@ -209,19 +209,6 @@ With nothing more than a script, you can build...
 - Reports
 - Internal tools
 - CRUD apps
-
-For example, the previous script could return an HTML table...
-
-```python
-# beginning of the script is the same...
-
-filtered_df.to_html('output.html', index=False)
-```
-
-And then in Flank you see an HTML table...
-
-<img/>
-
   
 ## The Anti-Pitch
 
