@@ -218,7 +218,7 @@ Through the Flank web app, you can set scripts to run on a schedule.
 
 ## When is Flank a BAD fit?
 
-The main assumption behind Flank is writing scripts is fast for you, the developer. If scripts aren't fast for whatever reason -- e.g. maybe the dependencies in your codebase or the policies of your org mean that every little script has a huge overhead anyway -- then Flank won't offer much of a speedup.
+The main assumption behind Flank is that writing scripts is faster than writing backend code and building an interface. But depending on your skillset, existing scaffolding, or company policies, that may not be the case.
 
 | Design Decision | Bad Fits |
 | ---------- | -------- |
