@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+VAR_DELIM="FLNKDLM"
+
 awk_columns='
 NR==1 { prev=FILENAME; } 
 FNR==1 && NR!=1 { 
@@ -179,8 +181,8 @@ kill_tree() {
 }
 awk_envsubst='
 BEGIN {
-	unit_sep = "FLNKDLM" # sprintf("%c", 28)  # ASCII 034 in awk
-    n = split(ENVIRON["VARLIST"], pairs, unit_sep)
+	VAR_DELIM = "FLNKDLM" # sprintf("%c", 28)  # ASCII 034 in awk
+    n = split(ENVIRON["VARLIST"], pairs, VAR_DELIM)
     for (i = 1; i <= n; i++) {
         eq = index(pairs[i], "=")
         if (eq > 0) {
@@ -225,15 +227,14 @@ BEGIN {
 
 }'
 run_cmd() {
-	# iflank  run   <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
-	# run_cmd fg|bg <cmd dir> [--output_key <key>] k1=v1 k2=v2 k3=v3
+	# iflank  run   <cmd dir> [--output_key <key>] k1=v1 k2=v2
+	# run_cmd fg|bg <cmd dir> [--output_key <key>] [--arglist k1=v1FLNKDLMk2=v2] k1=v1 k2=v2
 	local p_fgbg="$1"
 	shift
 	local p_path="$1"
 	shift
 	local p_output_key=''
 	local varlist=''
-	local unit_sep="FLNKDLM"
 
 	# Positional args are local to a function so `shift` doesn't unset
 	# the positional args at the script level
@@ -243,11 +244,15 @@ run_cmd() {
 			shift
 			p_output_key="$1"
 			;;
-		*)
+		--arglist)
+			shift
+			varlist="$1"
+			;;
+         *)
 			if [ "$varlist" == '' ]; then
-				varlist="$1"
+			   	 varlist="$1"
 			else
-				varlist="${varlist}${unit_sep}$1"
+			   	 varlist="${varlist}${VAR_DELIM}$1"
 			fi
 			;;
 		esac
@@ -942,6 +947,8 @@ fi
 while [ "$1" != "" ]; do
 	case $1 in
 	run)
+		# iflank  run   <cmd dir> [--output_key <key>] k1=v1 k2=v2
+		# run_cmd fg|bg <cmd dir> [--output_key <key>] [--arglist k1=v1FLNKDLMk2=v2] k1=v1 k2=v2
 		set -e
 		shift
 		# if your params are "a", "b merry" and "c"
@@ -1011,9 +1018,9 @@ while true; do
 		PREV_ARGS="$PREV_ARGS"
 		# run <cmd_dir> <k=v&k=v>
 		IFS=' ' read cmd_dir kvs <<<"$args"
-		split_kvs=$(echo "$kvs" | tr '&' ' ')
-		# don't quote $split_kvs or they'll get passed as one string
-		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" $split_kvs)
+		delim_kvs=$(echo "$kvs" | sed 's/&/'"$VAR_DELIM"'/g')
+		decoded_kvs=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${delim_kvs})")
+		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" --arglist "$decoded_kvs")
 		safe_cd "$cmd_run_dir"
 		PREV_CHOICE='cd'
 		PREV_ARGS="$cmd_run_dir"
@@ -1027,7 +1034,6 @@ while true; do
 		PREV_CHOICE="$PREV_CHOICE"
 		PREV_ARGS="$PREV_ARGS"
 		# save_cmd <k=v&k=v>
-		unit_sep="FLNKDLM"
 		split_kvs=$(echo "$args" | tr '&' ' ')
 		varlist=''
 		# don't quote, so that spaces (i.e. array separation of elements) are preserved
@@ -1037,7 +1043,7 @@ while true; do
 			if [ "$varlist" == '' ]; then
 				varlist="$decoded_kv"
 			else
-				varlist="${varlist}${unit_sep}${decoded_kv}"
+				varlist="${varlist}${VAR_DELIM}${decoded_kv}"
 			fi
 		done
 		echo "varlist: $varlist" 1>&2
@@ -1120,7 +1126,6 @@ while true; do
 		PREV_CHOICE="$PREV_CHOICE"
 		PREV_ARGS="$PREV_ARGS"
 		# mkdir <k=v&k=v>
-		unit_sep="FLNKDLM"
 		split_kvs=$(echo "$args" | tr '&' ' ')
 		varlist=''
 		# don't quote, so that spaces (i.e. array separation of elements) are preserved
@@ -1130,7 +1135,7 @@ while true; do
 			if [ "$varlist" == '' ]; then
 				varlist="$decoded_kv"
 			else
-				varlist="${varlist}${unit_sep}${decoded_kv}"
+				varlist="${varlist}${VAR_DELIM}${decoded_kv}"
 			fi
 		done
 		flank_mkdir_exec=$(VARLIST="$varlist" awk "$awk_envsubst" <<<"$mkdir_form_sh")
