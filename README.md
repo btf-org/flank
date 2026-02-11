@@ -239,7 +239,9 @@ Flank is really two programs: 1) an inner program that wraps the CLI, 2) a web i
 
 ## When is Flank a BAD fit?
 
-The main assumption behind Flank is that writing scripts is faster than writing backend code and building an interface. But depending on your skillset, existing scaffolding, or company policies, that may not be the case.
+The main assumption behind Flank is that writing scripts is faster than writing backend code + building an interface. But depending on your skillset, existing scaffolding, or company policies, that may not be the case.
+
+There are also certain design decisions that necessarily make certain problems a bad fit:
 
 | Design Decision | Bad Fits |
 | ---------- | -------- |
