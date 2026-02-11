@@ -900,20 +900,29 @@ add_cmd() {
 cd $wd
 
 
-# ---- Addtl Setup -----
+# ---- Virtual Env / PATH -----
 
 # Then, you might have a virtual environment that needs to be activated
 # If so, uncomment/tweak the line below by removing the leading "# "
+#
+# Alternatively (or in addition), you might need to source your 
+# .bashrc / .bash_profile since this script runs with a limited PATH
 
 # . ./venv/bin/activate
+# [ -f /etc/profile ] && source /etc/profile
+# [ -f ~/.bash_profile ] && source ~/.bash_profile
+# [ -f ~/.bashrc ] && source ~/.bashrc
 
 
 # ---- Run Script -----
 
 # Finally it runs your command
+#
 # If your command takes parameters, you'll need to add them below
+#
 # Like if you run \`python myscript.py --year=2015 --mode='fast'\` from the CLI,
 # copy those parameters below.
+#
 # Advanced: You can expose those parameters for user input by making them
 # variables wrapped in \${}, like \`python myscript.py --year=\${year} --mode='\${mode}'\`
 
