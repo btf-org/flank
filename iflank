@@ -247,11 +247,11 @@ run_cmd() {
 			shift
 			varlist="$1"
 			;;
-         *)
+		*)
 			if [ "$varlist" == '' ]; then
-			   	 varlist="$1"
+				varlist="$1"
 			else
-			   	 varlist="${varlist}${VAR_DELIM}$1"
+				varlist="${varlist}${VAR_DELIM}$1"
 			fi
 			;;
 		esac
