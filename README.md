@@ -243,7 +243,7 @@ The main assumption behind Flank is that writing scripts is faster than writing 
 
 | Design Decision | Bad Fits |
 | ---------- | -------- |
-| UI paradigm of input → output (~CLI) | ❌ Chatbots<br>❌ Map-based UIs<br>❌ Dashboards with distinct, side-by-side components |
+| Interaction = input → output | ❌ Chatbots<br>❌ Map-based UIs<br>❌ Dashboards with distinct, side-by-side components |
 | Barebones UI | ❌ Polished apps |
 | Not hosted | ❌ It's easier to just connect your DB to a hosted app-builder |
 | Browser UI | ❌ Offline applications<br>❌ Slackbots |
