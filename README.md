@@ -201,7 +201,7 @@ python city-filter.py --city '${city}'
 
 ## Make a dashboard or an internal tool
 
-Flank forwards the `stdout` from your CLI to the browser. This means that you can put HTML in the output of your script and it will get rendered in the browser.
+Flank forwards the `stdout` from your CLI to the browser. By putting more interesting stuff in the output of your script, you can build more interesting tools...
 
 - HTML tables [[Guide](/docs/not_written_yet.md)]
 - Data graphics [[Guide](/docs/not_written_yet.md)]
