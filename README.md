@@ -1,6 +1,6 @@
 # Flank
 
-Flank is a utility to make your scripts more powerful. 
+Flank makes your scripts more powerful. 
 
 ## ⚡️ Quickstart ⚡️
 
@@ -199,7 +199,7 @@ python city-filter.py --city '${city}'
 
 <img/>
 
-## Script-Driven Development
+## Build dashboards and internal tools with any scripting language
 
 In the output of your script, you can include:
 
@@ -209,7 +209,14 @@ In the output of your script, you can include:
 
 In this way, you can build dashboards, reports, internal tools, and CRUD apps by just writing scripts.
 
-## The Anti-Pitch
+## Incrementally automate with scheduling and pipelining
+
+Flank is a website that wraps your CLI, and your CLI natively supports scheduling.
+
+- Run a script on a schedule [[Guide](/docs/not_written_yet.md)]
+- Run a DAG of scripts in a pipeline [[Guide](/docs/not_written_yet.md)]
+
+## When is Flank a BAD fit?
 
 Flank is an "80/20" tool, so certain assumptions make it a bad fit for certain scenarios:
 
