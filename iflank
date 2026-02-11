@@ -893,7 +893,7 @@ add_cmd() {
 # This bash script runs your Python script like you'd run it from the CLI
 
 # ---- Directory -----
-
+#
 # First, it switches to the directory from where you'd run this script
 # This was based on where you ran \`iflank add\`, so you might need to adjust it.
 
@@ -901,7 +901,7 @@ cd $wd
 
 
 # ---- Virtual Env / PATH -----
-
+#
 # Then, you might have a virtual environment that needs to be activated
 # If so, uncomment/tweak the line below by removing the leading "# "
 #
@@ -915,7 +915,7 @@ cd $wd
 
 
 # ---- Run Script -----
-
+# 
 # Finally it runs your command
 #
 # If your command takes parameters, you'll need to add them below
