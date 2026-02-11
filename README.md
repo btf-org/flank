@@ -158,9 +158,9 @@ Here are some possible next steps:
 
 ## Build a website from a script
 
-Flank is a website that wraps your CLI.
+When you add a script to Flank, Flank wraps your script with another script (see example below).
 
-When you add a script to Flank, Flank wraps your script with another script. Using this "wrapper script" as a template, Flank generates a website for running your script. And when you run it, the output appears in the browser.
+Using this "wrapper script" as a template, Flank generates a website for running your script. When you click "run", your script's output appears in the browser.
 
 #### Example: `city_filter.py`
 ```python
@@ -199,9 +199,9 @@ python city-filter.py --city '${city}'
 
 <img/>
 
-## Build a dashboard from a script
+## Make a dashboard or an internal tool
 
-In the output of your script, you can include:
+Flank forwards the `stdout` from your CLI to the browser. This means that you can put HTML in the output of your script and it will get rendered in the browser.
 
 - HTML tables [[Guide](/docs/not_written_yet.md)]
 - Data graphics [[Guide](/docs/not_written_yet.md)]
@@ -211,7 +211,7 @@ In this way, you can build dashboards, reports, internal tools, and CRUD apps by
 
 ## Automate with scheduling and pipelining
 
-Through the Flank web app, you can set scripts to run on a schedule. 
+Flank is really two programs: 1) an inner program that wraps the CLI, 2) a web interface on top of that wrapper. In conjunction, the make it easier to use various command line features that are otherwise hard to use. Two such examples are scheduling and pipelining. 
 
 - Run a script on a schedule [[Guide](/docs/not_written_yet.md)]
 - Run a DAG of scripts in a pipeline [[Guide](/docs/not_written_yet.md)]
