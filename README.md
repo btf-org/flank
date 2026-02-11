@@ -12,16 +12,24 @@ In the quickstart, you will turn one of your scripts into a web UI that can be r
 ---
 
 #### 1a. Install Flank (Mac)
+
+_In this step, Homebrew installs a webserver and a program that wraps your CLI. Then it starts the webserver, running as the user who's logged into the shell._
+
 ```bash
 brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
 ```
 
 #### 1b. Install Flank (Linux)
+
+_In this step, apt installs a webserver and a program that wraps your CLI. It automatically starts the webserver, and uses `whoami` to run it as the current user rather than root._
+
 ```bash
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
 ```
 
 #### 2. Add your script to Flank
+
+_In this step, Flank will create a "wrapper script" that 1) `cd`s into the directory of your script, 2) if detected, activates your virtual environment, and 3) runs your script. The wrapper script lives on your computer like any other file, in a folder set up by Flank._
 
 (Swap out `myscript.py` for whatever your script name is)
 
@@ -31,15 +39,14 @@ iflank add myscript.py
 
 #### 3. Confirm that the Flank-generated "wrapper script" is correct
 
-Flank will create a "wrapper script" that:
+_In this step, you'll edit a file on your computer through the Flank web app, but you could also edit the same file through a text editor._
 
-1. `cd`s into the directory of your script
-2. If detected, activates your virtual environment
-3. Runs your script
-
-By following the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.js?edit), you'll be able to confirm that Flank filled these out correctly, and you can tweak if need be.
+1. Follow the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.py?edit)
+2. Confirm that Flank created the correct instructions to run your script.
 
 #### 4. Run your script and view output in the browser
+
+_In this step, Flank is calling the "wrapper script" under the hood._
 
 You should be presented with a page with \[ Run \] button where you can trigger your script. Run it and you should see the output in the browser. 
 
@@ -62,17 +69,24 @@ Here are some possible next steps:
 ---
 
 #### 1a. Install Flank (Mac)
+
+_In this step, Homebrew installs a webserver and a program that wraps your CLI. Then it starts the webserver, running as the user who's logged into the shell._
+
 ```bash
 brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
 ```
 
 #### 1b. Install Flank (Linux)
 
+_In this step, apt installs a webserver and a program that wraps your CLI. It automatically starts the webserver, and uses `whoami` to run it as the current user rather than root._
+
 ```bash
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
 ```
 
 #### 2. Add your script to Flank
+
+_In this step, Flank will create a "wrapper script" that 1) `cd`s into the directory of your script and 2) runs your script. The wrapper script lives on your computer like any other file, in a folder set up by Flank._
 
 (Swap out `myscript.R` for whatever your script name is)
 
@@ -82,14 +96,14 @@ iflank add myscript.R
 
 #### 3. Confirm that the Flank-generated "wrapper script" is correct
 
-Flank will create a "wrapper script" that:
+_In this step, you'll edit a file on your computer through the Flank web app, but you could also edit the same file through a text editor._
 
-1. `cd`s into the directory of your script
-2. Runs your script
-
-By following the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.R?edit), you'll be able to confirm that Flank filled these out correctly, and you can tweak if need be.
+1. Follow the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.R?edit)
+2. Confirm that Flank created the correct instructions to run your script.
 
 #### 4. Run your script and view output in the browser
+
+_In this step, Flank is calling the "wrapper script" under the hood._
 
 You should be presented with a page with \[ Run \] button where you can trigger your script. Run it and you should see the output in the browser. 
 
@@ -112,17 +126,24 @@ Here are some possible next steps:
 ---
 
 #### 1a. Install Flank (Mac)
+
+_In this step, Homebrew installs a webserver and a program that wraps your CLI. Then it starts the webserver, running as the user who's logged into the shell._
+
 ```bash
 brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
 ```
 
 #### 1b. Install Flank (Linux)
 
+_In this step, apt installs a webserver and a program that wraps your CLI. It automatically starts the webserver, and uses `whoami` to run it as the current user rather than root._
+
 ```bash
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
 ```
 
 #### 2. Add your script to Flank
+
+_In this step, Flank will create a "wrapper script" that 1) `cd`s into the directory of your script and 2) runs your script. The wrapper script lives on your computer like any other file, in a folder set up by Flank._
 
 (Swap out `myscript.js` for whatever your script name is)
 
@@ -132,14 +153,14 @@ iflank add myscript.js
 
 #### 3. Confirm that the Flank-generated "wrapper script" is correct
 
-Flank will create a "wrapper script" that:
+_In this step, you'll edit a file on your computer through the Flank web app, but you could also edit the same file through a text editor._
 
-1. `cd`s into the directory of your script
-2. Runs your script
-
-By following the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.js?edit), you'll be able to confirm that Flank filled these out correctly, and you can tweak if need be.
+1. Follow the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.js?edit)
+2. Confirm that Flank created the correct instructions to run your script.
 
 #### 4. Run your script and view output in the browser
+
+_In this step, Flank is calling the "wrapper script" under the hood._
 
 You should be presented with a page with \[ Run \] button where you can trigger your script. Run it and you should see the output in the browser. 
 
@@ -211,7 +232,7 @@ In this way, you can build dashboards, reports, internal tools, and CRUD apps by
 
 ## Automate with scheduling and pipelining
 
-Flank is really two programs: 1) an inner program that wraps the CLI, 2) a web interface on top of that wrapper. In conjunction, the make it easier to use various command line features that are otherwise hard to use. Two such examples are scheduling and pipelining. 
+Flank is really two programs: 1) an inner program that wraps the CLI, 2) a web interface on top of that wrapper. Together, they make it easy to use certain CLI features. Two such examples are scheduling and pipelining. 
 
 - Run a script on a schedule [[Guide](/docs/not_written_yet.md)]
 - Run a DAG of scripts in a pipeline [[Guide](/docs/not_written_yet.md)]
