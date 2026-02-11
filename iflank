@@ -181,7 +181,6 @@ kill_tree() {
 }
 awk_envsubst='
 BEGIN {
-	VAR_DELIM = "FLNKDLM" # sprintf("%c", 28)  # ASCII 034 in awk
     n = split(ENVIRON["VARLIST"], pairs, VAR_DELIM)
     for (i = 1; i <= n; i++) {
         eq = index(pairs[i], "=")
@@ -300,7 +299,7 @@ run_cmd() {
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
 		cp "$p_path" $cmd_run_dir/exec.sh
 	else
-		VARLIST="$varlist" awk "$awk_envsubst" template.sh >$cmd_run_dir/exec.sh
+		VARLIST="$varlist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" template.sh >$cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
@@ -1049,9 +1048,9 @@ while true; do
 		echo "varlist: $varlist" 1>&2
 		printf "printf varlist: %s\n" "$varlist" 1>&2
 		echo "awk vvvvv" 1>&2
-		VARLIST="$varlist" awk "$awk_envsubst" <<<"$create_cmd_form_sh" 1>&2
+		VARLIST="$varlist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" <<<"$create_cmd_form_sh" 1>&2
 		echo "awk ^^^^^" 1>&2
-		create_cmd_form_exec=$(VARLIST="$varlist" awk "$awk_envsubst" <<<"$create_cmd_form_sh")
+		create_cmd_form_exec=$(VARLIST="$varlist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" <<<"$create_cmd_form_sh")
 		echo "ccfme: $create_cmd_form_exec" 1>&2
 		eval "$create_cmd_form_exec"
 		# feels like this should be a pop...
@@ -1138,7 +1137,7 @@ while true; do
 				varlist="${varlist}${VAR_DELIM}${decoded_kv}"
 			fi
 		done
-		flank_mkdir_exec=$(VARLIST="$varlist" awk "$awk_envsubst" <<<"$mkdir_form_sh")
+		flank_mkdir_exec=$(VARLIST="$varlist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" <<<"$mkdir_form_sh")
 		eval "$flank_mkdir_exec"
 		# feels like this should be a pop...
 		safe_cd "$PWD"
