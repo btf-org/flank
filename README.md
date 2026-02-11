@@ -4,7 +4,7 @@ Flank makes your scripts more powerful.
 
 ## ⚡️ Quickstart ⚡️
 
-In the quickstart, you will run a script on your computer through Flank.
+In the quickstart, you will turn one of your scripts into a web UI that can be run from your browser or phone.
 
 <details>
   <summary>Python</summary>
