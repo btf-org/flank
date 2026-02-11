@@ -199,7 +199,7 @@ python city-filter.py --city '${city}'
 
 <img/>
 
-## Build dashboards and internal tools
+## Build a dashboard from a script
 
 In the output of your script, you can include:
 
@@ -211,27 +211,25 @@ In this way, you can build dashboards, reports, internal tools, and CRUD apps by
 
 ## Automate with scheduling and pipelining
 
-Flank is a website that wraps your CLI, and your CLI natively supports scheduling.
+Through the Flank web app, you can set scripts to run on a schedule. 
 
 - Run a script on a schedule [[Guide](/docs/not_written_yet.md)]
 - Run a DAG of scripts in a pipeline [[Guide](/docs/not_written_yet.md)]
 
 ## When is Flank a BAD fit?
 
-Flank is an "80/20" tool, so certain assumptions make it a bad fit for certain scenarios:
+Flank tries to do simple tasks quickly, but there are tradeoffs. Also, there's an assumption that scripts are fast. If scripts aren't fast for whatever reason -- e.g. maybe the dependencies in your codebase and the policies of your org mean that every little script has huge overhead anyway -- then Flank probably won't offer much of a speedup.
 
-| Assumption / Constraint | Bad Fits |
+| Design Decision | Bad Fits |
 | ---------- | -------- |
-| User actions can be modeled as input → output | ❌ Chatbots<br>❌ Map applications<br>❌ Dashboards with distinct, side-by-side components |
-| User actions can be accomplished with a script | ❌ Editing proprietary document formats (Word, Photoshop, etc)<br>❌ The real complexity of your app lies in the CSS/design |
-| You'll want to run everything in your cloud | ❌ It's easier to just connect your DB to a hosted app-builder |
-| The browser is the right delivery mechanism | ❌ Applications that need to be available offline<br>❌ Applications that should live within another app (e.g. Slack) |
-| Writing scripts is easier/faster than the alternative | ❌ You're not allowed to deploy anything without a design review<br>❌ You've already got scaffolding for delivering "script-y logic" |
-| Flank runs on one machine | ❌ Combined workload exceeds what a single machine can handle |
-| Flank tries to be 0-dependency, but pipelines rely on `make` | ❌ Advanced pipeline behavior, like runtime dynamic graphs |
+| UI paradigm of input → output (~CLI) | ❌ Chatbots<br>❌ Map-based UIs<br>❌ Dashboards with distinct, side-by-side components |
+| Barebones UI | ❌ Polished apps |
+| Not hosted | ❌ It's easier to just connect your DB to a hosted app-builder |
+| Browser UI | ❌ Offline applications<br>❌ Slackbots |
+| No built-in multi-machine orchestration | ❌ Workload exceeds what a single machine can handle |
+| System cron | ❌ Thousands of cron jobs<br>❌ To-the-millisecond cron precision |
+| `make` for pipelines | ❌ Advanced pipelining (e.g. runtime dynamic graphs) |
 
-
-For more details on alternative tools, see thoughts on [Reporting / Dashboards](/docs/not_written_yet.md), [Internal Tools](/docs/not_written_yet.md), [Scheduling / Pipelines](/docs/not_written_yet.md), [Deploying Scripts to the Cloud](/docs/not_written_yet.md), [Chat-Based Interfaces](/docs/not_written_yet.md), and [Developer Tools](/docs/not_written_yet.md).
 
 ## Full Docs
 
