@@ -199,7 +199,7 @@ python city-filter.py --city '${city}'
 
 <img/>
 
-## Build dashboards and internal tools with any scripting language
+## Build dashboards and internal tools
 
 In the output of your script, you can include:
 
@@ -209,7 +209,7 @@ In the output of your script, you can include:
 
 In this way, you can build dashboards, reports, internal tools, and CRUD apps by just writing scripts.
 
-## Incrementally automate with scheduling and pipelining
+## Automate with scheduling and pipelining
 
 Flank is a website that wraps your CLI, and your CLI natively supports scheduling.
 
