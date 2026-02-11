@@ -386,6 +386,11 @@
         } else {
           run("cd ~" + window.location.pathname);
         }
+        const params = Object.fromEntries(new URLSearchParams(window.location.search));
+        console.log("PARAMS", params);
+        if("_cmd" in params){
+          run(params["_cmd"]);
+        }
       }
 
       setup();

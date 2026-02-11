@@ -687,13 +687,13 @@ run_form() {
 	echo '</div>'
 	echo '<div id="pFooter">'
 	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '<a onclick="run('\''editfileform'\'')">Edit</a>'
+	echo '<a onclick="run('\''edit_cmd'\'')">Edit</a>'
 	echo '<a onclick="run('\''crontab_list'\'')">View Cron</a>'
 	echo '<a onclick="run('\''createcronform'\'')">Create Cron</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
 }
-edit_file_form() {
+edit_cmd() {
 	echo '%PAGESTART%'
 	header_pwd
 
@@ -920,7 +920,7 @@ cd $wd
 python $*
 EOF
 	echo ''
-	echo 'Go to http://localhost:8083/'"${dir_name}"
+	echo 'Go to http://localhost:8083/'"${dir_name}"'?_cmd=edit_cmd'
 	echo ''
 }
 help_msg() {
@@ -1080,10 +1080,10 @@ while true; do
 		PREV_ARGS="$args"
 		crontab_list
 		;;
-	editfileform)
+	edit_cmd)
 		PREV_CHOICE="$choice"
 		PREV_ARGS="$args"
-		edit_file_form
+		edit_cmd
 		;;
 	createcronform)
 		PREV_CHOICE="$choice"
