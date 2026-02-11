@@ -915,7 +915,7 @@ cd $wd
 # Like if you run \`python myscript.py --year=2015 --mode='fast'\` from the CLI,
 # copy those parameters below.
 # Advanced: You can expose those parameters for user input by making them
-# variables wrapped in \${}, like \`python myscript.py --year=\${year} --mode='\${mode}\'`
+# variables wrapped in \${}, like \`python myscript.py --year=\${year} --mode='\${mode}'\`
 
 python $*
 EOF
