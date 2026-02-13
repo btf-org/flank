@@ -1,24 +1,24 @@
 # Flank
 
-Flank is an app for running your scripts.
+Flank is for frequent script-runners. 
 
-In the same way that Postman is a dedicated UI for `curl`, Flank is a dedicated UI for `python myscript.py`.
+## An app for running scripts
 
-## Flank is for frequent script-runners
+Flank is a dedicated UI for running `python myscript.py`, in the same way that Postman is a dedicated UI for `curl`.
 
-There is overhead in having a separate app, and, generally, it's only worth it if you spend a lot of time running scripts. This is doubly true if you run scripts on behalf of other people.
+## More feature-rich than CLI
 
-## Fast x Safe
+Flank is a dedicated UI that replaces `python myscript.py`. Some examples of how a dedicated app can make your life easier: 
 
-Flank 
-Normally you'd run a script from the CLI by typing in `python filter-data.py ...`. Flank is a dedicated app that replaces that process, with the following advantages:
+* Share with a teammate and unblock yourself
+* Run a script away from your desk
+* Search the output of a script run last week
 
-- Inputs fields
-- Stores history of all runs (both inputs and outputs)
-- Non-engineers can use it
+## Lightyears faster than a designed app
 
-## Advantages over exposing a script through a web app
+Normally if you get sick of running a script, you expose it through some sort app
 
+With Flank, you just 
 - It's as fast as the CLI
 
 ## Quickstart
