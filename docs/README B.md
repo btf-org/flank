@@ -20,7 +20,7 @@ If you're willing to accept a less polished UI, Flank is a shortcut to accomplis
 
 ## Quickstart
 
-In the quickstart, you will turn one of your scripts into a web UI. Then you can run it from your browser or your phone.
+In the quickstart, you'll run `iflank add <yourscript>` to generate an interface for your script.
 
 <details>
   <summary>Python</summary>
