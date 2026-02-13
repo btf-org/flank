@@ -1,6 +1,6 @@
 # Flank
 
-Flank is a dedicated UI for running scripts. It replaces `python myscript.py [Enter]` in the same way that Postman replaces `curl`.https://github.com/btf-org/flank/blob/main/docs/README%20B.md
+Flank is a dedicated UI for running scripts. It replaces `python myscript.py [Enter]` in the same way that Postman replaces `curl`.
 
 ## Flank vs CLI
 
