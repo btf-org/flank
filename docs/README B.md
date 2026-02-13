@@ -1,22 +1,22 @@
 # Flank
 
-Flank is a dedicated UI for running scripts. It's like how Postman replaces `curl`. Flank replaces `python myscript.py [Enter]`.
+Flank is a dedicated UI for running scripts. It replaces `python myscript.py [Enter]` in the same way that Postman replaces `curl`.
 
 ## Flank vs CLI
 
 On the CLI, you'd run `python myscript.py`. Flank is a dedicated app for doing the same thing.
 
-Some examples of why it could be helpful to have a dedicated app for doing this simple thing: 
+Why use a dedicated app to do this simple thing? Some examples:
 
 * Share access with a teammate and unblock yourself
 * Run a script away from your desk
 * Search the output of a script run last week 
 
-## Flank vs other 
+## Flank vs internal tool builders 
 
-Features for non-technical teammates normally skip the "script phase" and jump straight to designed apps: internal tools, dashboards, business intelligence, etc.
+Normally, if you wanted to upgrade `myscript.py` to an internal tool, you'd port it to a backend and then build a frontend.
 
-With Flank, all you do is run `iflank add myscript.py` and you're done. No frontend code. No deployment. 
+If you're willing to accept a less polished UI, Flank is a shortcut to accomplish the same thing. You can launch a tool with one command, `iflank add myscript.py`. No frontend code. No deployment process.
 
 ## Quickstart
 
