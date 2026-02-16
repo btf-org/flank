@@ -4,10 +4,12 @@ Flank is a dedicated UI for running scripts.
 
 It expands one CLI command, `python myscript.py`, into an app, in the same way that Postman expands `curl` into an app.
 
-- [test](#custom-anchor-name)
 - [For frequent script-runners](#for-frequent-script-runners)
 - [It can be a janky internal tool builder](#it-can-be-a-janky-internal-tool-builder)
 - [Quickstart](#quickstart)
+  - [Python](#python-quickstart)
+  - [R](#r-quickstart)
+  - [Other Languages](#other-languages-quickstart)
 - [It's all bash under the hood](#its-all-bash-under-the-hood)
 - [Contact](#contact)
 
@@ -32,7 +34,7 @@ But, if you're willing to accept a less polished UI, Flank is a shortcut to acco
 In the quickstart, you'll run `iflank add myscript.py` to generate an interface for your script.
 
 <details>
-  <summary>Python<a id="custom-anchor-name"></a></summary>
+  <summary>Python<a id="python-quickstart"></a></summary>
 ---
 
 #### 1a. Install Flank (Mac)
@@ -88,7 +90,7 @@ Here are some possible next steps:
 
 <details>
   
-  <summary>R</summary>
+  <summary>R<a id="python-quickstart"></a></summary>
 
 ---
 
@@ -145,7 +147,7 @@ Here are some possible next steps:
 
 <details>
   
-  <summary>Other Languages</summary>
+  <summary>Other Languages<a id="python-quickstart"></a></summary>
 
 ---
 
