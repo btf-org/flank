@@ -10,7 +10,7 @@ It expands one CLI command, `python myscript.py`, into an app, in the same way t
   - [Python](#python-quickstart)
   - [R](#r-quickstart)
   - [Other Languages](#other-languages-quickstart)
-- [It's all bash under the hood](#its-all-bash-under-the-hood)
+- [It's bash and files under the hood](#its-bash-and-files-under-the-hood)
 - [Contact](#contact)
 
 ## For frequent script-runners
@@ -202,7 +202,7 @@ Here are some possible next steps:
 
 </details>
 
-## It's all bash under the hood
+## It's bash and files under the hood
 
 When you add a script to Flank, Flank wraps your script with a shell script (see example below).
 
