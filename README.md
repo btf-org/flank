@@ -7,7 +7,7 @@ It expands one CLI command, `python myscript.py`, into an app, in the same way t
 - [Flank is for frequent script-runners](#flank-is-for-frequent-script-runners)
 - [It can be an internal tool builder](#flank-vs-internal-tool-builders)
 - [Quickstart](#quickstart)
-- [It works by wrapping your script and the CLI](#it-works-by-wrapping-your-script-and-the-cli)
+- [It's a website that sits on top of a shell wrapper](#its-a-website-that-sits-on-top-of-a-shell-wrapper)
 - [Contact](#contact)
 
 ## Flank is for frequent script-runners
@@ -200,11 +200,11 @@ Here are some possible next steps:
 
 </details>
 
-## It works by wrapping your script and the CLI
+## It's a website that sits on top of a shell wrapper
 
-When you add a script to Flank, Flank wraps your script with another script (see example below).
+When you add a script to Flank, Flank wraps your script with a shell script (see example below).
 
-Using this "wrapper script" as a template, Flank generates a website for running your script. When you click "run", your script's output appears in the browser.
+Using this "wrapper script" as a template, the Flank website generates a page for running your script. When you click "run", your script's output appears in the browser.
 
 #### Example: `city_filter.py`
 ```python
