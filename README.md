@@ -90,7 +90,7 @@ Here are some possible next steps:
 
 <details>
   
-  <summary>R<a id="python-quickstart"></a></summary>
+  <summary>R<a id="r-quickstart"></a></summary>
 
 ---
 
@@ -147,7 +147,7 @@ Here are some possible next steps:
 
 <details>
   
-  <summary>Other Languages<a id="python-quickstart"></a></summary>
+  <summary>Other Languages<a id="other-languages-quickstart"></a></summary>
 
 ---
 
