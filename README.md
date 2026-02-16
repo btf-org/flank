@@ -20,7 +20,7 @@ Why use a dedicated app, with the associated overhead, to do this simple thing? 
 * Run a script away from your desk
 * Search the output of a script run last week 
 
-## It can be an internal tool builder
+## It can be a janky internal tool builder
 
 Normally, if you had a script, `myscript.py`, that you wanted to turn into internal tool, you'd rewrite the code in some backend framework and then build a frontend.
 
