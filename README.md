@@ -4,13 +4,13 @@ Flank is a dedicated UI for running scripts.
 
 It expands one CLI command, `python myscript.py`, into an app, in the same way that Postman expands `curl` into an app.
 
-- [Flank vs CLI](#flank-vs-cli)
+- [Flank is for frequent script-runners](#flank-is-for-frequent-script-runners)
 - [Flank vs internal tool builders](#flank-vs-internal-tool-builders)
 - [Quickstart](#quickstart)
 - [How does it work?](#how-does-it-work)
 - [Contact](#contact)
 
-## Flank vs CLI
+## Flank is for frequent script-runners
 
 On the CLI, you'd run `python myscript.py`. Flank is a dedicated app for doing the same thing.
 
