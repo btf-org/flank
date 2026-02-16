@@ -22,9 +22,9 @@ Why use a dedicated app, with the associated overhead, to do this simple thing? 
 
 ## Flank vs internal tool builders 
 
-Normally, if you wanted to upgrade `myscript.py` to an internal tool, you'd port it to a backend and then build a frontend.
+Normally, if you had a script, `myscript.py`, that you wanted to turn into internal tool, you'd rewrite the code in some backend and then build a frontend.
 
-If you're willing to accept a less polished UI, Flank is a shortcut to accomplish the same thing. You can launch a tool with one command, `iflank add myscript.py`. No frontend code. No deployment process.
+But, if you're willing to accept a less polished UI, Flank is a shortcut to accomplish the same thing. You can launch a tool with one command, `iflank add myscript.py`. 
 
 ## Quickstart
 
