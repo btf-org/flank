@@ -2,7 +2,7 @@
 
 Flank is a dedicated UI for running scripts.
 
-It replaces one CLI command, `python myscript.py`, in the same way that Postman replaces `curl`.
+It expands on one CLI command, `python myscript.py`, in the same way that Postman expands on `curl`.
 
 ## Flank vs CLI
 
