@@ -18,7 +18,7 @@ Why use a dedicated app, with the associated overhead, to do this simple thing? 
 
 * Share access with a teammate and unblock yourself
 * Run a script away from your desk
-* Search the output of a script run last week 
+* Search the output of a script that was run last week 
 
 ## It can be a janky internal tool builder
 
