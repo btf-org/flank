@@ -14,7 +14,7 @@ It expands one CLI command, `python myscript.py`, into an app, in the same way t
 
 On the CLI, you'd run `python myscript.py`. Flank is a dedicated app for doing the same thing.
 
-Why use a dedicated app to do this simple thing? Some examples:
+Why use a dedicated app, with the associated overhead, to do this simple thing? Some examples:
 
 * Share access with a teammate and unblock yourself
 * Run a script away from your desk
