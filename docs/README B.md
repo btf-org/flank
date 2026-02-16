@@ -22,7 +22,7 @@ If you're willing to accept a less polished UI, Flank is a shortcut to accomplis
 
 ## Quickstart
 
-In the quickstart, you'll run `iflank add <yourscript>` to generate an interface for your script.
+In the quickstart, you'll run `iflank add myscript.py` to generate an interface for your script.
 
 <details>
   <summary>Python</summary>
