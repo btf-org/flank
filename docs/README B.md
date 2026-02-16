@@ -8,6 +8,7 @@ It expands on one CLI command, `python myscript.py`, in the same way that Postma
 - [Flank vs internal tool builders](#flank-vs-internal-tool-builders)
 - [Quickstart](#quickstart)
 - [How does it work?](#how-does-it-work)
+- [Contact](#contact)
 
 ## Flank vs CLI
 
@@ -245,4 +246,4 @@ python city-filter.py --city '${city}'
 
 ## Contact
 
-If you have any questions, feel free to shoot me an email at anguspmitchell@gmail.com
+Feel free to shoot me an email at anguspmitchell@gmail.com
