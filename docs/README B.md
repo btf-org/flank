@@ -4,6 +4,11 @@ Flank is a dedicated UI for running scripts.
 
 It expands on one CLI command, `python myscript.py`, in the same way that Postman expands on `curl`.
 
+- [Flank vs CLI](#flank-vs-cli)
+- [Flank vs internal tool builders](#flank-vs-internal-tool-builders)
+- [Quickstart](#quickstart)
+- [How does it work?](#how-does-it-work)
+
 ## Flank vs CLI
 
 On the CLI, you'd run `python myscript.py`. Flank is a dedicated app for doing the same thing.
@@ -238,4 +243,6 @@ python city-filter.py --city '${city}'
 
 <img width="600" alt="Screenshot 2026-02-11 at 5 04 32 PM" src="https://github.com/user-attachments/assets/affb410b-f1dc-45b7-a8bb-b87cc3c4d141" />
 
+## Contact
 
+If you have any questions, feel free to shoot me an email at anguspmitchell@gmail.com
