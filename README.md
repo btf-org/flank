@@ -22,7 +22,7 @@ Why use a dedicated app, with the associated overhead, to do this simple thing? 
 
 ## It can be an internal tool builder
 
-Normally, if you had a script, `myscript.py`, that you wanted to turn into internal tool, you'd rewrite the code in some backend and then build a frontend.
+Normally, if you had a script, `myscript.py`, that you wanted to turn into internal tool, you'd rewrite the code in some backend framework and then build a frontend.
 
 But, if you're willing to accept a less polished UI, Flank is a shortcut to accomplish the same thing. You can launch a tool with one command, `iflank add myscript.py`. 
 
