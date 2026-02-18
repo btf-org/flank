@@ -247,13 +247,6 @@ run_cmd() {
 			shift
 			varlist="$1"
 			;;
-		*)
-			if [ "$varlist" == '' ]; then
-				varlist="$1"
-			else
-				varlist="${varlist}${VAR_DELIM}$1"
-			fi
-			;;
 		esac
 		shift
 	done
@@ -296,10 +289,18 @@ run_cmd() {
 		fi
 	fi
 
+	assignments=""
+	while IFS= read -r -d $'\x1F' pair; do
+		local key="${pair%%=*}"
+		local value="${pair#*=}"
+	    value="${value//\'/\'\\\'\'}"
+		assignments="${assignments}${key}='${value}'"$'\n'
+	done < <(printf '%s' "$varlist")
+
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
-		VARLIST="$varlist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" "$p_path" >$cmd_run_dir/exec.sh
+		{ printf '%s\n' "$assignments"; cat "$p_path"; } > $cmd_run_dir/exec.sh
 	else
-		VARLIST="$varlist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" template.sh >$cmd_run_dir/exec.sh
+		{ printf '%s\n' "$assignments"; cat template.sh; } > $cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
@@ -975,7 +976,25 @@ while [ "$1" != "" ]; do
 		# "$@" expands to "a" "b merry" "c"
 		# $@ expands to a b merry c
 		# "$*" expands to "a b merry c"
-		run_cmd "fg" "$@"
+		p_cmd_dir="$1"
+		shift
+		arglist=''
+		ok_flag=''
+		ok_value=''
+		while [ "$1" != "" ]; do
+			case $1 in
+				--output_key)
+					ok_flag='--output_key'
+					shift
+					ok_value="$1"
+					;;
+				*)
+					arglist="${arglist}$1"$'\x1F'
+					;;
+			esac
+			shift
+		done
+		run_cmd "fg" "$p_cmd_dir" ${ok_flag:+"$ok_flag" "$ok_value"} --arglist "$arglist"
 		exit_code=$?
 		exit $exit_code
 		;;
