@@ -2,39 +2,37 @@
 
 Flank is a dedicated UI for running scripts.
 
-It expands one CLI command, `python myscript.py`, into an app, in the same way that Postman expands `curl` into an app.
+It expands on one CLI command, `python myscript.py`, in the same way that Postman expands on `curl`.
 
-- [For frequent script-runners](#for-frequent-script-runners)
-- [It can be a janky internal tool builder](#it-can-be-a-janky-internal-tool-builder)
+- [Flank vs CLI](#flank-vs-cli)
+- [Flank vs internal tool builders](#flank-vs-internal-tool-builders)
 - [Quickstart](#quickstart)
-  - [Python](#python-quickstart)
-  - [R](#r-quickstart)
-  - [Other Languages](#other-languages-quickstart)
-- [It's bash and files under the hood](#its-bash-and-files-under-the-hood)
+- [How does it work?](#how-does-it-work)
 - [Contact](#contact)
 
-## For frequent script-runners
+## Flank vs CLI
 
 On the CLI, you'd run `python myscript.py`. Flank is a dedicated app for doing the same thing.
 
-Why use a dedicated app, with the associated overhead, to do this simple thing? Some examples:
+Why use a dedicated app to do this simple thing? Some examples:
 
 * Share access with a teammate and unblock yourself
 * Run a script away from your desk
-* Search the output of a script that was run last week 
+* Search the output of a script run last week 
 
-## It can be a janky internal tool builder
+## Flank vs internal tool builders 
 
-Normally, if you wanted to turn a script into an internal tool, you'd rewrite the code in some backend framework and then build a frontend.
+Normally, if you wanted to upgrade `myscript.py` to an internal tool, you'd port it to a backend and then build a frontend.
 
-But, if you're willing to accept a less polished UI, Flank is a shortcut to accomplish the same thing. You can deploy a "tool" with one command, `iflank add myscript.py`. 
+If you're willing to accept a less polished UI, Flank is a shortcut to accomplish the same thing. You can launch a tool with one command, `iflank add myscript.py`. No frontend code. No deployment process.
 
 ## Quickstart
 
 In the quickstart, you'll run `iflank add myscript.py` to generate an interface for your script.
 
 <details>
-  <summary>Python<a id="python-quickstart"></a></summary>
+  <summary>Python</summary>
+
 ---
 
 #### 1a. Install Flank (Mac)
@@ -90,7 +88,7 @@ Here are some possible next steps:
 
 <details>
   
-  <summary>R<a id="r-quickstart"></a></summary>
+  <summary>R</summary>
 
 ---
 
@@ -147,7 +145,7 @@ Here are some possible next steps:
 
 <details>
   
-  <summary>Other Languages<a id="other-languages-quickstart"></a></summary>
+  <summary>Other Languages</summary>
 
 ---
 
@@ -202,11 +200,11 @@ Here are some possible next steps:
 
 </details>
 
-## It's bash and files under the hood
+## How does it work?
 
-When you add a script to Flank, Flank wraps your script with a shell script (see example below).
+When you add a script to Flank, Flank wraps your script with another script (see example below).
 
-Using this "wrapper script" as a template, the Flank website generates a page for running your script. When you click "run", your script's output appears in the browser.
+Using this "wrapper script" as a template, Flank generates a website for running your script. When you click "run", your script's output appears in the browser.
 
 #### Example: `city_filter.py`
 ```python
