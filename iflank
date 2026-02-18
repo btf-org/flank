@@ -226,7 +226,7 @@ BEGIN {
 
 }'
 prepend_vars() {
-	# prepend_vars <input_file_path> <varlist>
+	# prepend_vars <input_file_path> <arglist>
 	local assignments=""
 	while IFS= read -r -d $'\x1F' pair; do
 		local key="${pair%%=*}"
@@ -246,7 +246,7 @@ run_cmd() {
 	local p_path="$1"
 	shift
 	local p_output_key=''
-	local varlist=''
+	local arglist=''
 
 	# Positional args are local to a function so `shift` doesn't unset
 	# the positional args at the script level
@@ -258,7 +258,7 @@ run_cmd() {
 			;;
 		--arglist)
 			shift
-			varlist="$1"
+			arglist="$1"
 			;;
 		esac
 		shift
@@ -303,9 +303,9 @@ run_cmd() {
 	fi
 
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
-		prepend_vars "$p_path" "$varlist" > $cmd_run_dir/exec.sh
+		prepend_vars "$p_path" "$arglist" > $cmd_run_dir/exec.sh
 	else
-		prepend_vars template.sh "$varlist" > $cmd_run_dir/exec.sh
+		prepend_vars template.sh "$arglist" > $cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
@@ -1089,23 +1089,23 @@ while true; do
 		PREV_ARGS="$PREV_ARGS"
 		# save_cmd <k=v&k=v>
 		split_kvs=$(echo "$args" | tr '&' ' ')
-		varlist=''
+		arglist=''
 		# don't quote, so that spaces (i.e. array separation of elements) are preserved
 		for kv in $split_kvs; do
 			# printf can get fucked up by the unit separator, so do that after
 			decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
-			if [ "$varlist" == '' ]; then
-				varlist="$decoded_kv"
+			if [ "$arglist" == '' ]; then
+				arglist="$decoded_kv"
 			else
-				varlist="${varlist}${VAR_DELIM}${decoded_kv}"
+				arglist="${arglist}${VAR_DELIM}${decoded_kv}"
 			fi
 		done
-		echo "varlist: $varlist" 1>&2
-		printf "printf varlist: %s\n" "$varlist" 1>&2
+		echo "arglist: $arglist" 1>&2
+		printf "printf arglist: %s\n" "$arglist" 1>&2
 		echo "awk vvvvv" 1>&2
-		VARLIST="$varlist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" <<<"$create_cmd_form_sh" 1>&2
+		VARLIST="$arglist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" <<<"$create_cmd_form_sh" 1>&2
 		echo "awk ^^^^^" 1>&2
-		create_cmd_form_exec=$(VARLIST="$varlist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" <<<"$create_cmd_form_sh")
+		create_cmd_form_exec=$(VARLIST="$arglist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" <<<"$create_cmd_form_sh")
 		echo "ccfme: $create_cmd_form_exec" 1>&2
 		eval "$create_cmd_form_exec"
 		# feels like this should be a pop...
@@ -1181,18 +1181,18 @@ while true; do
 		PREV_ARGS="$PREV_ARGS"
 		# mkdir <k=v&k=v>
 		split_kvs=$(echo "$args" | tr '&' ' ')
-		varlist=''
+		arglist=''
 		# don't quote, so that spaces (i.e. array separation of elements) are preserved
 		for kv in $split_kvs; do
 			# printf can get fucked up by the unit separator, so do that after
 			decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
-			if [ "$varlist" == '' ]; then
-				varlist="$decoded_kv"
+			if [ "$arglist" == '' ]; then
+				arglist="$decoded_kv"
 			else
-				varlist="${varlist}${VAR_DELIM}${decoded_kv}"
+				arglist="${arglist}${VAR_DELIM}${decoded_kv}"
 			fi
 		done
-		flank_mkdir_exec=$(VARLIST="$varlist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" <<<"$mkdir_form_sh")
+		flank_mkdir_exec=$(VARLIST="$arglist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" <<<"$mkdir_form_sh")
 		eval "$flank_mkdir_exec"
 		# feels like this should be a pop...
 		safe_cd "$PWD"
