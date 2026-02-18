@@ -225,6 +225,19 @@ BEGIN {
 	print line
 
 }'
+prepend_vars() {
+	# prepend_vars <input_file_path> <varlist>
+	local assignments=""
+	while IFS= read -r -d $'\x1F' pair; do
+		local key="${pair%%=*}"
+		local value="${pair#*=}"
+	    value="${value//\'/\'\\\'\'}"
+		assignments="${assignments}${key}='${value}'"$'\n'
+	done < <(printf '%s'$'\x1F' "$2")
+
+	printf '%s\n' "$assignments"
+	cat "$1"
+}
 run_cmd() {
 	# iflank  run   <cmd dir> [--output_key <key>] k1=v1 k2=v2
 	# run_cmd fg|bg <cmd dir> [--output_key <key>] [--arglist k1=v1FLNKDLMk2=v2] k1=v1 k2=v2
@@ -289,18 +302,10 @@ run_cmd() {
 		fi
 	fi
 
-	assignments=""
-	while IFS= read -r -d $'\x1F' pair; do
-		local key="${pair%%=*}"
-		local value="${pair#*=}"
-	    value="${value//\'/\'\\\'\'}"
-		assignments="${assignments}${key}='${value}'"$'\n'
-	done < <(printf '%s'$'\x1F' "$varlist")
-
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
-		{ printf '%s\n' "$assignments"; cat "$p_path"; } > $cmd_run_dir/exec.sh
+		prepend_vars "$p_path" "$varlist" > $cmd_run_dir/exec.sh
 	else
-		{ printf '%s\n' "$assignments"; cat template.sh; } > $cmd_run_dir/exec.sh
+		prepend_vars template.sh "$varlist" > $cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
