@@ -295,7 +295,7 @@ run_cmd() {
 		local value="${pair#*=}"
 	    value="${value//\'/\'\\\'\'}"
 		assignments="${assignments}${key}='${value}'"$'\n'
-	done < <(printf '%s' "$varlist")
+	done < <(printf '%s'$'\x1F' "$varlist")
 
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
 		{ printf '%s\n' "$assignments"; cat "$p_path"; } > $cmd_run_dir/exec.sh
@@ -989,7 +989,11 @@ while [ "$1" != "" ]; do
 					ok_value="$1"
 					;;
 				*)
-					arglist="${arglist}$1"$'\x1F'
+					if [ -z "$arglist" ]; then
+						arglist="$1"
+					else
+						arglist="${arglist}"$'\x1F'"$1"
+					fi
 					;;
 			esac
 			shift
@@ -1057,7 +1061,7 @@ while true; do
 		PREV_ARGS="$PREV_ARGS"
 		# run <cmd_dir> <k=v&k=v>
 		IFS=' ' read cmd_dir kvs <<<"$args"
-		delim_kvs=$(echo "$kvs" | sed 's/&/'"$VAR_DELIM"'/g')
+		delim_kvs=$(echo "$kvs" | sed 's/&/'$'\x1F''/g')
 		decoded_kvs=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${delim_kvs})")
 		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" --arglist "$decoded_kvs")
 		safe_cd "$cmd_run_dir"
