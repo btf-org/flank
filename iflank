@@ -733,6 +733,17 @@ crontab_list() {
 	echo '</div>'
 	echo '%PAGEEND%'
 }
+fcat() {
+	echo '%PAGESTART%'
+	header_pwd
+	echo '<div id="pBody">'
+	cat "$@"
+	echo '</div>'
+	echo '<div id="pFooter">'
+	echo '<a onclick="run('\''history'\'')">History</a>'
+	echo '</div>'
+	echo '%PAGEEND%'
+}
 create_cron_form() {
 	echo '%PAGESTART%'
 	header_pwd
@@ -775,6 +786,7 @@ log_dir() {
 	fi
 	echo '<div id="pFooter">'
 	echo '<a '"$disabled_class"' onclick="run('\''kill '"$PWD"\'')">Kill</a>'
+	echo '<a '"$disabled_class"' onclick="run('\''fcat exec.sh'\'')">View Executable</a>'
 	disabled_class=''
 	path_components=(${PWD//\// })
 	length=${#path_components[@]}
@@ -1037,6 +1049,12 @@ while true; do
 		PREV_CHOICE="$choice"
 		PREV_ARGS="$args"
 		create_cmd_form
+		;;
+	fcat)
+		# fcat <path>
+		PREV_CHOICE="$choice"
+		PREV_ARGS="$args"
+		fcat "$args"
 		;;
 	save_cmd)
 		PREV_CHOICE="$PREV_CHOICE"
