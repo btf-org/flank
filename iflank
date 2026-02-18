@@ -226,7 +226,7 @@ BEGIN {
 
 }'
 prepend_vars() {
-	# prepend_vars <input_file_path> <arglist>
+	# prepend_vars <input_file_contents> <arglist>
 	local assignments=""
 	while IFS= read -r -d $'\x1F' pair; do
 		local key="${pair%%=*}"
@@ -236,7 +236,7 @@ prepend_vars() {
 	done < <(printf '%s'$'\x1F' "$2")
 
 	printf '%s\n' "$assignments"
-	cat "$1"
+	printf '%s' "$1"
 }
 run_cmd() {
 	# iflank  run   <cmd dir> [--output_key <key>] k1=v1 k2=v2
@@ -303,9 +303,9 @@ run_cmd() {
 	fi
 
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
-		prepend_vars "$p_path" "$arglist" > $cmd_run_dir/exec.sh
+		prepend_vars "$(cat $p_path)" "$arglist" > $cmd_run_dir/exec.sh
 	else
-		prepend_vars template.sh "$arglist" > $cmd_run_dir/exec.sh
+		prepend_vars "$(cat template.sh)" "$arglist" > $cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
