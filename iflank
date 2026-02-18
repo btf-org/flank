@@ -1185,10 +1185,10 @@ while true; do
 			if [ "$arglist" == '' ]; then
 				arglist="$decoded_kv"
 			else
-				arglist="${arglist}${VAR_DELIM}${decoded_kv}"
+				arglist="${arglist}"$'\x1F'"${decoded_kv}"
 			fi
 		done
-		flank_mkdir_exec=$(VARLIST="$arglist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" <<<"$mkdir_form_sh")
+		flank_mkdir_exec=$(prepend_vars "$mkdir_form_sh" "$arglist")
 		eval "$flank_mkdir_exec"
 		# feels like this should be a pop...
 		safe_cd "$PWD"
