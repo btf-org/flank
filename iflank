@@ -297,7 +297,7 @@ run_cmd() {
 	fi
 
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
-		cp "$p_path" $cmd_run_dir/exec.sh
+		VARLIST="$varlist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" "$p_path" >$cmd_run_dir/exec.sh
 	else
 		VARLIST="$varlist" awk -v VAR_DELIM="$VAR_DELIM" "$awk_envsubst" template.sh >$cmd_run_dir/exec.sh
 	fi
