@@ -227,7 +227,7 @@ BEGIN {
 }'
 prepend_vars() {
 	# prepend_vars <input_file_contents> <arglist>
-	
+
 	if [ -n "$2" ]; then
 		local assignments=""
 		while IFS= read -r -d $'\x1F' pair; do
@@ -307,9 +307,9 @@ run_cmd() {
 	fi
 
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
-		prepend_vars "$(cat $p_path)" "$arglist" > $cmd_run_dir/exec.sh
+		prepend_vars "$(cat $p_path)" "$arglist" >$cmd_run_dir/exec.sh
 	else
-		prepend_vars "$(cat template.sh)" "$arglist" > $cmd_run_dir/exec.sh
+		prepend_vars "$(cat template.sh)" "$arglist" >$cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
@@ -989,18 +989,18 @@ while [ "$1" != "" ]; do
 		ok_value=''
 		while [ "$1" != "" ]; do
 			case $1 in
-				--output_key)
-					ok_flag='--output_key'
-					shift
-					ok_value="$1"
-					;;
-				*)
-					if [ -z "$arglist" ]; then
-						arglist="$1"
-					else
-						arglist="${arglist}"$'\x1F'"$1"
-					fi
-					;;
+			--output_key)
+				ok_flag='--output_key'
+				shift
+				ok_value="$1"
+				;;
+			*)
+				if [ -z "$arglist" ]; then
+					arglist="$1"
+				else
+					arglist="${arglist}"$'\x1F'"$1"
+				fi
+				;;
 			esac
 			shift
 		done
