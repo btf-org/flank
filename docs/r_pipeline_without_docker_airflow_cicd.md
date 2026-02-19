@@ -30,7 +30,12 @@ We had to use a new computer to solve the memory problem, so we started with a c
 
 Then we solved for DAG running, scheduling, and log viewing natively in Linux. This was a step backwards since Nick is not a CLI wizard. However, we gradually built a website on top of Linux that pulled out all the necessary functionality into an easy-to-use website.
 
-## Nick's workflow is the same as before
+- More memory - EC2
+- DAG runner - `make` + website
+- Scheduler - `cron` + website
+- Log viewer - files + website
+
+## Nick's workflow is still just RStudio + git
 
 
 ## Steps to replicate
