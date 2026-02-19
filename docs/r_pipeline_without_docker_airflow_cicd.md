@@ -8,7 +8,7 @@ Nick needed to run a pipeline of R scripts every night. He could not do this on 
 
 The problem he ran into is that there is no middle ground between "run a script in RStudio" and "become a full-blown data engineer to orchestrate production scripts in the cloud".
 
-## Just needed a couple more features
+## We _just_ needed a couple more features
 
 From first principles, we needed:
 
@@ -24,7 +24,7 @@ From first principles, we needed:
 - **GitHub Actions**  solved the memory problem and the scheduling problem, but it's a clumsy DAG runner and it's bad for viewing logs.
 - **Docker + AWS Batch + Airflow** solved all four problems, but they created new problems in the forms of CI/CD, DSLs, and cloud configuration.
 
-## We built just enough to meet our needs
+## We built _just_ enough to meet Nick's needs
 
 We had to use a new computer to solve the memory problem, so we started with a cloud VM with enough memory (we used AWS EC2).
 
