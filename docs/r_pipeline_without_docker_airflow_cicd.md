@@ -66,7 +66,9 @@ On the flipside, if everything had run on Nick's laptop and hardware had not bee
 
 ## Setup your own pipeline
 
-There are 6 steps that can be accomplished with as few as 4 CLI commands. If you want to test this on a Macbook first, you can optionally skip to step #3.
+There are 6 steps that can be accomplished with as few as 4 CLI commands. 
+
+(If you want to test this on a Macbook first, you can optionally skip to step #3.)
 
 1. [Setup a VM](#1-setup-a-vm)
 2. [Clone your repository onto the VM](#2-clone-your-repository-onto-the-vm)
