@@ -62,5 +62,5 @@ It's not hard to imagine a situation where the complexity of the machine managem
 
 On the flipside, if everything had run on Nick's laptop and hardware had not been a constraint, then we could have solved the problem with `target`, `cron`, and some file organization.
 
-## Steps to replicate this setup
+## Steps to setup your own pipeline
 
