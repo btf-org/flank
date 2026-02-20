@@ -1,4 +1,4 @@
-# Run an R pipeline in your cloud without Docker, Airflow or CI/CD
+# Run an R pipeline in your cloud without Docker, Airflow, or CI/CD
 
 ## Contents
 1. [Case Study](#case-study)
