@@ -68,7 +68,7 @@ On the flipside, if everything had run on Nick's laptop and hardware had not bee
 
 There are 6 steps, at a high level. If you want to test this on a Macbook first, you can optionally skip to step #3.
 
-1. [Setup an EC2 box](#setup-an-ec2-box)
+1. [Setup an EC2 box](#1-setup-an-ec2-box)
 2. [Clone your repository onto the EC2 box](#clone-your-repository-onto-the-ec2-box)
 3. [Install Flank](#install-flank)
 4. [Add your scripts to Flank](#add-your-scripts-to-flank)
