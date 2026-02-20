@@ -1,6 +1,6 @@
 # Run an R pipeline in the cloud without Docker, Airflow, CI/CD, etc.
 
-[Skip straight to the quickstart](#setup-your-own-pipeline)
+[Skip to the setup guide](#setup-your-own-pipeline)
 
 ## Nick's workload outgrew his laptop
 
