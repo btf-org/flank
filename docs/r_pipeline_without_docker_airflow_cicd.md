@@ -60,7 +60,7 @@ The big tradeoff is that Nick is accepting a little bit of EC2 machine managemen
 
 It's not hard to imagine a situation where the complexity of the machine management begins to outweigh the benefits of this simplicity. If you had thousands and thousands of cron jobs, I could see that being the case. Having said that, his pipeline is running 30 tasks, as many as 8 in parallel, with a peak memory consumption of 200 GB. We've added some spinup/spindown logic to keep the EC2 instance type very small during off hours, so the whole system is actually cheaper that it would be if it were running on Docker + AWS Batch.
 
-On the flipside, if everything can run on a laptop and hardware isn't a constraint, then `target`, `cron`, and some file organization are sufficient.
+On the flipside, if everything had run on Nick's laptop and hardware had not been a constraint, then we could have solved the problem with `target`, `cron`, and some file organization.
 
 ## Steps to replicate this setup
 
