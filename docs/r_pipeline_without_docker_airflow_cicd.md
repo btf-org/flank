@@ -66,7 +66,14 @@ On the flipside, if everything had run on Nick's laptop and hardware had not bee
 
 ## Setup your own pipeline
 
-If you want to test this on a Macbook first, you can optionally skip to step #3
+There are 6 steps, at a high level. If you want to test this on a Macbook first, you can optionally skip to step #3.
+
+1. [Setup an EC2 box](#setup-an-ec2-box)
+2. [Clone your repository onto the EC2 box](#clone-your-repository-onto-the-ec2-box)
+3. [Install Flank](#install-flank)
+4. [Add your scripts to Flank](#add-your-scripts-to-flank)
+5. [Create a pipeline in Flank](#create-a-pipeline-in-flank)
+6. [Schedule your pipeline in Flank](#schedule-your-pipeline-flank)
 
 ### 1. Setup an EC2 box
 ### 2. Clone your repository onto the EC2 box
