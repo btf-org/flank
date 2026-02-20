@@ -76,8 +76,6 @@ The only cloud cost is the EC2 instance. Nick needed a max instance size of 256G
 
 ## Installation and Setup
 
-There are 6 steps that can be accomplished with as few as 4 CLI commands. 
-
 (If you want to test this on a Macbook first, you can optionally skip to step #3.)
 
 1. [Setup a VM](#1-setup-a-vm)
