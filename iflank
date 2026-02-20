@@ -485,6 +485,7 @@ flank_ls() {
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '<a onclick="run('\''mkdir_form'\'')">Make Dir</a>'
 	echo '<a onclick="run('\''create_cmd_form'\'')">Create Cmd</a>'
+	echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
 }
@@ -561,19 +562,23 @@ END {
 		if(ctrl["@description"] != ""){
 			html=html"<div class=\"font-size-0_8\">"ctrl["@description"]"</div>"
 		}
-		if(ctrl["@type"] == "textarea"){
-			html=html"<textarea class=\"w-100p\" "
+		if(ctrl["@type"] == "checkbox"){
+			html=html"<label><input type=\"checkbox\" name=\"fruits[]\" value=\"apple\"> Apple</label>"
 		} else {
-			html=html"<input class=\"w-100p\" "
-		}
-		if(ctrl["@capturetab"]){
-			html=html"onkeydown=\"tab(event, this)\" "
-		}
-		html=html"name=\""varname_stripped"\""
-		if(ctrl["@type"] == "textarea"){
-			html=html"></textarea>"
-		} else {
-			html=html"/>"
+			if(ctrl["@type"] == "textarea"){
+				html=html"<textarea class=\"w-100p\" "
+			} else {
+				html=html"<input class=\"w-100p\" "
+			}
+			if(ctrl["@capturetab"]){
+				html=html"onkeydown=\"tab(event, this)\" "
+			}
+			html=html"name=\""varname_stripped"\""
+			if(ctrl["@type"] == "textarea"){
+				html=html"></textarea>"
+			} else {
+				html=html"/>"
+			}
 		}
 		html = html"</div>"
 		print html
@@ -594,6 +599,25 @@ create_cmd_form() {
 	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
 	awk "$awk_parse_vars" <<<"$create_cmd_form_sh"
 	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''save_cmd'\'')">Save</button></div>'
+	echo '</form>'
+	echo '</div>'
+	echo '<div id="pFooter">'
+	echo '<a onclick="run('\''history'\'')">History</a>'
+	echo '</div>'
+	echo '%PAGEEND%'
+}
+create_pipeline_form_sh='
+# ${pipeline_name} @colspan 2
+# ${script_contents} @type checkbox
+mkdir ${pipeline_name} && printf '\''%s\n'\'' "${script_contents}" > ./${pipeline_name}/template.sh'
+create_pipeline_form() {
+	echo '%PAGESTART%'
+	header_pwd
+	echo ''
+	echo '<div id="pBody">'
+	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
+	awk "$awk_parse_vars" <<<"$create_pipeline_form_sh"
+	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''save_pipeline'\'')">Save</button></div>'
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'
@@ -1078,6 +1102,11 @@ while true; do
 		PREV_CHOICE="$choice"
 		PREV_ARGS="$args"
 		create_cmd_form
+		;;
+	create_pipeline_form)
+		PREV_CHOICE="$choice"
+		PREV_ARGS="$args"
+		create_pipeline_form
 		;;
 	fcat)
 		# fcat <path>
