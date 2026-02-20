@@ -185,9 +185,9 @@ You should be presented with a page with \[ Run \] button where you can trigger 
 
 ### Machine Management
 
-The main tradeoff is that Nick is accepting a little bit of EC2 machine management in order to keep everything else as simple as possible.
+The main tradeoff is that Nick is accepting a little bit of EC2 machine management in order to keep everything else as simple as possible. 
 
-It's not hard to imagine a situation where the complexity of the machine management begins to outweigh the benefits of this simplicity:
+It's not hard to imagine a situation where the complexity of the machine management begins to outweigh the benefits of "everything else". For example, if you had:
 
 - Thousands of simultaneous jobs
 - TB of simultaneous memory
