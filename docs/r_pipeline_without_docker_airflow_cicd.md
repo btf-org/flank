@@ -73,7 +73,7 @@ There are 6 steps, at a high level. If you want to test this on a Macbook first,
 3. [Install Flank](#3-install-flank)
 4. [Add your scripts to Flank](#4-add-your-scripts-to-flank)
 5. [Create a pipeline in Flank](#5-create-a-pipeline-in-flank)
-6. [Schedule your pipeline in Flank](#6-schedule-your-pipeline-flank)
+6. [Schedule your pipeline in Flank](#6-schedule-your-pipeline-in-flank)
 
 ### 1. Setup an EC2 box
 ### 2. Clone your repository onto the EC2 box
