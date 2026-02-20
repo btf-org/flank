@@ -1,5 +1,7 @@
 # Run an R pipeline in the cloud without Docker, Airflow, CI/CD, etc.
 
+[Skip straight to the quickstart](#setup-your-own-pipeline)
+
 ## Nick's workload outgrew his laptop
 
 Nick needed to run a pipeline of R scripts every night. He could not do this on his laptop because his laptop did not have enough memory. Also he did not want to have to always keep his laptop on.
@@ -62,5 +64,5 @@ It's not hard to imagine a situation where the complexity of the machine managem
 
 On the flipside, if everything had run on Nick's laptop and hardware had not been a constraint, then we could have solved the problem with `target`, `cron`, and some file organization.
 
-## Steps to setup your own pipeline
+## Setup your own pipeline
 
