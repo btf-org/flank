@@ -66,9 +66,53 @@ On the flipside, if everything had run on Nick's laptop and hardware had not bee
 
 ## Setup your own pipeline
 
+If you want to test this on a Macbook first, you can optionally skip to step #3
+
 ### 1. Setup an EC2 box
 ### 2. Clone your repository onto the EC2 box
 ### 3. Install Flank
+
+#### Linux
+
+_In this step, apt installs a webserver and a program that wraps your CLI. It automatically starts the webserver, and uses `whoami` to run it as the current user rather than root._
+
+```bash
+wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
+```
+
+#### Mac
+
+_In this step, Homebrew installs a webserver and a program that wraps your CLI. Then it starts the webserver, running as the user who's logged into the shell._
+
+```bash
+brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
+```
+
 ### 4. Add your scripts to Flank
+
+#### 4.a Add your script to Flank
+
+_In this step, Flank will create a "wrapper script" that 1) `cd`s into the directory of your script and 2) runs your script. The wrapper script lives on your computer like any other file, in a folder set up by Flank._
+
+(Swap out `myscript.R` for whatever your script name is)
+
+```
+iflank add myscript.R
+```
+
+#### 4.b Confirm that the Flank-generated "wrapper script" is correct
+
+_In this step, you'll edit a file on your computer through the Flank web app, but you could also edit the same file through a text editor._
+
+1. Follow the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.R?edit)
+2. Confirm that Flank created the correct instructions to run your script.
+
+#### 4.c (Optional) Run your script and view output in the browser
+
+_In this step, Flank is calling the "wrapper script" under the hood._
+
+You should be presented with a page with \[ Run \] button where you can trigger your script. Run it and you should see the output in the browser. 
+
 ### 5. Create a pipeline in Flank
+
 ### 6. Schedule your pipeline in Flank
