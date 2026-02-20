@@ -77,7 +77,8 @@ There are 6 steps, at a high level. If you want to test this on a Macbook first,
 
 ### 1. Setup a VM
 
-1.a Launch an EC2 instance
+#### 1.a Launch an EC2 instance
+
 _In this step, you'll create a virtual machine in AWS with enough memory to run your pipeline. We recommend starting with an AMI that has RStudioServer pre-installed so you can edit scripts directly in the browser. If you're an Azure or GCP user, there are plenty of guides for doing this same process there._
 
 1. Go to the [AWS EC2 console](https://console.aws.amazon.com/ec2/) and click **Launch Instance**
