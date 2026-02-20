@@ -1,4 +1,4 @@
-# Run an R pipeline in the cloud without Docker, Airflow, CI/CD, etc.
+# Run an R pipeline in the cloud without Docker, Airflow or CI/CD
 
 [Skip to the setup guide](#setup-your-own-pipeline)
 
