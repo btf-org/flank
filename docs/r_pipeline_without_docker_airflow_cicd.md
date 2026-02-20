@@ -66,3 +66,8 @@ On the flipside, if everything had run on Nick's laptop and hardware had not bee
 
 ## Setup your own pipeline
 
+### 1. Setup an EC2 box
+### 2. Clone your repository onto the EC2 box
+### 3. Install Flank
+### 4. Add your scripts to Flank
+### 5. Create a pipeline in Flank
