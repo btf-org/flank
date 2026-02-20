@@ -45,6 +45,8 @@ Then we solved for DAG running, scheduling, and log viewing natively in Linux. T
 
 ### We preserved Nick's workflow (RStudio + git)
 
+The main benefit to Nick is that he gets the basic features of Airflow without having to learn anything new or add any meaningful process. He gets to continue spending time in his happy place (RStudio).
+
 #### Updating scripts in the pipeline
 
 1. Nick makes a change to the script in RStudio, on his laptop
