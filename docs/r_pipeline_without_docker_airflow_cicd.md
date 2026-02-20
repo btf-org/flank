@@ -71,3 +71,4 @@ On the flipside, if everything had run on Nick's laptop and hardware had not bee
 ### 3. Install Flank
 ### 4. Add your scripts to Flank
 ### 5. Create a pipeline in Flank
+### 6. Schedule your pipeline in Flank
