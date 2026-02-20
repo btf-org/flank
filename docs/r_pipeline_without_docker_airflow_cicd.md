@@ -4,6 +4,7 @@
 1. [Case Study](#case-study)
 2. [Installation and Setup](#installation-and-setup)
 3. [Tradeoffs and Limitations](#tradeoffs-and-limitations)
+4. [Contact](#contact)
 
 ## Case Study
 
@@ -195,3 +196,7 @@ For context, Nick's pipeline is 30 tasks, as many as 8 in parallel, with a peak 
 ### Pipeline Complexity
 
 Another tradeoff is that we took an "80/20" approach to pipeline features. This system can run a DAG. It is not designed for dynamic DAG generation, retries and backoffs, or branching based on runtime state.
+
+## Contact
+
+Feel free to shoot me an email at anguspmitchell@gmail.com.
