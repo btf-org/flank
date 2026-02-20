@@ -2,6 +2,19 @@
 
 VAR_DELIM="FLNKDLM"
 
+if [ -d /var/lib/flank ]; then
+	FLANK_ROOT=/var/lib/flank
+elif [ -d /opt/homebrew/var/flank ]; then
+	FLANK_ROOT=/opt/homebrew/var/flank
+elif [ -d /usr/local/var/flank ]; then
+	FLANK_ROOT=/usr/local/var/flank
+elif [ -n $(which brew) && $(brew --prefix) >0 ]; then
+	FLANK_ROOT=$(brew --prefix)/var
+else
+	echo "Cannot find flank root!"
+	exit
+fi
+
 awk_columns='
 NR==1 { prev=FILENAME; } 
 FNR==1 && NR!=1 { 
@@ -538,6 +551,7 @@ END {
 		ctrl["@type"] = "text"
 		ctrl["@colspan"] = 2
 		ctrl["@capturetab"] = 0
+		ctrl["@values"] = ""
 		for (key in ann){
 			if (key == "@ignore"){
 				ctrl["@ignore"] = 1
@@ -552,8 +566,15 @@ END {
 				ctrl["@colspan"] = ann[key]
 			} else if (key == "@capturetab") {
 				ctrl["@capturetab"] = 1
+			} else if (key == "@values") {
+				ctrl["@values"] = ann[key]
 			}
 		}	
+
+		if(ctrl["@ignore"] == 1){
+			delete ann
+			continue
+		}
 
 		varname_stripped=v
 		sub(/^ *\$\{/, "", varname_stripped)
@@ -563,7 +584,13 @@ END {
 			html=html"<div class=\"font-size-0_8\">"ctrl["@description"]"</div>"
 		}
 		if(ctrl["@type"] == "checkbox"){
-			html=html"<label><input type=\"checkbox\" name=\"fruits[]\" value=\"apple\"> Apple</label>"
+			if (ctrl["@values"] ~ /^`.*`$/) {
+				cmd = substr(ctrl["@values"], 2, length(ctrl["@values"]) - 2)
+				while ((cmd | getline line) > 0) {
+					html=html"<label class=\"block\"><input type=\"checkbox\" name=\""varname_stripped"[]\" value=\""line"\"> "line"</label>"
+				}
+				close(cmd)
+			}
 		} else {
 			if(ctrl["@type"] == "textarea"){
 				html=html"<textarea class=\"w-100p\" "
@@ -608,8 +635,28 @@ create_cmd_form() {
 }
 create_pipeline_form_sh='
 # ${pipeline_name} @colspan 2
-# ${script_contents} @type checkbox
-mkdir ${pipeline_name} && printf '\''%s\n'\'' "${script_contents}" > ./${pipeline_name}/template.sh'
+# ${tasks} @type checkbox @values `find '$FLANK_ROOT' -type f -name "template.sh" -exec dirname {} \; | sed "s|^'$FLANK_ROOT'/||" | sort`
+# ${all} @ignore
+# ${nodes} @ignore
+# ${value} @ignore
+# ${contents} @ignore
+
+mkdir ${pipeline_name} 
+
+contents='\''make -i -j -f - << '\''\'\'''\''EOF'\''\'\'''\''\n\n'\''
+all='\''all: '\''
+nodes=""
+while IFS= read -r value; do
+	all="${all} ${value}.stamp"
+	nodes="${nodes}${value}.stamp: \n\tiflank run ${value} --output_key \$@ && touch \$@\n\n"
+done <<< "${tasks}"
+
+contents="${contents}${all}\n\n"
+contents="${contents}${nodes}"
+contents="${contents}EOF\n" 
+
+printf '\''%b'\'' "${contents}" > ./${pipeline_name}/template.sh
+'
 create_pipeline_form() {
 	echo '%PAGESTART%'
 	header_pwd
@@ -982,18 +1029,6 @@ help_msg() {
 # This traps SIGPIPE, which would get sent if this program tried to write to a broken pipe
 trap "echo 'server disconnected (write pipe)'; exit 1" PIPE
 
-if [ -d /var/lib/flank ]; then
-	FLANK_ROOT=/var/lib/flank
-elif [ -d /opt/homebrew/var/flank ]; then
-	FLANK_ROOT=/opt/homebrew/var/flank
-elif [ -d /usr/local/var/flank ]; then
-	FLANK_ROOT=/usr/local/var/flank
-elif [ -n $(which brew) && $(brew --prefix) >0 ]; then
-	FLANK_ROOT=$(brew --prefix)/var
-else
-	echo "Cannot find flank root!"
-	exit
-fi
 
 while [ "$1" != "" ]; do
 	case $1 in
@@ -1154,6 +1189,46 @@ while true; do
 		run_form
 		PREV_CHOICE='cd'
 		PREV_ARGS="$PWD"
+		;;
+	save_pipeline)
+		PREV_CHOICE="$PREV_CHOICE"
+		PREV_ARGS="$PREV_ARGS"
+		# save_pipeline <k=v&k=v>
+		arglist=''
+		prev_key=''
+
+		for kv in $(echo "$args" | tr '&' '\n' | sort); do
+			decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
+			
+			key="${decoded_kv%%=*}"
+			val="${decoded_kv#*=}"
+
+			if [ "${key%\[\]}" != "$key" ]; then
+				# Array key - strip [] and append with newline if same key
+				base_key="${key%\[\]}"
+				if [ "$arglist" = '' ]; then
+					arglist="${base_key}=${val}"
+				elif [ "$base_key" = "$prev_key" ]; then
+					arglist="${arglist}"$'\n'"${val}"
+				else
+					arglist="${arglist}"$'\x1F'"${base_key}=${val}"
+				fi
+				prev_key="$base_key"
+			else
+				# Normal key
+				if [ "$arglist" = '' ]; then
+					arglist="${key}=${val}"
+				else
+					arglist="${arglist}"$'\x1F'"${key}=${val}"
+				fi
+				prev_key="$key"
+			fi
+		done
+		create_pipeline_form_exec=$(prepend_vars "$create_pipeline_form_sh" "$arglist")
+		echo "cpfme: $create_pipeline_form_exec" 1>&2
+		eval "$create_pipeline_form_exec"
+		# feels like this should be a pop...
+		safe_cd "$PWD"
 		;;
 	crontab_list)
 		PREV_CHOICE="$choice"
