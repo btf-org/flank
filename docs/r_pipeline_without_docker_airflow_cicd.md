@@ -68,15 +68,59 @@ On the flipside, if everything had run on Nick's laptop and hardware had not bee
 
 There are 6 steps, at a high level. If you want to test this on a Macbook first, you can optionally skip to step #3.
 
-1. [Setup an EC2 box](#1-setup-an-ec2-box)
-2. [Clone your repository onto the EC2 box](#2-clone-your-repository-onto-the-ec2-box)
+1. [Setup a VM](#1-setup-a-vm)
+2. [Clone your repository onto the VM](#2-clone-your-repository-onto-the-vm)
 3. [Install Flank](#3-install-flank)
 4. [Add your scripts to Flank](#4-add-your-scripts-to-flank)
 5. [Create a pipeline in Flank](#5-create-a-pipeline-in-flank)
 6. [Schedule your pipeline in Flank](#6-schedule-your-pipeline-in-flank)
 
-### 1. Setup an EC2 box
-### 2. Clone your repository onto the EC2 box
+### 1. Setup a VM
+
+1.a Launch an EC2 instance
+_In this step, you'll create a virtual machine in AWS with enough memory to run your pipeline. We recommend starting with an AMI that has RStudioServer pre-installed so you can edit scripts directly in the browser. If you're an Azure or GCP user, there are plenty of guides for doing this same process there._
+
+1. Go to the [AWS EC2 console](https://console.aws.amazon.com/ec2/) and click **Launch Instance**
+2. Search for **RStudio** in the Community AMIs tab and select one of the RStudio Server AMIs (e.g. from Louis Aslett — these are well-maintained and free to use)
+3. Choose an instance type with enough memory for your workload. If you're not sure, start with `r6a.large` (16 GB) and resize later
+4. Create or select a key pair and save the `.pem` file somewhere safe
+5. Under **Network Settings**, make sure SSH (port 22) is open. If you plan to access the Flank web UI from your browser, also open port 8083
+6. Launch the instance
+
+#### 1.b Connect to your instance
+
+_In this step, you'll SSH into your new machine to confirm it's working. You only need to do this once — after that, you can use RStudioServer and the Flank web UI instead._
+
+(Swap out `your-key.pem` and the hostname for your own values)
+
+```bash
+ssh -i your-key.pem ubuntu@ec2-xx-xx-xx-xx.compute-1.amazonaws.com
+```
+
+#### 1.c (Optional) Confirm RStudioServer is running
+
+_RStudioServer runs on port 8787. If you open that port in your security group, you can edit R scripts on the EC2 box directly from your browser — no local setup required._
+
+1. Open port 8787 in your instance's security group
+2. Navigate to `http://ec2-xx-xx-xx-xx.compute-1.amazonaws.com:8787` in your browser
+3. Log in with the default credentials from the AMI documentation
+
+### 2. Clone your repository onto the VM
+
+_In this step, you'll pull your R scripts onto the EC2 machine. The pipeline will run them from here, and will pull the latest version of `main` each time it runs — so your normal git push workflow stays intact._
+
+SSH into your instance (or use the RStudioServer terminal) and clone your repo:
+
+```bash
+git clone https://github.com/your-org/your-repo.git
+```
+
+If your repository is private, the easiest path is to [create a GitHub personal access token](https://github.com/settings/tokens) and clone with it embedded in the URL:
+
+```bash
+git clone https://your-token@github.com/your-org/your-repo.git
+```
+
 ### 3. Install Flank
 
 #### Linux
