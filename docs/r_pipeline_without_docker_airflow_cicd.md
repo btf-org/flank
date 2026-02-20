@@ -24,7 +24,7 @@ We surveyed the existing tools, but they were either partial solutions or overki
 - **GitHub Actions**  solved the memory problem and the scheduling problem, but it's a clumsy DAG runner and it's bad for viewing logs.
 - **Docker + AWS Batch + Airflow** solved all four problems, but they created new problems in the forms of CI/CD, DSLs, and cloud configuration.
 
-## We built just enough to meet Nick's needs
+## We added the bare minimum to meet Nick's needs
 
 We had to use a new computer to solve the memory problem, so we started with a cloud VM with enough memory (we used AWS EC2).
 
