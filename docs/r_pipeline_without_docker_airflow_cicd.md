@@ -1,16 +1,21 @@
 # Run an R pipeline in the cloud without Docker, Airflow or CI/CD
 
-[Skip to the setup guide](#setup-your-own-pipeline)
+## Contents
+1. [Case Study](#case-study)
+2. [Installation and Setup](#installation-and-setup)
+3. [Tradeoffs and Limitations](#tradeoffs-and-limitations)
 
-## Nick's workload outgrew his laptop
+## Case Study
+
+### Nick's workload outgrew his laptop
 
 Nick needed to run a pipeline of R scripts every night. He could not do this on his laptop because his laptop did not have enough memory. Also he did not want to have to always keep his laptop on.
 
-## He didn't want to become a data engineer
+### He didn't want to become a data engineer
 
 The problem he ran into is that there is no middle ground between "run a script in RStudio" and "become a full-blown data engineer to orchestrate production scripts in the cloud".
 
-## Existing tools were either partial solutions or overkill
+### Existing tools were either partial solutions or overkill
 
 Nick needed the following features:
 
@@ -26,7 +31,7 @@ We surveyed the existing tools, but they were either partial solutions or overki
 - **GitHub Actions**  solved the memory problem and the scheduling problem, but it's a clumsy DAG runner and it's bad for viewing logs.
 - **Docker + AWS Batch + Airflow** solved all four problems, but they created new problems in the forms of CI/CD, DSLs, and cloud configuration.
 
-## We added the bare minimum to meet Nick's needs
+### We built a solution to meet Nick's needs (and nothing more!)
 
 We had to use a new computer to solve the memory problem, so we started with a cloud VM with enough memory (we used AWS EC2).
 
@@ -37,7 +42,7 @@ Then we solved for DAG running, scheduling, and log viewing natively in Linux. T
 - Scheduler - `cron` + website
 - Log viewer - files + website
 
-## Nick's workflow is still just RStudio + git
+### We preserved Nick's workflow (RStudio + git)
 
 #### Updating scripts in the pipeline
 
@@ -56,15 +61,17 @@ Then we solved for DAG running, scheduling, and log viewing natively in Linux. T
 1. Nick goes to the website running on his EC2 box
 2. He navigates to the pipeline and edits a text file that defines the DAG
 
-## Tradeoffs and Limitations
+### This solution was half the cost of the AWS "default"
 
-The big tradeoff is that Nick is accepting a little bit of EC2 machine management in order to keep everything else as simple as possible.
+The only cloud cost is the EC2 instance. Nick needed a max instance size of 256GB RAM, so our initial solution was roughly twice the cost of the AWS "default". However, by adding some simple logic to shrink the instance size during off-hours, we were about to reduce the cost by 4x.
 
-It's not hard to imagine a situation where the complexity of the machine management begins to outweigh the benefits of this simplicity. If you had thousands and thousands of cron jobs, I could see that being the case. Having said that, his pipeline is running 30 tasks, as many as 8 in parallel, with a peak memory consumption of 200 GB. We've added some spinup/spindown logic to keep the EC2 instance type very small during off hours, so the whole system is actually cheaper that it would be if it were running on Docker + AWS Batch.
+| Solution | $ / Month |
+|----------|-----------|
+| Flank, running 256 GB 24/7 | $1,320 |
+| AWS Batch + MWAA | $557 |
+| Flank, with simple optimizations | $247 |
 
-On the flipside, if everything had run on Nick's laptop and hardware had not been a constraint, then we could have solved the problem with `target`, `cron`, and some file organization.
-
-## Setup your own pipeline
+## Installation and Setup
 
 There are 6 steps that can be accomplished with as few as 4 CLI commands. 
 
@@ -170,3 +177,21 @@ You should be presented with a page with \[ Run \] button where you can trigger 
 ### 5. Create a pipeline in Flank
 
 ### 6. Schedule your pipeline in Flank
+
+## Tradeoffs and Limitations
+
+### Machine Management
+
+The main tradeoff is that Nick is accepting a little bit of EC2 machine management in order to keep everything else as simple as possible.
+
+It's not hard to imagine a situation where the complexity of the machine management begins to outweigh the benefits of this simplicity:
+
+- Thousands of simultaneous jobs
+- TB of simultaneous memory
+- Conflicting OS-level dependencies
+
+For context, Nick's pipeline is 30 tasks, as many as 8 in parallel, with a peak memory consumption of 200 GB.
+
+### Pipeline Complexity
+
+Another tradeoff is that we took an "80/20" approach to pipeline features. This system can run a DAG. It is not designed for dynamic DAG generation, retries and backoffs, or branching based on runtime state.
