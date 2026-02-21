@@ -529,6 +529,7 @@ awk_parse_vars='
 }
 
 END {
+	kv_string=""
     for (v in seen) {
 		n = split(var_concat[v], values, /(^|[[:space:]][[:space:]]*)@[a-z][a-z]*/)
 		for(j in values){
@@ -579,6 +580,17 @@ END {
 		varname_stripped=v
 		sub(/^ *\$\{/, "", varname_stripped)
 		sub(/\} *$/, "", varname_stripped)
+
+		if(RETURN_KV){
+			if(kv_string == ""){
+				kv_string=varname_stripped"=<value>"
+			} else {
+				kv_string=kv_string" "varname_stripped"='\''<value>'\''"
+			}
+			delete ann
+			continue
+		}
+
 		html = "<div class=\"col-start-1 col-span-"ctrl["@colspan"]"\"><div>"varname_stripped"</div>"
 		if(ctrl["@description"] != ""){
 			html=html"<div class=\"font-size-0_8\">"ctrl["@description"]"</div>"
@@ -611,6 +623,9 @@ END {
 		print html
 		delete ann
     }
+	if(RETURN_KV){
+		print kv_string
+	}
 }'
 create_cmd_form_sh='
 # ${cmd_name} @colspan 2
@@ -640,15 +655,28 @@ create_pipeline_form_sh='
 # ${nodes} @ignore
 # ${value} @ignore
 # ${contents} @ignore
+# ${target} @ignore
+# ${full_path} @ignore
 
+
+awk_parse_vars_inner='\'"$awk_parse_vars"\''
 mkdir ${pipeline_name} 
 
 contents='\''make -i -j -f - << '\''\'\'''\''EOF'\''\'\'''\''\n\n'\''
 all='\''all: '\''
 nodes=""
 while IFS= read -r value; do
-	all="${all} ${value}.stamp"
-	nodes="${nodes}${value}.stamp: \n\tiflank run ${value} --output_key \$@ && touch \$@\n\n"
+	target="$value"
+    target="${target//\//_}"   # slashes
+    target="${target// /_}"    # spaces
+    target="${target//\#/_}"   # hash
+    target="${target//=/_}"    # equals
+    target="${target//:/\_}"   # colon
+	target="${target}.stamp"
+	all="${all} ${target}"
+	full_path='$FLANK_ROOT'/${value}/template.sh
+	var_string=$(awk -v RETURN_KV=1 "$awk_parse_vars_inner" "$full_path")
+	nodes="${nodes}${target}: \n\tiflank run ${full_path} --output_key \$@ $var_string && touch \$@\n\n"
 done <<< "${tasks}"
 
 contents="${contents}${all}\n\n"
