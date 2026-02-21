@@ -181,7 +181,7 @@ You should be presented with a page with \[ Run \] button where you can trigger 
 
 ## Tradeoffs and Limitations
 
-### More Machine Management
+### Machine Management
 
 The main tradeoff is that Nick is accepting a little bit of EC2 machine management in order to keep everything else as simple as possible. 
 
