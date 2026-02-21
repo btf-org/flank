@@ -583,7 +583,7 @@ END {
 
 		if(RETURN_KV){
 			if(kv_string == ""){
-				kv_string=varname_stripped"=<value>"
+				kv_string=varname_stripped"='\''<value>'\''"
 			} else {
 				kv_string=kv_string" "varname_stripped"='\''<value>'\''"
 			}
@@ -659,7 +659,10 @@ create_pipeline_form_sh='
 # ${full_path} @ignore
 
 
-awk_parse_vars_inner='\'"$awk_parse_vars"\''
+awk_parse_vars_inner=$(cat << '\''EOF'\''
+'"$awk_parse_vars"'
+EOF
+)
 mkdir ${pipeline_name} 
 
 contents='\''make -i -j -f - << '\''\'\'''\''EOF'\''\'\'''\''\n\n'\''
@@ -1253,10 +1256,13 @@ while true; do
 			fi
 		done
 		create_pipeline_form_exec=$(prepend_vars "$create_pipeline_form_sh" "$arglist")
-		echo "cpfme: $create_pipeline_form_exec" 1>&2
+		# echo "cpfme: $create_pipeline_form_exec" 1>&2
 		eval "$create_pipeline_form_exec"
-		# feels like this should be a pop...
-		safe_cd "$PWD"
+		pipeline_name_sh=$(prepend_vars 'echo "${pipeline_name}"' "$arglist")
+		pipeline_name=$(eval "$pipeline_name_sh")
+		echo "pipeline_name ${pipeline_name}" 1>&2
+		safe_cd "$pipeline_name"
+		edit_cmd
 		;;
 	crontab_list)
 		PREV_CHOICE="$choice"
