@@ -76,7 +76,7 @@ The only cloud cost is the EC2 instance. Nick needed a max instance size of 256G
 
 ## Installation and Setup
 
-(If you want to test this on a Macbook first, you can optionally skip to step #3.)
+(If you already have a machine with enough memory or you just want to test on your Macbook, you can optionally skip to step #3.)
 
 1. [Setup a VM](#1-setup-a-vm)
 2. [Clone your repository onto the VM](#2-clone-your-repository-onto-the-vm)
@@ -89,7 +89,7 @@ The only cloud cost is the EC2 instance. Nick needed a max instance size of 256G
 
 #### 1.a Launch an EC2 instance
 
-_In this step, you'll create a virtual machine in AWS with enough memory to run your pipeline. We recommend starting with an AMI that has RStudioServer pre-installed so you can edit scripts directly in the browser. If you're an Azure or GCP user, there are plenty of guides for doing this same process there._
+_In this step, you'll create a virtual machine in AWS with enough memory to run your pipeline. We recommend starting with an AMI that has RStudioServer pre-installed so you can edit scripts directly in the browser. If you're an Azure or GCP user, try Googling "RStudio Server on GCP"._
 
 1. Go to the [AWS EC2 console](https://console.aws.amazon.com/ec2/) and click **Launch Instance**
 2. Search for **RStudio** in the Community AMIs tab and select one of the RStudio Server AMIs (e.g. from Louis Aslett — these are well-maintained and free to use)
