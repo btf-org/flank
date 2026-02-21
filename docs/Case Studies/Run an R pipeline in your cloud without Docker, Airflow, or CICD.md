@@ -76,8 +76,6 @@ The only cloud cost is the EC2 instance. Nick needed a max instance size of 256G
 
 ## Installation and Setup
 
-There are 6 steps that can be accomplished with as few as 4 CLI commands. 
-
 (If you want to test this on a Macbook first, you can optionally skip to step #3.)
 
 1. [Setup a VM](#1-setup-a-vm)
@@ -183,7 +181,7 @@ You should be presented with a page with \[ Run \] button where you can trigger 
 
 ## Tradeoffs and Limitations
 
-### Machine Management
+### More Machine Management
 
 The main tradeoff is that Nick is accepting a little bit of EC2 machine management in order to keep everything else as simple as possible. 
 
@@ -195,7 +193,7 @@ It's not hard to imagine a situation where the complexity of the machine managem
 
 For context, Nick's pipeline is 30 tasks, as many as 8 in parallel, with a peak memory consumption of 200 GB.
 
-### Pipeline Complexity
+### Limits on Pipeline Complexity
 
 Another tradeoff is that we took an "80/20" approach to pipeline features. This system can run a DAG. It is not designed for dynamic DAG generation, retries and backoffs, or branching based on runtime state.
 
