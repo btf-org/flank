@@ -127,7 +127,7 @@ You should be presented with a page with \[ Run \] button where you can trigger 
 
 Initially there was the question of whether this system should run on one machine, or whether it should be some sort of distributed delegation architecture.
 
-We opted for one machine because 1) Nick's workload could fit on one machine, and 2) it's simpler that way.
+We opted for one machine because Nick's workload could fit on one machine.
 
 The benefit is that it's easy to debug. For Nick, the easiest environment in which to debug is his laptop. Next is RStudio Server on a VM (that's what we set up). Then a VM. Then a Docker container. And finally a distributed system.
 
@@ -137,7 +137,7 @@ The downside is that Nick has to think about memory and storage (very occasional
 
 We also debated whether each task should be containerized, or whether everything should just run on one OS.
 
-We opted for one OS because 1) Nick is a one-man operation with a consistent set of dependencies, and 2) it's simpler that way.
+We opted for one OS because Nick is a one-man operation with a consistent set of dependencies.
 
 Once again the benefit is that it's easy to debug (see above).
 
