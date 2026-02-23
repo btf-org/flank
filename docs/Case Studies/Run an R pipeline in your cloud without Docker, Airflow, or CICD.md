@@ -1,8 +1,8 @@
 # An app for an R developer to build/monitor his pipelines without a Data Engineer
 
-This is like a simplified version of Airflow, designed for an R developer who 1) had the organizational freedom to deploy his pipelines and 2) did not want to learn/maintain Airflow, Docker, etc.
+This is like "Airflow lite", designed for an R developer, Nick, who 1) had the organizational freedom to deploy his pipelines and 2) did not want to learn/maintain Airflow, Docker, etc.
 
-Currently works on Mac and Debian-based systems (Debian, Ubuntu)
+It currently works on Mac and Debian-based systems (Debian, Ubuntu)
 
 ## Contents
 1. [Case Study](#case-study)
@@ -38,7 +38,7 @@ We surveyed the existing tools, but they were either partial solutions or overki
 
 The one tool we did not seriously evaluate was **Posit Connect**. Nick's system was already deeply integrated with AWS S3, and Posit Connect seems to be designed for large, enterprise use cases.
 
-### We built a solution to meet Nick's needs
+### We built the simplest thing we could think of
 
 We needed more memory, so we either needed to utilize a serverless cloud service like AWS Batch or to build something that would work on a VM. The problem with a serverless solution is that it adds new complexity in the form of deployment, reproducing the environment, tracking down bugs in logs, etc. So we decided to build on a VM with enough memory (we used EC2).
 
@@ -123,21 +123,55 @@ You should be presented with a page with \[ Run \] button where you can trigger 
 
 ## Tradeoffs and Limitations
 
-### Machine Management
+### Single Machine Architecture
 
-The main tradeoff is that Nick is accepting a little bit of EC2 machine management in order to keep everything else as simple as possible. 
+Initially there was the question of whether this system should run on one machine, or whether it should be some sort of distributed delegation architecture.
 
-It's not hard to imagine a situation where the complexity of the machine management begins to outweigh the benefits of "everything else". For example, if you had:
+We opted for one machine because 1) Nick's workload could fit on one machine, and 2) it's simpler that way.
 
-- Thousands of simultaneous jobs
-- TB of simultaneous memory
-- Conflicting OS-level dependencies
+The benefit is that it's easy to debug. For Nick, the easiest environment in which to debug is his laptop. Next is RStudio Server on a VM (that's what we set up). Then a VM. Then a Docker container. And finally a distributed system.
 
-For context, Nick's pipeline is 30 tasks, as many as 8 in parallel, with a peak memory consumption of 200 GB.
+The downside is that Nick has to think about memory and storage (very occasionally) unlike a purely serverless architecture. 
 
-### Limits on Pipeline Complexity
+### Single OS Environment
 
-Another tradeoff is that we took an "80/20" approach to pipeline features. This system can run a DAG. It is not designed for dynamic DAG generation, retries and backoffs, or branching based on runtime state.
+We also debated whether each task should be containerized, or whether everything should just run on one OS.
+
+We opted for one OS because 1) Nick is a one-man operation with a consistent set of dependencies, and 2) it's simpler that way.
+
+Once again the benefit is that it's easy to debug (see above).
+
+There really was no downside for Nick, although if he had pipeline tasks that needed different OS-level dependencies it would introduce some complexity.
+
+### Simple Pipeline Rules
+
+We had to decide whether to write the pipeline logic ourselves or whether to piggyback on an existing tool.
+
+We decided to piggyback off `make` because 1) it satisfied all of Nick's needs, 2) it's extremely stable and ubiquitous, 3) the things that make it hard-to-use could be alleviated with a little UI. 
+
+The benefit is that it just works and we've never thought about it.
+
+There was no downside for Nick, but if his pipeline needs became more complex, it would stretch this design. (e.g. dynamic DAG generation, retries and backoffs, or branching based on runtime state)
+
+### Simple UI
+
+This system has a website for monitoring and editing pipelines, so we had to decide what it really needed to support.
+
+Ultimately, we decided that it needed to have 1) a History page, 2) a way to download logs, 3) a way to monitor the status of the pipeline DAG, and 4) a way to edit pipelines. This allowed us to use a very simple web architecture -- basically 1990s web technology. 
+
+The benefit is that it's simple -- both from the standpoint of being easy to use and reliable/stable.
+
+The downside is that it limits the complexity of future designs.
+
+### Bash as a specification language
+
+We debated whether to make the specification of pipelines pure R (e.g. using a tool like `target`) or whether to roll something ourselves.
+
+The developer experience we wanted was to make it "as simple as running `Rscript myscript.R` from the command line". We wanted the saving of logs to happen automatically. And we actually needed to run a couple Python scripts too. So for that reason, the underlying "wrapper" code is written in bash, and the configuration is bash + `make`. Given that, if it were purely R, Nick would have either learn a new library or wrap the bash calls in a `system()` call anyway, we considered this overhead to be acceptable.
+
+The benefit is that Nick keeps the same "mental API" for running things (e.g. `Rscript myscript.R`)
+
+The downside is that as things get more complicated, that complexity tends to creep into increasingly complicated bash one-liners.
 
 ## Contact
 
