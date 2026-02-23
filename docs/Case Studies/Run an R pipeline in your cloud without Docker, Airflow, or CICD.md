@@ -1,6 +1,6 @@
 # An app for an R developer to build/monitor his pipelines without a Data Engineer
 
-This is like a simplified version of Airflow, designed for an R developer who had 1) the organizational freedom to deploy his pipelines, but 2) did not want to learn/maintain Airflow, Docker, etc.
+This is like a simplified version of Airflow, designed for an R developer who 1) had the organizational freedom to deploy his pipelines and 2) did not want to learn/maintain Airflow, Docker, etc.
 
 Currently works on Mac and Debian-based systems (Debian, Ubuntu)
 
