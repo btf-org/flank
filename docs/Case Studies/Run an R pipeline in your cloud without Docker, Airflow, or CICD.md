@@ -1,5 +1,9 @@
 # An app for R developers to build/monitor pipelines without a Data Engineer
 
+This is like a simplified version of Airflow, designed for an R developer who had 1) the organizational freedom to deploy his pipelines, but 2) did not want to learn/maintain Airflow, Docker, etc.
+
+Currently works on Mac and Debian-based systems (Debian, Ubuntu)
+
 ## Contents
 1. [Case Study](#case-study)
 2. [Installation and Setup](#installation-and-setup)
@@ -32,7 +36,7 @@ We surveyed the existing tools, but they were either partial solutions or overki
 - **GitHub Actions**  solved the memory problem and the scheduling problem, but it's a clumsy DAG runner and it's bad for viewing logs.
 - **Docker + AWS Batch + Airflow** solved all four problems, but they created new problems in the forms of CI/CD, DSLs, and cloud configuration.
 
-The one tool we did not evaluate was **Posit Connect**. Nick's system was already deeply integrated with AWS S3, and Posit Connect seems to be designed for large, enterprise use cases.
+The one tool we did not seriously evaluate was **Posit Connect**. Nick's system was already deeply integrated with AWS S3, and Posit Connect seems to be designed for large, enterprise use cases.
 
 ### We built a solution to meet Nick's needs
 
@@ -56,7 +60,7 @@ The only cloud cost is the EC2 instance. Nick needed a max instance size of 256 
 
 However, the main cost savings was in terms of Nick's time. It's more difficult to put an exact number on that, but we saved him from having to learn / use / maintain Airflow, Docker, and AWS Batch. Conservatively, that probably saved him 10% of his development time, arguably more.
 
-### There has been nearly zero maintenance
+### Minimal dependencies have meant minimal maintenance
 
 Nik has texted me a handful of times when the website has crashed, but there is very little to maintain since everything is running on native shell tools. We've built a website to make those shell tools more accessible, but that's about it.
 
