@@ -123,6 +123,8 @@ You should be presented with a page with \[ Run \] button where you can trigger 
 
 ## Tradeoffs and Limitations
 
+The TLDR on most of these tradeoffs and limitations is _"Why build \[some advanced feature\] when Airflow already exists?"_. The whole point was to build something that was intentionally limited.
+
 ### Single Machine Architecture
 
 Initially there was the question of whether this system should run on one machine, or whether it should be some sort of distributed delegation architecture.
