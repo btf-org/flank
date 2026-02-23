@@ -167,11 +167,11 @@ The downside is that it limits the complexity of future designs.
 
 We debated whether to make the specification of pipelines pure R (e.g. using a tool like `target`) or whether to roll something ourselves.
 
-The developer experience we wanted was to make it "as simple as running `Rscript myscript.R` from the command line". We wanted the saving of logs to happen automatically. And we actually needed to run a couple Python scripts too. So for that reason, the underlying "wrapper" code is written in bash, and the configuration is bash + `make`. Given that, if it were purely R, Nick would have either learn a new library or wrap the bash calls in a `system()` call anyway, we considered this overhead to be acceptable.
+The developer experience we wanted was to make it "as simple as running `Rscript myscript.R` from the command line". We wanted the saving of logs to happen automatically. And we actually needed to run a couple Python scripts too. So for that reason, there is some wrapper code around each task. We decided to use bash, because it's just redirecting the output to a file. And then we used `make` for the pipeline configuration. Given that, if it were purely R, Nick would have either learn a new library anyway (or wrap the bash calls in a `system()` call), we considered this overhead to be acceptable.
 
 The benefit is that Nick keeps the same "mental API" for running things (e.g. `Rscript myscript.R`)
 
-The downside is that as things get more complicated, that complexity tends to creep into increasingly complicated bash one-liners.
+The downside is that as things get more complicated, that complexity tends to creep into bash one-liners.
 
 ## Contact
 
