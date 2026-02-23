@@ -1,4 +1,4 @@
-# Run an R pipeline in your cloud without Docker, Airflow, or CI/CD
+# An app for R developers to build/monitor pipelines without a Data Engineer
 
 ## Contents
 1. [Case Study](#case-study)
@@ -14,59 +14,39 @@ Nick needed to run a pipeline of R scripts every night. He could not do this on 
 
 ### He didn't want to become a data engineer
 
-The problem he ran into is that there is no middle ground between "run a script in RStudio" and "become a full-blown data engineer to orchestrate production scripts in the cloud".
+The problem he ran into is that there is no middle ground between "schedule a cron job on your laptop" and "become a full-blown data engineer to orchestrate production scripts in the cloud".
 
 ### Existing tools were either partial solutions or overkill
 
 Nick needed the following features:
 
 - More memory
-- DAG runner
+- A way to specify / run a pipeline
 - Scheduler
-- Log viewer
+- An interface to check the status, drill into specific logs, etc.
 
 We surveyed the existing tools, but they were either partial solutions or overkill:
 
-- **`target`** solved the DAG problem, but that's it.
+- **`target`** solved the pipeline problem, but that's it.
 - **Snakemake and Nextflow** are like `target`.
 - **GitHub Actions**  solved the memory problem and the scheduling problem, but it's a clumsy DAG runner and it's bad for viewing logs.
 - **Docker + AWS Batch + Airflow** solved all four problems, but they created new problems in the forms of CI/CD, DSLs, and cloud configuration.
 
+The one tool we did not evaluate was **Posit Connect**. Nick's system was already deeply integrated with AWS S3, and Posit Connect seems to be designed for large, enterprise use cases.
+
 ### We built a solution to meet Nick's needs
 
-We had to use a new computer to solve the memory problem, so we started with a cloud VM with enough memory (we used AWS EC2).
+We needed more memory, so we either needed to utilize a serverless cloud service like AWS Batch or to build something that would work on a VM. The problem with a serverless solution is that it adds new complexity in the form of deployment, reproducing the environment, tracking down bugs in logs, etc. So we decided to build on a VM with enough memory (we used EC2).
 
-Then we solved for DAG running, scheduling, and log viewing natively in Linux. This was initially a step backwards. However, we gradually built an interface on top of Linux that pulled out all the necessary functionality into an easy-to-use website.
-
-- More memory - EC2
-- DAG runner - `make` + website
-- Scheduler - `cron` + website
-- Log viewer - files + website
+Once we settled on a VM, we solved for pipelining, scheduling, and log viewing natively with command line tools. This was initially a step backwards since Nick is not a command line user. However, we gradually built an interface on top of the command line that pulled out all the necessary functionality into an easy-to-use website.
 
 ### We preserved Nick's workflow (RStudio + git)
 
-The main benefit to Nick is that he gets the basic features of Airflow without having to learn anything new or add any meaningful process. He gets to continue spending time in his happy place (RStudio).
-
-#### Updating scripts in the pipeline
-
-1. Nick makes a change to the script in RStudio, on his laptop
-2. He pushes changes to the `main` branch of his repository
-3. The EC2 box running his pipeline pulls `main` the next time it runs
-
-#### Debugging
-
-1. Nick goes to the website running on his EC2 box
-2. He drills down into a particular run (the run history is saved) and inspects the logs
-3. The EC2 box actually runs RStudioServer, so he can make the change directly on that machine through RStudioServer, or he can make the change locally and push to `main` (see above)
-
-#### Updating the pipeline
-
-1. Nick goes to the website running on his EC2 box
-2. He navigates to the pipeline and edits a text file that defines the DAG
+The main benefit to Nick is that he gets the basic features of Airflow without having to learn anything new or add any meaningful process. He gets to continue spending time in his happy place (RStudio). When he needs to make an update one of his scripts, he simply pushes a change to his repo. When he needs to make changes to the pipeline, he can do so through the website.
 
 ### This solution was half the cost of the AWS "default"
 
-The only cloud cost is the EC2 instance. Nick needed a max instance size of 256GB RAM, so our initial solution was roughly twice the cost of the AWS "default". However, by adding some simple logic to shrink the instance size during off-hours, we were about to reduce the cost by 4x.
+The only cloud cost is the EC2 instance. Nick needed a max instance size of 256 GB RAM, so our initial solution was roughly twice the cost of the AWS "default". However, by adding some simple logic to shrink the instance size during off-hours, we were about to reduce the cost by 4x.
 
 | Solution | $ / Month |
 |----------|-----------|
@@ -74,65 +54,23 @@ The only cloud cost is the EC2 instance. Nick needed a max instance size of 256G
 | AWS Batch + MWAA | $557 |
 | Flank, with simple optimizations | $247 |
 
+However, the main cost savings was in terms of Nick's time. It's more difficult to put an exact number on that, but we saved him from having to learn / use / maintain Airflow, Docker, and AWS Batch. Conservatively, that probably saved him 10% of his development time, arguably more.
+
+### There has been nearly zero maintenance
+
+Nik has texted me a handful of times when the website has crashed, but there is very little to maintain since everything is running on native shell tools. We've built a website to make those shell tools more accessible, but that's about it.
+
 ## Installation and Setup
 
 (If you already have a machine with enough memory or you just want to test on your Macbook, you can optionally skip to step #3.)
 
-1. [Setup a VM](#1-setup-a-vm)
-2. [Clone your repository onto the VM](#2-clone-your-repository-onto-the-vm)
-3. [Install Flank](#3-install-flank)
-4. [Add your scripts to Flank](#4-add-your-scripts-to-flank)
-5. [Create a pipeline in Flank](#5-create-a-pipeline-in-flank)
-6. [Schedule your pipeline in Flank](#6-schedule-your-pipeline-in-flank)
+1. [Install Flank](#1-install-flank)
+2. [Add your scripts to Flank](#2-add-your-scripts-to-flank)
+3. [Create a pipeline in Flank](#3-create-a-pipeline-in-flank)
+4. [Schedule your pipeline in Flank](#4-schedule-your-pipeline-in-flank)
 
-### 1. Setup a VM
 
-#### 1.a Launch an EC2 instance
-
-_In this step, you'll create a virtual machine in AWS with enough memory to run your pipeline. We recommend starting with an AMI that has RStudioServer pre-installed so you can edit scripts directly in the browser. If you're an Azure or GCP user, try Googling "RStudio Server on GCP"._
-
-1. Go to the [AWS EC2 console](https://console.aws.amazon.com/ec2/) and click **Launch Instance**
-2. Search for **RStudio** in the Community AMIs tab and select one of the RStudio Server AMIs (e.g. from Louis Aslett — these are well-maintained and free to use)
-3. Choose an instance type with enough memory for your workload. If you're not sure, start with `r6a.large` (16 GB) and resize later
-4. Create or select a key pair and save the `.pem` file somewhere safe
-5. Under **Network Settings**, make sure SSH (port 22) is open. If you plan to access the Flank web UI from your browser, also open port 8083
-6. Launch the instance
-
-#### 1.b Connect to your instance
-
-_In this step, you'll SSH into your new machine to confirm it's working. You only need to do this once — after that, you can use RStudioServer and the Flank web UI instead._
-
-(Swap out `your-key.pem` and the hostname for your own values)
-
-```bash
-ssh -i your-key.pem ubuntu@ec2-xx-xx-xx-xx.compute-1.amazonaws.com
-```
-
-#### 1.c (Optional) Confirm RStudioServer is running
-
-_RStudioServer runs on port 8787. If you open that port in your security group, you can edit R scripts on the EC2 box directly from your browser — no local setup required._
-
-1. Open port 8787 in your instance's security group
-2. Navigate to `http://ec2-xx-xx-xx-xx.compute-1.amazonaws.com:8787` in your browser
-3. Log in with the default credentials from the AMI documentation
-
-### 2. Clone your repository onto the VM
-
-_In this step, you'll pull your R scripts onto the EC2 machine. The pipeline will run them from here, and will pull the latest version of `main` each time it runs — so your normal git push workflow stays intact._
-
-SSH into your instance (or use the RStudioServer terminal) and clone your repo:
-
-```bash
-git clone https://github.com/your-org/your-repo.git
-```
-
-If your repository is private, the easiest path is to [create a GitHub personal access token](https://github.com/settings/tokens) and clone with it embedded in the URL:
-
-```bash
-git clone https://your-token@github.com/your-org/your-repo.git
-```
-
-### 3. Install Flank
+### 1. Install Flank
 
 #### Linux
 
@@ -150,9 +88,9 @@ _In this step, Homebrew installs a webserver and a program that wraps your CLI. 
 brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
 ```
 
-### 4. Add your scripts to Flank
+### 2. Add your scripts to Flank
 
-#### 4.a Add your script to Flank
+#### 2.a Add your script to Flank
 
 _In this step, Flank will create a "wrapper script" that 1) `cd`s into the directory of your script and 2) runs your script. The wrapper script lives on your computer like any other file, in a folder set up by Flank._
 
@@ -162,22 +100,22 @@ _In this step, Flank will create a "wrapper script" that 1) `cd`s into the direc
 iflank add myscript.R
 ```
 
-#### 4.b Confirm that the Flank-generated "wrapper script" is correct
+#### 2.b Confirm that the Flank-generated "wrapper script" is correct
 
 _In this step, you'll edit a file on your computer through the Flank web app, but you could also edit the same file through a text editor._
 
 1. Follow the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.R?edit)
 2. Confirm that Flank created the correct instructions to run your script.
 
-#### 4.c (Optional) Run your script and view output in the browser
+#### 2.c (Optional) Run your script and view output in the browser
 
 _In this step, Flank is calling the "wrapper script" under the hood._
 
 You should be presented with a page with \[ Run \] button where you can trigger your script. Run it and you should see the output in the browser. 
 
-### 5. Create a pipeline in Flank
+### 3. Create a pipeline in Flank
 
-### 6. Schedule your pipeline in Flank
+### 4. Schedule your pipeline in Flank
 
 ## Tradeoffs and Limitations
 
