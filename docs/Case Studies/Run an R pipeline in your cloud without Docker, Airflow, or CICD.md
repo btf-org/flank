@@ -14,7 +14,7 @@ It currently works on Mac and Debian-based systems (Debian, Ubuntu)
 
 ### Nick's workload outgrew his laptop
 
-Nick needed to run a pipeline of R scripts every night. He could not do this on his laptop because his laptop did not have enough memory. Also he did not want to have to always keep his laptop on.
+Nick needed to run a pipeline of R scripts every night. He could not do this on his laptop because his laptop did not have enough memory. Also he did not want to have to always keep his laptop on. The pipeline was ~30 scripts with a peak memory consumption (across all tasks) of ~200 GB.
 
 ### He didn't want to become a data engineer
 
