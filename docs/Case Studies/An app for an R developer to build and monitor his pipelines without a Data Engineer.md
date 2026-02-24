@@ -1,6 +1,6 @@
 # An app for an R developer to build/monitor his pipelines without a Data Engineer
 
-This is like "Airflow lite", designed for an R developer, Nick, who just wanted to productionize one pipeline without learning/maintaining Airflow, Docker, etc.
+"Airflow lite". It was built for an R developer, Nick, who just wanted to productionize one pipeline without learning/maintaining Airflow, Docker, etc.
 
 It currently works on Mac and Debian-based systems (Debian, Ubuntu)
 
