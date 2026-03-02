@@ -1011,9 +1011,13 @@ add_cmd() {
 	fi
 	mkdir "${FLANK_ROOT}/${dir_name}"
 	cat >"${FLANK_ROOT}/${dir_name}/template.sh" <<EOF
-# This bash script runs your Python script like you'd run it from the CLI
+# This bash script runs your R script like you'd run it from the CLI
 
-# ---- Directory -----
+# "Stop execution if any variables are unset (u), or if any command fails (e), 
+# including intermediate commands in pipelines (-o pipefail)
+set -euo pipefail
+
+# ---- Go to project directory -----
 #
 # First, it switches to the directory from where you'd run this script
 # This was based on where you ran \`iflank add\`, so you might need to adjust it.
@@ -1021,18 +1025,21 @@ add_cmd() {
 cd $wd
 
 
-# ---- Virtual Env / PATH -----
+# ---- (Optional) Pull git repo -----
 #
-# Then, you might have a virtual environment that needs to be activated
-# If so, uncomment/tweak the line below by removing the leading "# "
-#
-# Alternatively (or in addition), you might need to source your 
-# .bashrc / .bash_profile since this script runs with a limited PATH
+# This ensures that the pipeline always runs the latest version of some file.
+# (The "flock" command prevents a race condition if two pipeline tasks do this simultaneously)
 
-# . ./venv/bin/activate
-# [ -f /etc/profile ] && source /etc/profile
-# [ -f ~/.bash_profile ] && source ~/.bash_profile
-# [ -f ~/.bashrc ] && source ~/.bashrc
+flock .git/flank.lock -c 'git checkout -q main && git pull -q'
+
+
+# ---- (Optional) Install packages -----
+#
+# If you're using renv and your requirements are changing,
+# you might want to make sure all depdendencies are installed.
+# If so, uncomment/tweak the line below by removing the leading "# "
+
+# Rscript -e "renv::restore()"
 
 
 # ---- Run Script -----
@@ -1041,13 +1048,13 @@ cd $wd
 #
 # If your command takes parameters, you'll need to add them below
 #
-# Like if you run \`python myscript.py --year=2015 --mode='fast'\` from the CLI,
+# Like if you run \`Rscript myscript.R --year=2015 --mode='fast'\` from the CLI,
 # copy those parameters below.
 #
 # Advanced: You can expose those parameters for user input by making them
-# bash variables (need to use bracket syntax, \${}), like \`python myscript.py --year="\${year}" --mode="\${mode}"\`
+# bash variables (need to use bracket syntax, \${}), like \`Rscript myscript.R --year="\${year}" --mode="\${mode}"\`
 
-python $*
+Rscript $*
 EOF
 	echo ''
 	echo 'Go to http://localhost:8083/'"${dir_name}"'?_cmd=edit_cmd'
