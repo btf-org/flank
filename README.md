@@ -10,8 +10,6 @@ Build, monitor, and schedule pipelines of R scripts.
 
 ## Quickstart
 
-In this quickstart, you'll install Flank through your terminal. You will use Flank to create some "wrapper scripts" that will run your scripts. Then, you'll create a pipeline from those "wrapper scripts".
-
 1. [Install](#1-install-flank)
 2. [Add your scripts (Part I)](#2-add-your-scripts-to-flank)
 3. [Add your scripts (Part II)](#3-confirm-that-the-flank-generated-wrapper-scripts-are-correct)
