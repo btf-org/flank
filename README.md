@@ -10,6 +10,8 @@ Build, monitor, and schedule pipelines of R scripts.
 
 ## Quickstart
 
+In this quickstart, you'll install Flank through your terminal. You will use Flank to create some "wrapper scripts" that will run your scripts. Then, you'll create a pipeline from those "wrapper scripts".
+
 1. [Install](#1-install-flank)
 2. [Add your scripts (Part I)](#2-add-your-scripts-to-flank)
 3. [Add your scripts (Part II)](#3-confirm-that-the-flank-generated-wrapper-scripts-are-correct)
@@ -20,23 +22,17 @@ Build, monitor, and schedule pipelines of R scripts.
 
 #### Mac
 
-_In this step, Homebrew installs a webserver (for the UI) and a command line program. Then it starts the webserver, running as the user who's logged into the shell._
-
 ```bash
 brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
 ```
 
 #### Linux
 
-_In this step, apt installs a webserver (for the UI) and a command line program. It automatically starts the webserver, and uses `whoami` to run it as the current user rather than root._
-
 ```bash
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
 ```
 
 ### 2. Add your scripts to Flank
-
-_In this step, you will create a "wrapper script" that runs your R script. The wrapper script lives on your computer in a folder set up by Flank._
 
 #### Add a single script
 
@@ -64,8 +60,6 @@ iflank add --argparse myscript.R
 ```
 
 ### 3. Confirm that the Flank-generated "wrapper scripts" are correct
-
-_In this step, you'll edit a file on your computer through the Flank web app, but you could also edit the same file through a text editor._
 
 1. Follow the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.R?edit on Mac or http://43.158.119.101:8083/myscript.R?edit on a networked VM)
 2. Confirm that Flank created the correct instructions to run your script.
