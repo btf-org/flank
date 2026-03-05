@@ -4,7 +4,7 @@ Build, monitor, and schedule pipelines of R scripts.
 
 - Open source
 - Runs on your laptop (or your VM)
-- Written in Bash / C / vanilla HTML
+- Written in Bash
 
 <img width="410" alt="Screenshot 2026-02-11 at 5 04 09 PM" src="https://github.com/user-attachments/assets/195718fb-832c-4a3d-b81c-26b55482cb58" />   <img width="410" alt="Screenshot 2026-02-11 at 5 04 32 PM" src="https://github.com/user-attachments/assets/affb410b-f1dc-45b7-a8bb-b87cc3c4d141" />
 
