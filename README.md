@@ -21,7 +21,7 @@ Build, monitor, and schedule pipelines of R scripts.
 #### Mac
 
 ```bash
-brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank
+brew tap btf-org/flank && brew install btf-org/flank/flank && nohup $(which flankserver) >> $(brew --prefix)/var/log/flank/flankserver.log 2>> $(brew --prefix)/var/log/flank/flankserver.err
 ```
 
 #### Linux
