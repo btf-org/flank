@@ -1013,8 +1013,11 @@ add_cmd() {
 	cat >"${FLANK_ROOT}/${dir_name}/template.sh" <<EOF
 # This bash script runs your R script like you'd run it from the CLI
 
+# ---- Bash setup -----
+#
 # "Stop execution if any variables are unset (u), or if any command fails (e), 
 # including intermediate commands in pipelines (-o pipefail)
+
 set -euo pipefail
 
 # ---- Go to project directory -----
