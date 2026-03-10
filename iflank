@@ -74,26 +74,21 @@ FNR==1 && NR!=1 {
 	cmd | getline dir;
 	close(cmd)
 	filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
-	if(nickname != ""){
-	filename=nickname"-"filename;
-	}
 	link = "<a href=\"_files"dir"/console.log\" download=\""filename"\">Download Output</a>"
 	linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
 
-	print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, status, maxRSSGiB;
+	print linkDrilldown, link, path_parts[n - 4], stf, etf, status, maxRSSGiB;
 
 	prev=FILENAME; 
 	st=""; 
 	et=""; 
 	code="";
-	nickname="";
 	pid="";
 	maxRSSGiB="";
 } 
 /StartTime/ { st=$2; } 
 /EndTime/ { et=$2 } 
 /ExitCode/ { code=$2 } 
-/Nickname/ { nickname=$2 } 
 /MaxRSSBytes/ { maxRSSGiB= sprintf("%.3f", $2 / 1073741824); }
 END { 
 	if(st != ""){
@@ -152,16 +147,13 @@ END {
 	cmd | getline dir;
 	close(cmd);
 	filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
-	if(nickname != ""){
-	filename=nickname"-"filename;
-	}
 	link = "<a href=\"_files"dir"/console.log\" download=\""filename"\">Download Output</a>"
 	linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
 
-	print linkDrilldown, link, path_parts[n - 4], nickname, stf, etf, status, maxRSSGiB;
+	print linkDrilldown, link, path_parts[n - 4], stf, etf, status, maxRSSGiB;
 }'
 awk_tsv_to_html='
-{ print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td><td>"$8"</td></tr>" }'
+{ print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td></tr>" }'
 
 header_pwd() {
 	pwd | awk ' 
@@ -284,18 +276,12 @@ run_cmd() {
 		echo "first parameter $1 must be 'fg' or 'bg'"
 		return 1
 	fi
-	local nickname=""
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
 		if [ ! -f "$p_path" ]; then
 			echo "file \"$p_path\""' does not exist!'
 			return 1
 		fi
 		local cmd_dir=$(dirname "$p_path")
-		if [ $(basename "$cmd_dir") == 'saved_configs' ]; then
-			local cmd_dir=$(dirname "$cmd_dir")
-			local scriptname=$(basename "$p_path")
-			local nickname=${scriptname%.sh}
-		fi
 	else
 		local cmd_dir=$(pwd)
 	fi
@@ -405,11 +391,11 @@ run_cmd() {
 	#  - Killing `bash -c` will not kill the process it wraps
 	#  - Killing `nohup` will not kill the process it wraps
 	if [ "$p_fgbg" == 'bg' ]; then
-		nohup bash -c "cd $cmd_run_dir; printf 'Nickname:\t%s\nStartTime:\t%s\n' ""'""$nickname""'"" "'$(date "+%s")'" > status; /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &> console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> status; if [ -f time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" time.gnu.out >> status; elif [ -f time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" time.bsd.out >> status; fi
+		nohup bash -c "cd $cmd_run_dir; printf 'StartTime:\t%s\n' "'$(date "+%s")'" > status; /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &> console.log ; printf 'ExitCode:\t%d\nEndTime:\t%d\n' \$? "'$(date "+%s")'" >> status; if [ -f time.gnu.out ]; then awk -F: ""'"' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } '"'"" time.gnu.out >> status; elif [ -f time.bsd.out ]; then awk ""'"' /maximum resident set size/ { print "MaxRSSBytes:\t"$1 } '"'"" time.bsd.out >> status; fi
 " >/dev/null &
 	else
 		cd $cmd_run_dir
-		printf 'Nickname:\t%s\nStartTime:\t%s\n' "$nickname" $(date "+%s") >status
+		printf 'StartTime:\t%s\n' $(date "+%s") >status
 		# Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
 		set +e
 		/usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &>console.log &
@@ -753,7 +739,7 @@ flank_hist() {
 	fi
 
 	echo %TABLEHEADSTART%
-	echo '<th></th><th></th><th>Command</th><th>Nickname</th><th>Start Time</th><th>End Time</th><th>Status</th><th>RAM (GiB)</th>'
+	echo '<th></th><th></th><th>Command</th><th>Start Time</th><th>End Time</th><th>Status</th><th>RAM (GiB)</th>'
 	echo %TABLEHEADEND%
 
 	echo %APPENDTRSTART%
@@ -796,7 +782,7 @@ run_form() {
 	echo '</div>'
 	echo '<div id="pFooter">'
 	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '<a onclick="run('\''edit_cmd'\'')">Edit</a>'
+	echo '<a onclick="run('\''edit_cmd'\'')">Edit template.sh</a>'
 	echo '<a onclick="run('\''crontab_list'\'')">View Cron</a>'
 	echo '<a onclick="run('\''createcronform'\'')">Create Cron</a>'
 	echo '</div>'
@@ -895,7 +881,7 @@ log_dir() {
 	fi
 	echo '<div id="pFooter">'
 	echo '<a '"$disabled_class"' onclick="run('\''kill '"$PWD"\'')">Kill</a>'
-	echo '<a '"$disabled_class"' onclick="run('\''fcat exec.sh'\'')">View Executable</a>'
+	echo '<a '"$disabled_class"' onclick="run('\''fcat exec.sh'\'')">View exec.sh</a>'
 	disabled_class=''
 	path_components=(${PWD//\// })
 	length=${#path_components[@]}
