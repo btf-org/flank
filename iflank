@@ -156,7 +156,8 @@ awk_tsv_to_html='
 { print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td></tr>" }'
 
 header_pwd() {
-	pwd | awk ' 
+	local html='<div id="pHeader" class="flex flex-row justify-between">'
+	html="${html}$(pwd | awk ' 
 	{ 
 	    line=""; 
 	    n = split($0, path_parts, "/"); 
@@ -169,8 +170,29 @@ header_pwd() {
 		} 
 		line=line"/<a onclick=\"run('\''cd "concat"'\'')\">"ppi"</a>";
 	    } 
-	    print "<div id=\"pHeader\">"line"</div>";
-	} '
+	    print "<div>"line"</div>";
+	} ')"
+	if [ -f /proc/meminfo ]; then
+		# Linux path
+		html="${html}$(awk '/MemTotal/{total=$2} /MemAvailable/{avail=$2} END{
+			printf "<div>%.2f / %.2f GiB</div>", (total-avail)/1048576, total/1048576
+		}' /proc/meminfo)"
+	else
+		# macOS path
+		local total=$(sysctl -n hw.memsize)
+		local page_size=$(sysctl -n hw.pagesize)
+		local used=$(vm_stat | awk -v ps="$page_size" '
+			/Pages active/   {active=$3}
+			/Pages wired/    {wired=$4}
+			/Pages occupied by compressor/ {compressed=$5}
+			END { printf "%d", (active + wired + compressed) * ps }
+		')
+		html="${html}$(awk -v t="$total" -v u="$used" 'BEGIN{
+			printf "<div>%.2f / %.2f GiB</div>", u/1073741824, t/1073741824
+		}')"
+	fi
+	html=$html'</div>'
+	printf '%s' "$html"
 }
 
 kill_tree() {
