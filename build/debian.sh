@@ -5,14 +5,12 @@ read -rp "Hit [enter] to continue"
 mkdir -p releases/flank_"$version"_amd64/DEBIAN
 mkdir -p releases/flank_"$version"_amd64/usr/local/bin
 mkdir -p releases/flank_"$version"_amd64/usr/share/flank
-mkdir -p releases/flank_"$version"_amd64/var/lib/flank
 mkdir -p releases/flank_"$version"_amd64/lib/systemd/system
 mkdir -p releases/flank_"$version"_amd64/etc/default
 
 cp build/DEBIAN/control build/DEBIAN/postinst build/DEBIAN/conffiles releases/flank_"$version"_amd64/DEBIAN/
 cp build/DEBIAN/flankserver.service releases/flank_"$version"_amd64/lib/systemd/system
 cp build/DEBIAN/flank releases/flank_"$version"_amd64/etc/default/flank
-cp -r build/var/flank/. releases/flank_"$version"_amd64/var/lib/flank
 
 sed -i '' 's/Version: .*$/Version: '$version'/' releases/flank_"$version"_amd64/DEBIAN/control
 chmod 775 releases/flank_"$version"_amd64/DEBIAN/postinst
