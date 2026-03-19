@@ -1320,14 +1320,15 @@ while true; do
 		echo "${cron}" 1>&2
 		echo '---' 1>&2
 		echo "${cmd}" 1>&2
+		# ${cmd_name} @colspan 2
+		# ${cron_expression} @colspan 2
 		create_cmd_from_cron_job_confirm_sh='
-# ${cmd_name} @colspan 2
-# ${cron_expression} @colspan 2
 # ${cron_expression} @default '"${cron}"'
 # ${script_contents} @type textarea @capturetab
 # ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank/blob/main/docs/create_cmd.md">See docs</a> for more details.
 # ${script_contents} @default '"${cmd}"'
-echo ${cron_expression} && mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh'
+
+mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh'
 		create_cmd_from_cron_job_confirm_form_display "$create_cmd_from_cron_job_confirm_sh"
 		;;
 	create_pipeline_form)
