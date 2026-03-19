@@ -513,6 +513,7 @@ END {
 		ctrl["@colspan"] = 2
 		ctrl["@capturetab"] = 0
 		ctrl["@values"] = ""
+		ctrl["@default"] = ""
 		for (key in ann){
 			if (key == "@ignore"){
 				ctrl["@ignore"] = 1
