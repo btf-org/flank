@@ -1354,8 +1354,6 @@ FIND_VERSION=''
 DATE_VERSION=''
 TIME_VERSION=''
 ACTIVE_PID_FILE=''
-PREV_CHOICE='cd'
-PREV_ARGS="$FLANK_ROOT"
 
 while true; do
 	read -r choice args || readerr
@@ -1367,45 +1365,28 @@ while true; do
 		fi
 	fi
 
-	if [ "$choice" == 'refresh' ]; then
-		choice="$PREV_CHOICE"
-		args="$PREV_ARGS"
-	fi
-
 	echo "choice $choice" 1>&2
 	echo "args $args" 1>&2
 
 	case $choice in
 	cd)
-		PREV_CHOICE="$choice"
-		PREV_ARGS="$args"
 		safe_cd "$args"
 		;;
 	history)
-		PREV_CHOICE="$choice"
-		PREV_ARGS="$args"
 		flank_hist
 		;;
 	run)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		# run <cmd_dir> <k=v&k=v>
 		IFS=' ' read cmd_dir kvs <<<"$args"
 		delim_kvs=$(echo "$kvs" | sed 's/&/'$'\x1F''/g')
 		decoded_kvs=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${delim_kvs})")
 		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" --arglist "$decoded_kvs")
 		safe_cd "$cmd_run_dir"
-		PREV_CHOICE='cd'
-		PREV_ARGS="$cmd_run_dir"
 		;;
 	create_cmd_choose_type)
-		PREV_CHOICE="$choice"
-		PREV_ARGS="$args"
 		create_cmd_choose_type
 		;;
 	create_cmd_choose_type_submit)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		arglist=$(url_2_awk "$args")
 		create_cmd_choose_type_submit_exec=$(prepend_vars "$create_cmd_choose_type_sh" "$arglist")
 		# echo "cpfme: $create_pipeline_form_exec" 1>&2
@@ -1430,8 +1411,6 @@ while true; do
 		pipeline_name=$(eval "$pipeline_name_sh")
 		;;
 	create_cmd_from_cron_job_confirm_form)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		arglist=$(url_2_awk "$args")
 		create_cmd_from_cron_job_exec=$(prepend_vars "$create_cmd_from_cron_job_sh" "$arglist")
 		cron_job=$(eval "$create_cmd_from_cron_job_exec")
@@ -1443,8 +1422,6 @@ while true; do
 		create_cmd_from_cron_job_confirm_form_display "$create_cmd_from_cron_job_confirm_sh"
 		;;
 	save_cmd_from_cron_job)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		# save_cmd_from_cron_job <k=v&k=v>
 		arglist=$(url_2_awk "$args")
 		create_cmd_from_cron_job_confirm_sh=$(create_cmd_from_cron_job_confirm_sh_fn "" "")
@@ -1454,19 +1431,13 @@ while true; do
 		safe_cd "$PWD"
 		;;
 	create_pipeline_form)
-		PREV_CHOICE="$choice"
-		PREV_ARGS="$args"
 		create_pipeline_form
 		;;
 	fcat)
 		# fcat <path>
-		PREV_CHOICE="$choice"
-		PREV_ARGS="$args"
 		fcat "$args"
 		;;
 	create_cmd_from_hello_world_save)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		# create_cmd_from_hello_world_save <k=v&k=v>
 		arglist=$(url_2_awk "$args")
 		create_cmd_from_hello_world_sh=$(create_cmd_from_existing_script_sh_fn '' '')
@@ -1478,8 +1449,6 @@ while true; do
 		safe_cd "$FLANK_ROOT/$cmd_name"
 		;;
 	savefile)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		# savefile <path> <k=v>
 		# everything after first space, then space delimited
 		split_kvs=$(echo "${args#* }" | tr '&' ' ')
@@ -1493,12 +1462,8 @@ while true; do
 		cat <<<"$cleaned_file" >template.sh
 
 		run_form
-		PREV_CHOICE='cd'
-		PREV_ARGS="$PWD"
 		;;
 	save_pipeline)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		# save_pipeline <k=v&k=v>
 		arglist=$(url_2_awk "$args")
 		create_pipeline_form_exec=$(prepend_vars "$create_pipeline_form_sh" "$arglist")
@@ -1511,13 +1476,9 @@ while true; do
 		edit_cmd
 		;;
 	filepicker)
-		PREV_CHOICE="$choice"
-		PREV_ARGS="$args"
 		filepicker "$args"
 		;;
 	choose_file_to_create_cmd)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		arglist=$(url_2_awk "$args")
 		filepath=$(get_value "$arglist" "filepath")
 		echo "$filepath" 1>&2
@@ -1547,8 +1508,6 @@ while true; do
 		create_cmd_from_existing_script "$create_cmd_from_existing_script_sh"
 		;;
 	create_cmd_from_existing_script_save)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		arglist=$(url_2_awk "$args")
 		cmd_path=$(get_value "$arglist" "cmd_name")
 		create_cmd_from_existing_script_sh=$(create_cmd_from_existing_script_sh_fn "" "")
@@ -1558,23 +1517,15 @@ while true; do
 		safe_cd "$FLANK_ROOT/$cmd_name"
 		;;
 	crontab_list)
-		PREV_CHOICE="$choice"
-		PREV_ARGS="$args"
 		crontab_list
 		;;
 	edit_cmd)
-		PREV_CHOICE="$choice"
-		PREV_ARGS="$args"
 		edit_cmd
 		;;
 	createcronform)
-		PREV_CHOICE="$choice"
-		PREV_ARGS="$args"
 		create_cron_form
 		;;
 	createcron)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		dont_update_prev_choice=1
 		# createcron <dir> <k=v&k=v>
 		# everything after first space, then space delimited
@@ -1599,13 +1550,9 @@ while true; do
 		crontab_list
 		;;
 	mkdir_form)
-		PREV_CHOICE="$choice"
-		PREV_ARGS="$args"
 		mkdir_form
 		;;
 	mkdir)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		# mkdir <k=v&k=v>
 		split_kvs=$(echo "$args" | tr '&' ' ')
 		arglist=''
@@ -1625,13 +1572,9 @@ while true; do
 		safe_cd "$PWD"
 		;;
 	kill)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		flank_kill "$args"
 		;;
 	*)
-		PREV_CHOICE="$PREV_CHOICE"
-		PREV_ARGS="$PREV_ARGS"
 		read -rp "Invalid choice! Hit [Enter] to continue" || readerr
 		;;
 	esac
