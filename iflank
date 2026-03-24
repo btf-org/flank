@@ -780,16 +780,20 @@ create_cmd_from_cron_job_form() {
 	echo '%PAGEEND%'
 }
 create_cmd_from_cron_job_confirm_sh_fn() {
-	# create_cmd_from_cron_job_confirm_sh_fn <cron> <cmd>
+	# create_cmd_from_cron_job_confirm_sh_fn <cron> <cmd> <existing cron>
 	echo '# ${cron_expression} @default '"$1"'
 # ${script_contents} @type textarea @capturetab
 # ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank/blob/main/docs/create_cmd.md">See docs</a> for more details.
 # ${script_contents} @default '"$2"'
 # ${cmd_name} @colspan 3
+# ${existing_cron} @default '"$3"'
+# ${existing_cron} @colspan 3
 
 mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh
 new_cron_line="${cron_expression} $(which iflank) run $PWD/${cmd_name}/template.sh"
-(crontab -l 2>/dev/null; echo "$new_cron_line") | crontab -'
+(crontab -l 2>/dev/null; echo "$new_cron_line") | crontab -
+crontab -l | LINE="${existing_cron}" awk '\''BEGIN{line=ENVIRON["LINE"]} $0 == line { $0 = "# " $0 } 1'\'' | crontab -
+'
 }
 
 create_cmd_from_cron_job_confirm_form_display() {
@@ -1439,19 +1443,18 @@ while true; do
 		;;
 	create_cmd_from_cron_job_confirm_form)
 		arglist=$(url_2_awk "$args")
-		create_cmd_from_cron_job_exec=$(prepend_vars "$create_cmd_from_cron_job_sh" "$arglist")
-		cron_job=$(eval "$create_cmd_from_cron_job_exec")
-		delimited_cj=$(echo "$cron_job" | sed 's/[[:space:]]/FLNKDLM/5')
-		cron="${delimited_cj%%FLNKDLM*}"
-		cmd="${delimited_cj#*FLNKDLM}"
-		create_cmd_from_cron_job_confirm_sh=$(create_cmd_from_cron_job_confirm_sh_fn "${cron}" "${cmd}")
+		existing_cj=$(get_value "$arglist" "cron_job")
+		existing_cj_delim=$(echo "$existing_cj" | sed 's/[[:space:]]/FLNKDLM/5')
+		cron="${existing_cj_delim%%FLNKDLM*}"
+		cmd="${existing_cj_delim#*FLNKDLM}"
+		create_cmd_from_cron_job_confirm_sh=$(create_cmd_from_cron_job_confirm_sh_fn "${cron}" "${cmd}" "${existing_cj}")
 		echo "$create_cmd_from_cron_job_confirm_sh" 1>&2
 		create_cmd_from_cron_job_confirm_form_display "$create_cmd_from_cron_job_confirm_sh"
 		;;
 	save_cmd_from_cron_job)
 		# save_cmd_from_cron_job <k=v&k=v>
 		arglist=$(url_2_awk "$args")
-		create_cmd_from_cron_job_confirm_sh=$(create_cmd_from_cron_job_confirm_sh_fn "" "")
+		create_cmd_from_cron_job_confirm_sh=$(create_cmd_from_cron_job_confirm_sh_fn "" "" "")
 		save_cmd_from_cron_job_exec=$(prepend_vars "$create_cmd_from_cron_job_confirm_sh" "$arglist")
 		eval "$save_cmd_from_cron_job_exec"
 		# feels like this should be a pop...
