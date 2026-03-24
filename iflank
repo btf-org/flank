@@ -13,6 +13,25 @@ else
 	exit
 fi
 
+get_value() {
+  input="$1"
+  target_key="$2"
+
+  old_ifs="$IFS"
+  IFS=$(printf '\037')
+  for pair in $input; do
+    key="${pair%%=*}"
+    value="${pair#*=}"
+    if [ "$key" = "$target_key" ]; then
+      IFS="$old_ifs"
+      printf '%s\n' "$value"
+      return 0
+    fi
+  done
+
+  IFS="$old_ifs"
+  return 1
+}
 awk_columns='
 NR==1 { prev=FILENAME; } 
 FNR==1 && NR!=1 { 
@@ -212,7 +231,8 @@ prepend_vars() {
 		while IFS= read -r -d $'\x1F' pair; do
 			local key="${pair%%=*}"
 			local value="${pair#*=}"
-			value="${value//\'/\'\\\'\'}"
+			replacement="'\''"
+			value="${value//\'/$replacement}"
 			assignments="${assignments}${key}='${value}'"$'\n'
 		done < <(printf '%s'$'\x1F' "$2")
 
@@ -436,6 +456,51 @@ readerr() {
 	exit 1
 }
 
+filepicker() {
+	# filepicker <dir>
+	echo '%PAGESTART%'
+	header_pwd
+	echo ""
+	echo '<div id="pBody">'
+	echo "$1" | awk ' 
+	{ 
+		line="<a onclick=\"run('\''filepicker /'\'')\">[root]</a>"; 
+	    n = split($0, path_parts, "/"); 
+	    for (i = 2; i <= n; i++) { 
+		concat=""; 
+		ppi=path_parts[i]; 
+		for (j = 2; j <= i; j++) { 
+		    ppj=path_parts[j]; 
+		    concat=concat"/"ppj; 
+		} 
+		line=line"/<a onclick=\"run('\''filepicker "concat"'\'')\">"ppi"</a>";
+	    } 
+	    print "<div>"line"</div>";
+	} '
+	for f in "$1"/*; do
+		f_name="${f##*/}"
+		if [ -d "$f" ]; then
+			echo '📁 <a onclick="run('\''filepicker '"$f"\'')">'"$f_name"'</a>'
+		fi
+	done
+	echo '<form id="form" method="POST" class="line-height-0_5">'
+	for f in "$1"/*; do
+		f_name="${f##*/}"
+		if [ ! -d "$f" ]; then
+			echo '<label class="block"><input type="radio" name="filepath" value="'"$f"'"> '"$f_name"'</label>'
+		fi
+	done
+	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''choose_file_to_create_cmd'\'')">Next</button></div>'
+	echo '</form>'
+	echo '</div>'
+	echo '<div id="pFooter">'
+	echo '<a onclick="run('\''history'\'')">History</a>'
+	echo '<a onclick="run('\''mkdir_form'\'')">Make Dir</a>'
+	echo '<a onclick="run('\''create_cmd_choose_type'\'')">Create Cmd</a>'
+	echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
+	echo '</div>'
+	echo '%PAGEEND%'
+}
 flank_ls() {
 	echo '%PAGESTART%'
 	header_pwd
@@ -532,6 +597,7 @@ END {
 				ctrl["@values"] = ann[key]
 			} else if (key == "@default") {
 				ctrl["@default"] = ann[key]
+				gsub(/\\n/, "\n", ctrl["@default"])
 			}
 		}	
 
@@ -600,11 +666,17 @@ END {
 create_cmd_choose_type_sh='
 # ${type} @type radio @values `printf '\''From Existing Script\nFrom Cron Job\nHello World Example\n'\''`
 printf '\''%s'\'' "${type}"'
-create_cmd_from_existing_script_sh='
+create_cmd_from_existing_script_sh_fn() {
+	# create_cmd_from_existing_script_sh_fn <script_contents> <cmd_name>
+	echo '
 # ${cmd_name} @colspan 2
+# ${cmd_name} @default '"$2"'
 # ${script_contents} @type textarea @capturetab
+# ${script_contents} @default '"$1"'
 # ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank/blob/main/docs/create_cmd.md">See docs</a> for more details.
-mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh'
+
+mkdir -p ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh'
+}
 
 create_cmd_choose_type() {
 	echo '%PAGESTART%'
@@ -621,14 +693,31 @@ create_cmd_choose_type() {
 	echo '</div>'
 	echo '%PAGEEND%'
 }
-create_cmd_from_existing_script_form() {
+create_cmd_from_hello_world() {
+	# create_cmd_from_hello_world <script>
 	echo '%PAGESTART%'
 	header_pwd
 	echo ''
 	echo '<div id="pBody">'
 	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
-	awk "$awk_parse_vars" <<<"$create_cmd_from_existing_script_sh"
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''create_cmd_from_existing_script_submit'\'')">Save</button></div>'
+	awk "$awk_parse_vars" <<<"$1"
+	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''create_cmd_from_hello_world_save'\'')">Save</button></div>'
+	echo '</form>'
+	echo '</div>'
+	echo '<div id="pFooter">'
+	echo '<a onclick="run('\''history'\'')">History</a>'
+	echo '</div>'
+	echo '%PAGEEND%'
+}
+create_cmd_from_existing_script() {
+	# create_cmd_from_existing_script <script>
+	echo '%PAGESTART%'
+	header_pwd
+	echo ''
+	echo '<div id="pBody">'
+	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
+	awk "$awk_parse_vars" <<<"$1"
+	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''create_cmd_from_existing_script_save'\'')">Save</button></div>'
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'
@@ -654,6 +743,19 @@ create_cmd_from_cron_job_form() {
 	echo '</div>'
 	echo '%PAGEEND%'
 }
+create_cmd_from_cron_job_confirm_sh_fn() {
+	# create_cmd_from_cron_job_confirm_sh_fn <cron> <cmd>
+	echo '# ${cron_expression} @default '"$1"'
+# ${script_contents} @type textarea @capturetab
+# ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank/blob/main/docs/create_cmd.md">See docs</a> for more details.
+# ${script_contents} @default '"$2"'
+# ${cmd_name} @colspan 3
+
+mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh
+new_cron_line="${cron_expression} $(which iflank) run $PWD/${cmd_name}/template.sh"
+(crontab -l 2>/dev/null; echo "$new_cron_line") | crontab -'
+}
+
 create_cmd_from_cron_job_confirm_form_display() {
 	# create_cmd_from_cron_job_confirm_form_display <script>
 	echo '%PAGESTART%'
@@ -662,7 +764,7 @@ create_cmd_from_cron_job_confirm_form_display() {
 	echo '<div id="pBody">'
 	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
 	awk "$awk_parse_vars" <<<"$1"
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''create_cmd_from_cron_job_confirm_form'\'')">Next</button></div>'
+	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''save_cmd_from_cron_job'\'')">Next</button></div>'
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'
@@ -1014,6 +1116,70 @@ flank_error() {
 	echo '%PAGEEND%'
 }
 
+default_cmd_content() {
+	# default_cmd_content <cd_dir> <cmd_contents>
+	cd_dir="$1"
+	cmd_contents="$2"
+	is_git_repo="$3"
+	git_line='flock .git/flank.lock -c '\''git checkout -q main && git pull -q'\'
+	if [ "$is_git_repo" != 1 ]; then
+		git_line="# ${git_line}"
+	fi
+	cat  <<EOF
+# This bash script runs your R script like you'd run it from the CLI
+
+# ---- Bash setup -----
+#
+# "Stop execution if any variables are unset (u), or if any command
+# fails (e), including intermediate commands in pipelines (-o pipefail)
+
+set -euo pipefail
+
+# ---- Go to project directory -----
+#
+# First, it switches to the directory from where you'd run this script
+# This was based on where you ran \`iflank add\`, 
+# so you might need to adjust it.
+
+cd $cd_dir
+
+
+# ---- (Optional) Pull git repo -----
+#
+# This ensures that the pipeline always runs the latest version 
+# of some file. (The "flock" command prevents a race condition 
+# if two pipeline tasks do this simultaneously)
+
+# flock .git/flank.lock -c 'git checkout -q main && git pull -q'
+
+
+# ---- (Optional) Install packages -----
+#
+# If you're using renv and your requirements are changing,
+# you might want to make sure all depdendencies are installed.
+# If so, uncomment/tweak the line below by removing the leading "# "
+
+# Rscript -e "renv::restore()"
+
+
+# ---- Run Script -----
+# 
+# Finally it runs your command
+#
+# If your command takes parameters, you'll need to add them below
+#
+# Like if you run \`Rscript myscript.R --year=2015 --mode='fast'\` 
+# from the CLI, copy those parameters below.
+#
+# Advanced: You can expose those parameters for user input by making
+# them bash variables (need to use bracket syntax, \${}), 
+# like \`Rscript myscript.R --year="\${year}" --mode="\${mode}"\`
+
+Rscript $cmd_contents
+EOF
+
+}
+
 add_cmd() {
 	# add_cmd <wd> <params>
 	local wd=$1
@@ -1240,13 +1406,14 @@ while true; do
 		echo "$create_cmd_wizard_type" 1>&2
 		case "$create_cmd_wizard_type" in
 		'From Existing Script')
-			create_cmd_from_existing_script_form
+			filepicker "$HOME"
 			;;
 		'From Cron Job')
 			create_cmd_from_cron_job_form
 			;;
 		'Hello World Example')
-			create_cmd_from_existing_script_form
+			script=$(create_cmd_from_existing_script_sh_fn "echo 'hello world'" "hello-world")
+			create_cmd_from_hello_world "$script"
 			;;
 		*)
 			echo "REST"
@@ -1262,22 +1429,11 @@ while true; do
 		prev_key=''
 
 		for kv in $(echo "$args" | tr '&' '\n' | sort); do
-			echo '///' 1>&2
-			echo ${kv} 1>&2
-			echo '///' 1>&2
 			subbed_expr=$(echo "$kv" | sed 's/+/ /g; s/%/\\x/g')
-			echo "${subbed_expr}" 1>&2
-			echo '///' 1>&2
 			decoded_kv=$(printf '%b' "$subbed_expr")
 			
 			key="${decoded_kv%%=*}"
 			val="${decoded_kv#*=}"
-			echo '///' 1>&2
-			echo "${decoded_kv}" 1>&2
-			echo '///' 1>&2
-			echo "${key}" 1>&2
-			echo '///' 1>&2
-			echo "${val}" 1>&2
 
 			if [ "${key%\[\]}" != "$key" ]; then
 				# Array key - strip [] and append with newline if same key
@@ -1299,37 +1455,56 @@ while true; do
 				fi
 				prev_key="$key"
 			fi
-			echo '+++' 1>&2
-			echo ${arglist} 1>&2
 		done
 		create_cmd_from_cron_job_exec=$(prepend_vars "$create_cmd_from_cron_job_sh" "$arglist")
 		cron_job=$(eval "$create_cmd_from_cron_job_exec")
 		delimited_cj=$(echo "$cron_job" | sed 's/[[:space:]]/FLNKDLM/5')
 		cron="${delimited_cj%%FLNKDLM*}"
 		cmd="${delimited_cj#*FLNKDLM}"
-		echo "${args}" 1>&2
-		echo '---' 1>&2
-		echo "${arglist}" 1>&2
-		echo '---' 1>&2
-		echo "${create_cmd_from_cron_job_exec}" 1>&2
-		echo '---' 1>&2
-		echo "${cron_job}" 1>&2
-		echo '---' 1>&2
-		echo "${delimited_cj}" 1>&2
-		echo '---' 1>&2
-		echo "${cron}" 1>&2
-		echo '---' 1>&2
-		echo "${cmd}" 1>&2
-		# ${cmd_name} @colspan 2
-		# ${cron_expression} @colspan 2
-		create_cmd_from_cron_job_confirm_sh='
-# ${cron_expression} @default '"${cron}"'
-# ${script_contents} @type textarea @capturetab
-# ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank/blob/main/docs/create_cmd.md">See docs</a> for more details.
-# ${script_contents} @default '"${cmd}"'
-
-mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh'
+		create_cmd_from_cron_job_confirm_sh=$(create_cmd_from_cron_job_confirm_sh_fn "${cron}" "${cmd}")
+		echo "$create_cmd_from_cron_job_confirm_sh" 1>&2
 		create_cmd_from_cron_job_confirm_form_display "$create_cmd_from_cron_job_confirm_sh"
+		;;
+	save_cmd_from_cron_job)
+		PREV_CHOICE="$PREV_CHOICE"
+		PREV_ARGS="$PREV_ARGS"
+		# save_cmd_from_cron_job <k=v&k=v>
+		arglist=''
+		prev_key=''
+
+		for kv in $(echo "$args" | tr '&' '\n' | sort); do
+			subbed_expr=$(echo "$kv" | sed 's/+/ /g; s/%/\\x/g')
+			decoded_kv=$(printf '%b' "$subbed_expr")
+			
+			key="${decoded_kv%%=*}"
+			val="${decoded_kv#*=}"
+
+			if [ "${key%\[\]}" != "$key" ]; then
+				# Array key - strip [] and append with newline if same key
+				base_key="${key%\[\]}"
+				if [ "$arglist" = '' ]; then
+					arglist="${base_key}=${val}"
+				elif [ "$base_key" = "$prev_key" ]; then
+					arglist="${arglist}"$'\n'"${val}"
+				else
+					arglist="${arglist}"$'\x1F'"${base_key}=${val}"
+				fi
+				prev_key="$base_key"
+			else
+				# Normal key
+				if [ "$arglist" = '' ]; then
+					arglist="${key}=${val}"
+				else
+					arglist="${arglist}"$'\x1F'"${key}=${val}"
+				fi
+				prev_key="$key"
+			fi
+		done
+		create_cmd_from_cron_job_confirm_sh=$(create_cmd_from_cron_job_confirm_sh_fn "" "")
+		save_cmd_from_cron_job_exec=$(prepend_vars "$create_cmd_from_cron_job_confirm_sh" "$arglist")
+		eval "$save_cmd_from_cron_job_exec"
+		# feels like this should be a pop...
+		safe_cd "$PWD"
 		;;
 	create_pipeline_form)
 		PREV_CHOICE="$choice"
@@ -1342,25 +1517,45 @@ mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/te
 		PREV_ARGS="$args"
 		fcat "$args"
 		;;
-	create_cmd_from_existing_script_submit)
+	create_cmd_from_hello_world_save)
 		PREV_CHOICE="$PREV_CHOICE"
 		PREV_ARGS="$PREV_ARGS"
-		# create_cmd_from_existing_script_submit <k=v&k=v>
-		split_kvs=$(echo "$args" | tr '&' ' ')
+		# create_cmd_from_hello_world_save <k=v&k=v>
 		arglist=''
-		# don't quote, so that spaces (i.e. array separation of elements) are preserved
-		for kv in $split_kvs; do
-			# printf can get fucked up by the unit separator, so do that after
-			decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
-			if [ "$arglist" == '' ]; then
-				arglist="$decoded_kv"
+		prev_key=''
+
+		for kv in $(echo "$args" | tr '&' '\n' | sort); do
+			subbed_expr=$(echo "$kv" | sed 's/+/ /g; s/%/\\x/g')
+			decoded_kv=$(printf '%b' "$subbed_expr")
+			
+			key="${decoded_kv%%=*}"
+			val="${decoded_kv#*=}"
+
+			if [ "${key%\[\]}" != "$key" ]; then
+				# Array key - strip [] and append with newline if same key
+				base_key="${key%\[\]}"
+				if [ "$arglist" = '' ]; then
+					arglist="${base_key}=${val}"
+				elif [ "$base_key" = "$prev_key" ]; then
+					arglist="${arglist}"$'\n'"${val}"
+				else
+					arglist="${arglist}"$'\x1F'"${base_key}=${val}"
+				fi
+				prev_key="$base_key"
 			else
-				arglist="${arglist}"$'\x1F'"${decoded_kv}"
+				# Normal key
+				if [ "$arglist" = '' ]; then
+					arglist="${key}=${val}"
+				else
+					arglist="${arglist}"$'\x1F'"${key}=${val}"
+				fi
+				prev_key="$key"
 			fi
 		done
-		create_cmd_form_exec=$(prepend_vars "$create_cmd_from_existing_script_sh" "$arglist")
-		echo "ccfme: $create_cmd_form_exec" 1>&2
-		eval "$create_cmd_form_exec"
+		create_cmd_from_hello_world_sh=$(create_cmd_from_existing_script_sh_fn '' '')
+		create_cmd_from_hello_world_exec=$(prepend_vars "$create_cmd_from_hello_world_sh" "$arglist")
+		echo "ccfme: $create_cmd_from_hello_world_exec" 1>&2
+		eval "$create_cmd_from_hello_world_exec"
 		# feels like this should be a pop...
 		safe_cd "$PWD"
 		;;
@@ -1425,6 +1620,111 @@ mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/te
 		echo "pipeline_name ${pipeline_name}" 1>&2
 		safe_cd "$pipeline_name"
 		edit_cmd
+		;;
+	filepicker)
+		PREV_CHOICE="$choice"
+		PREV_ARGS="$args"
+		filepicker "$args"
+		;;
+	choose_file_to_create_cmd)
+		PREV_CHOICE="$PREV_CHOICE"
+		PREV_ARGS="$PREV_ARGS"
+		arglist=''
+		prev_key=''
+
+		for kv in $(echo "$args" | tr '&' '\n' | sort); do
+			decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
+			
+			key="${decoded_kv%%=*}"
+			val="${decoded_kv#*=}"
+
+			if [ "${key%\[\]}" != "$key" ]; then
+				# Array key - strip [] and append with newline if same key
+				base_key="${key%\[\]}"
+				if [ "$arglist" = '' ]; then
+					arglist="${base_key}=${val}"
+				elif [ "$base_key" = "$prev_key" ]; then
+					arglist="${arglist}"$'\n'"${val}"
+				else
+					arglist="${arglist}"$'\x1F'"${base_key}=${val}"
+				fi
+				prev_key="$base_key"
+			else
+				# Normal key
+				if [ "$arglist" = '' ]; then
+					arglist="${key}=${val}"
+				else
+					arglist="${arglist}"$'\x1F'"${key}=${val}"
+				fi
+				prev_key="$key"
+			fi
+		done
+		filepath=$(get_value "$arglist" "filepath")
+		echo "$filepath" 1>&2
+		# things to extract: 1) the folder to cd into, 2) the (possibly) remaining folders between that folder and the file, 3) the file name
+		# things to do with them (2) and (3) are used to create the command; (1) and (2)+(3) are used to create the preliminary wrapper script
+		_check=$(dirname "$filepath")
+		echo "$check" 1>&2
+		cd_folder=$_check
+		is_git_repo=0
+		while [ "$_check" != "/" ]; do
+			echo "$_check" 1>&2
+			if [ -d "$_check/.git" ]; then
+				echo "GIT" 1>&2
+				cd_folder="$_check"
+				is_git_repo=1
+				break
+			fi
+			_check="$(dirname "$_check")"
+		done
+		relative_path="${filepath#"$cd_folder/"}"
+		echo "$filepath" 1>&2
+		echo "$cd_folder" 1>&2
+		echo "$relative_path" 1>&2
+		cmd_content=$(default_cmd_content "$cd_folder" "$relative_path" "$is_git_repo")
+		cmd_content_one_liner="${cmd_content//$'\n'/\\n}"
+		create_cmd_from_existing_script_sh=$(create_cmd_from_existing_script_sh_fn "$cmd_content_one_liner" "$relative_path")
+		create_cmd_from_existing_script "$create_cmd_from_existing_script_sh"
+		;;
+	create_cmd_from_existing_script_save)
+		PREV_CHOICE="$PREV_CHOICE"
+		PREV_ARGS="$PREV_ARGS"
+		arglist=''
+		prev_key=''
+
+		for kv in $(echo "$args" | tr '&' '\n' | sort); do
+			decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
+			
+			key="${decoded_kv%%=*}"
+			val="${decoded_kv#*=}"
+
+			if [ "${key%\[\]}" != "$key" ]; then
+				# Array key - strip [] and append with newline if same key
+				base_key="${key%\[\]}"
+				if [ "$arglist" = '' ]; then
+					arglist="${base_key}=${val}"
+				elif [ "$base_key" = "$prev_key" ]; then
+					arglist="${arglist}"$'\n'"${val}"
+				else
+					arglist="${arglist}"$'\x1F'"${base_key}=${val}"
+				fi
+				prev_key="$base_key"
+			else
+				# Normal key
+				if [ "$arglist" = '' ]; then
+					arglist="${key}=${val}"
+				else
+					arglist="${arglist}"$'\x1F'"${key}=${val}"
+				fi
+				prev_key="$key"
+			fi
+		done
+		cmd_path=$(get_value "$arglist" "cmd_name")
+		create_cmd_from_existing_script_sh=$(create_cmd_from_existing_script_sh_fn "" "")
+		create_cmd_from_existing_script_exec=$(prepend_vars "$create_cmd_from_existing_script_sh" "$arglist")
+		echo "ccfme: $create_cmd_from_existing_script_exec" 1>&2
+		eval "$create_cmd_from_existing_script_exec"
+		safe_cd "$FLANK_ROOT/$cmd_name"
 		;;
 	crontab_list)
 		PREV_CHOICE="$choice"
