@@ -37,33 +37,33 @@ url_2_awk() {
 	# url encoding to Flank awk encoding
 	local _args="$1"
 	local _arglist=''
-	local prev_key=''
+	local _prev_key=''
 
 	for kv in $(echo "$_args" | tr '&' '\n' | sort); do
-		local decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
+		local _decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
 		
-		local key="${decoded_kv%%=*}"
-		local val="${decoded_kv#*=}"
+		local _key="${_decoded_kv%%=*}"
+		local _val="${_decoded_kv#*=}"
 
-		if [ "${key%\[\]}" != "$key" ]; then
+		if [ "${_key%\[\]}" != "$_key" ]; then
 			# Array key - strip [] and append with newline if same key
-			local base_key="${key%\[\]}"
+			local _base_key="${_key%\[\]}"
 			if [ "$_arglist" = '' ]; then
-				_arglist="${base_key}=${val}"
-			elif [ "$base_key" = "$prev_key" ]; then
-				_arglist="${_arglist}"$'\n'"${val}"
+				_arglist="${_base_key}=${_val}"
+			elif [ "$_base_key" = "$_prev_key" ]; then
+				_arglist="${_arglist}"$'\n'"${_val}"
 			else
-				_arglist="${_arglist}"$'\x1F'"${base_key}=${val}"
+				_arglist="${_arglist}"$'\x1F'"${_base_key}=${_val}"
 			fi
-			prev_key="$base_key"
+			_prev_key="$_base_key"
 		else
 			# Normal key
 			if [ "$_arglist" = '' ]; then
-				_arglist="${key}=${val}"
+				_arglist="${_key}=${_val}"
 			else
-				_arglist="${_arglist}"$'\x1F'"${key}=${val}"
+				_arglist="${_arglist}"$'\x1F'"${_key}=${_val}"
 			fi
-			prev_key="$key"
+			_prev_key="$_key"
 		fi
 	done
 	printf '%s' "$_arglist"
@@ -1473,8 +1473,9 @@ while true; do
 		create_cmd_from_hello_world_exec=$(prepend_vars "$create_cmd_from_hello_world_sh" "$arglist")
 		echo "ccfme: $create_cmd_from_hello_world_exec" 1>&2
 		eval "$create_cmd_from_hello_world_exec"
+		cmd_name=$(get_value "$arglist" "cmd_name")
 		# feels like this should be a pop...
-		safe_cd "$PWD"
+		safe_cd "$FLANK_ROOT/$cmd_name"
 		;;
 	savefile)
 		PREV_CHOICE="$PREV_CHOICE"
