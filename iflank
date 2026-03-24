@@ -33,11 +33,13 @@ get_value() {
   return 1
 }
 url_2_awk() {
+	# url_2_awk <url_args>
 	# url encoding to Flank awk encoding
-	local arglist=''
+	local _args="$1"
+	local _arglist=''
 	local prev_key=''
 
-	for kv in $(echo "$args" | tr '&' '\n' | sort); do
+	for kv in $(echo "$_args" | tr '&' '\n' | sort); do
 		local decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
 		
 		local key="${decoded_kv%%=*}"
@@ -46,25 +48,25 @@ url_2_awk() {
 		if [ "${key%\[\]}" != "$key" ]; then
 			# Array key - strip [] and append with newline if same key
 			local base_key="${key%\[\]}"
-			if [ "$arglist" = '' ]; then
-				arglist="${base_key}=${val}"
+			if [ "$_arglist" = '' ]; then
+				_arglist="${base_key}=${val}"
 			elif [ "$base_key" = "$prev_key" ]; then
-				arglist="${arglist}"$'\n'"${val}"
+				_arglist="${_arglist}"$'\n'"${val}"
 			else
-				arglist="${arglist}"$'\x1F'"${base_key}=${val}"
+				_arglist="${_arglist}"$'\x1F'"${base_key}=${val}"
 			fi
 			prev_key="$base_key"
 		else
 			# Normal key
-			if [ "$arglist" = '' ]; then
-				arglist="${key}=${val}"
+			if [ "$_arglist" = '' ]; then
+				_arglist="${key}=${val}"
 			else
-				arglist="${arglist}"$'\x1F'"${key}=${val}"
+				_arglist="${_arglist}"$'\x1F'"${key}=${val}"
 			fi
 			prev_key="$key"
 		fi
 	done
-	printf '%s' "$arglist"
+	printf '%s' "$_arglist"
 }
 awk_columns='
 NR==1 { prev=FILENAME; } 
