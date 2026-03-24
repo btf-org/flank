@@ -986,7 +986,7 @@ run_form() {
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '<a onclick="run('\''edit_cmd'\'')">Edit template.sh</a>'
 	echo '<a onclick="run('\''crontab_list'\'')">View Cron</a>'
-	echo '<a onclick="run('\''createcronform'\'')">Create Cron</a>'
+	echo '<a onclick="run('\''add_cron_form'\'')">Create Cron</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
 }
@@ -1041,14 +1041,14 @@ fcat() {
 	echo '</div>'
 	echo '%PAGEEND%'
 }
-create_cron_form() {
+add_cron_form() {
 	echo '%PAGESTART%'
 	header_pwd
 	echo '<div id="pBody">'
 	echo '<form id="form" method="POST">'
 	echo 'cron_expression' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
 	grep -oE '\${([^}]+)}' template.sh | sed 's/^${//; s/}$//' | awk ' { print "<div><div>"$0"</div><input name=\""$0"\"/></div>" }'
-	echo '<div><button type="button" onclick="iflankForm('\''createcron .'\'')">Save</button></div>'
+	echo '<div><button type="button" onclick="iflankForm('\''add_cron .'\'')">Save</button></div>'
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'
@@ -1549,11 +1549,11 @@ while true; do
 	edit_cmd)
 		edit_cmd
 		;;
-	createcronform)
-		create_cron_form
+	add_cron_form)
+		add_cron_form
 		;;
-	createcron)
-		# createcron <dir> <k=v&k=v>
+	add_cron)
+		# add_cron <dir> <k=v&k=v>
 		# everything after first space, then space delimited
 		split_kvs=$(echo "${args#* }" | tr '&' ' ')
 		echo "split kvs" 1>&2
