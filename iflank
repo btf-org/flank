@@ -14,23 +14,23 @@ else
 fi
 
 get_value() {
-  input="$1"
-  target_key="$2"
+	input="$1"
+	target_key="$2"
 
-  old_ifs="$IFS"
-  IFS=$(printf '\037')
-  for pair in $input; do
-    key="${pair%%=*}"
-    value="${pair#*=}"
-    if [ "$key" = "$target_key" ]; then
-      IFS="$old_ifs"
-      printf '%s\n' "$value"
-      return 0
-    fi
-  done
+	old_ifs="$IFS"
+	IFS=$(printf '\037')
+	for pair in $input; do
+		key="${pair%%=*}"
+		value="${pair#*=}"
+		if [ "$key" = "$target_key" ]; then
+			IFS="$old_ifs"
+			printf '%s\n' "$value"
+			return 0
+		fi
+	done
 
-  IFS="$old_ifs"
-  return 1
+	IFS="$old_ifs"
+	return 1
 }
 url_2_awk() {
 	# url_2_awk <url_args>
@@ -41,7 +41,7 @@ url_2_awk() {
 
 	for kv in $(echo "$_args" | tr '&' '\n' | sort); do
 		local _decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
-		
+
 		local _key="${_decoded_kv%%=*}"
 		local _val="${_decoded_kv#*=}"
 
@@ -1161,7 +1161,7 @@ default_cmd_content() {
 	if [ "$is_git_repo" != 1 ]; then
 		git_line="# ${git_line}"
 	fi
-	cat  <<EOF
+	cat <<EOF
 # This bash script runs your R script like you'd run it from the CLI
 
 # ---- Bash setup -----
@@ -1293,7 +1293,6 @@ help_msg() {
 
 # This traps SIGPIPE, which would get sent if this program tried to write to a broken pipe
 trap "echo 'server disconnected (write pipe)'; exit 1" PIPE
-
 
 while [ "$1" != "" ]; do
 	case $1 in
