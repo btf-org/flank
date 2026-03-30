@@ -210,18 +210,23 @@ awk_tsv_to_html='
 
 header_pwd() {
 	local html='<div id="pHeader" class="flex flex-row justify-between">'
-	html="${html}$(pwd | awk ' 
+	html="${html}$(echo "$PWD" | awk -v flank_root="$FLANK_ROOT" ' 
 	{ 
 	    line=""; 
 	    n = split($0, path_parts, "/"); 
+		nr = split(flank_root, root_parts, "/");
 	    for (i = 2; i <= n; i++) { 
-		concat=""; 
-		ppi=path_parts[i]; 
-		for (j = 2; j <= i; j++) { 
-		    ppj=path_parts[j]; 
-		    concat=concat"/"ppj; 
-		} 
-		line=line"/<a onclick=\"run('\''cd "concat"'\'')\">"ppi"</a>";
+			concat=""; 
+			ppi=path_parts[i]; 
+			for (j = 2; j <= i; j++) { 
+				ppj=path_parts[j]; 
+				concat=concat"/"ppj; 
+			} 
+			if (i < nr) {
+				line=line"/"ppi;
+			} else {
+				line=line"/<a onclick=\"run('\''cd "concat"'\'')\">"ppi"</a>";
+			}
 	    } 
 	    print "<div>"line"</div>";
 	} ')"
