@@ -958,11 +958,14 @@ flank_hist() {
 	if [ "$FIND_VERSION" == 'gnu' ]; then
 		regex_flag='-regextype posix-extended'
 		extended_flag=''
-		awk_flag='-W interactive'
 	else
 		regex_flag=''
 		extended_flag='-E'
-		awk_flag=''
+	fi
+	if [ -z "$(awk -W interactive 'BEGIN {exit}' 2>&1)" ]; then
+		awk_flag="-W interactive"
+	else
+		awk_flag=""
 	fi
 	{
 
