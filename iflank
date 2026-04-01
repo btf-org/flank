@@ -1110,7 +1110,7 @@ log_dir() {
 	# Write the PID to a file so that the background job running `tail -f`
 	# can mutate it (set it to '' once the process finishes)
 	ACTIVE_PID_FILE=$(mktemp)
-	if grep '^make ' <(head -1 exec.sh); then
+	if grep '^make ' exec.sh && grep '^EOF' exec.sh; then
 		local awk_enrich='
 		BEGIN {
 			while ((getline line < "console.log") > 0) {
@@ -1125,7 +1125,7 @@ log_dir() {
 
 			for (stamp in run_dirs) {
 		        status_file = run_dirs[stamp] "/status"
-				color = "gray"
+				color = "ghostwhite"
 
 			    if ((getline < status_file) >= 0) { 
 					close(status_file)
@@ -1133,35 +1133,36 @@ log_dir() {
 						if (sline ~ /^ExitCode/) {
 							split(sline, ec_parts, /[ \t]+/)
 							exit_code = ec_parts[2]
+							# https://graphviz.org/doc/info/colors.html#svg
 							if (exit_code == 0) {
-								color = "green"
+								color = "lime"
 							} else {
 								color = "red"
 							}
 							break
+						} else {
+							color = "orange"
 						}
 					}
 					close(status_file)
-				} else {
-					print status_file" NOT FOUND"
 				}
 				colors[stamp] = color
 			}
 		}
 		/color/ { 
-			    if (match($0, /label="[^"]+"/)) {
-					start = RSTART + 7       
-					len = RLENGTH - 8 
-					stamp = substr($0, start, len)
-				}
-				else {
-					stamp = ""
-				}
-			color = "yellow";
+			if (match($0, /label="[^"]+"/)) {
+				start = RSTART + 7       
+				len = RLENGTH - 8 
+				stamp = substr($0, start, len)
+			}
+			else {
+				stamp = ""
+			}
+			color = "gray";
 			if(stamp in colors){
 				color = colors[stamp];
 			}
-			sub(/color=".*"/, "color=\""color"\"");  
+			sub(/color=".*"/, "style=\"filled\", fillcolor=\""color"\"");  
 			sub(/label=/, "URL=\""run_dirs[stamp]"\", label=");
 		}
 		{ print } '
