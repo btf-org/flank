@@ -918,16 +918,12 @@ fi
 '
 fmkdir_sh='
 # ${dirname} @colspan 2
-mkdir "${dirname}"
-'
-fmkdir() {
-	# fmkdir <args>
-	local _args="$1"
-	local _arglist=$(url_2_awk "$_args")
-	local _fmkdir_exec=$(prepend_vars "$fmkdir_sh" "$_arglist")
-	eval "$_fmkdir_exec"
+if ! output=$(mkdir "${dirname}" 2>&1 >/dev/null); then
+	error_modal "$output"
+else
 	fcd "$PWD"
-}
+fi
+'
 show_form() {
 	# show_form <script> <submit cmd> <btn text>
 	local _script="$1"
@@ -1643,7 +1639,7 @@ while true; do
 		show_form "$fmkdir_sh" "fmkdir" "Save"
 		;;
 	fmkdir)
-		fmkdir "$args"
+		eval_form "$args" "$fmkdir_sh"
 		;;
 	fkill)
 		fkill "$args"
