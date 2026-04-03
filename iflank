@@ -589,6 +589,7 @@ flank_ls() {
 	echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
 	echo '<a onclick="run('\''create_cmd_choose_type'\'')">Create Cmd</a>'
 	echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
+	echo '<a onclick="run('\''fcrontab_e_form'\'')">Edit crontab</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
 }
@@ -662,7 +663,17 @@ END {
 				ctrl["@values"] = ann[key]
 			} else if (key == "@default") {
 				ctrl["@default"] = ann[key]
-				gsub(/\\n/, "\n", ctrl["@default"])
+				if (ctrl["@default"] ~ /^`.*`$/) {
+					cmd = substr(ctrl["@default"], 2, length(ctrl["@default"]) - 2)
+					output=""
+					while ((cmd | getline line) > 0) {
+						output = (output == "") ? line : output "\n" line
+					}
+					close(cmd)
+					ctrl["@default"]=output
+				} else {
+					gsub(/\\n/, "\n", ctrl["@default"])
+				}
 			}
 		}	
 
@@ -896,6 +907,13 @@ create_pipeline_form() {
 	echo '</div>'
 	echo '%PAGEEND%'
 }
+fcrontab_e_sh='
+# ${crontab_contents} @type textarea @capturetab
+# ${crontab_contents} @default `crontab -l`
+if ! output=$(echo "${crontab_contents}" | crontab - 2>&1 >/dev/null); then
+	error_modal "$output"
+fi
+'
 fmkdir_sh='
 # ${dirname} @colspan 2
 mkdir "${dirname}"
@@ -1021,7 +1039,7 @@ run_form() {
 	echo '<div id="pFooter">'
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '<a onclick="run('\''edit_cmd'\'')">Edit template.sh</a>'
-	echo '<a onclick="run('\''crontab_list'\'')">View Cron</a>'
+	echo '<a onclick="run('\''fcrontab_l'\'')">View Cron</a>'
 	echo '<a onclick="run('\''add_cron_form'\'')">Create Cron</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
@@ -1055,7 +1073,7 @@ edit_cmd() {
 	echo '%PAGEEND%'
 }
 
-crontab_list() {
+fcrontab_l() {
 	echo '%PAGESTART%'
 	header_pwd
 	echo '<div id="pBody">'
@@ -1579,8 +1597,17 @@ while true; do
 		eval "$create_cmd_from_existing_script_exec"
 		fcd "$FLANK_ROOT/$cmd_name"
 		;;
-	crontab_list)
-		crontab_list
+	fcrontab_l)
+		fcrontab_l
+		;;
+	fcrontab_e_form)
+		show_form "$fcrontab_e_sh" "fcrontab_e" "Save"
+		;;
+	fcrontab_e)
+		arglist=$(url_2_awk "$args")
+		fcrontab_e_exec=$(prepend_vars "$fcrontab_e_sh" "$arglist")
+		eval "$fcrontab_e_exec"
+		fcrontab_l
 		;;
 	edit_cmd)
 		edit_cmd
@@ -1601,7 +1628,7 @@ while true; do
 			crontab -l 2>/dev/null
 			echo "$new_cron_line"
 		) | crontab -
-		crontab_list
+		fcrontab_l
 		;;
 	fmkdir_form)
 		show_form "$fmkdir_sh" "fmkdir" "Save"
