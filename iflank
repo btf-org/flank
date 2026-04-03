@@ -128,7 +128,7 @@ FNR==1 && NR!=1 {
 	close(cmd)
 	filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
 	link = "<a href=\"_files"dir"/console.log\" download=\""filename"\">Download Output</a>"
-	linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
+	linkDrilldown = "<a onclick=\"run('\''fcd "dir"'\'')\">Drilldown</a>"
 
 	print linkDrilldown, link, path_parts[n - 4], stf, etf, status, maxRSSGiB;
 
@@ -201,7 +201,7 @@ END {
 	close(cmd);
 	filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
 	link = "<a href=\"_files"dir"/console.log\" download=\""filename"\">Download Output</a>"
-	linkDrilldown = "<a onclick=\"run('\''cd "dir"'\'')\">Drilldown</a>"
+	linkDrilldown = "<a onclick=\"run('\''fcd "dir"'\'')\">Drilldown</a>"
 
 	print linkDrilldown, link, path_parts[n - 4], stf, etf, status, maxRSSGiB;
 }'
@@ -225,7 +225,7 @@ header_pwd() {
 			if (i < nr) {
 				line=line"/"ppi;
 			} else {
-				line=line"/<a onclick=\"run('\''cd "concat"'\'')\">"ppi"</a>";
+				line=line"/<a onclick=\"run('\''fcd "concat"'\'')\">"ppi"</a>";
 			}
 	    } 
 	    print "<div>"line"</div>";
@@ -573,12 +573,12 @@ flank_ls() {
 	echo '<div id="pBody">'
 	for f in *; do
 		if [ -d "$f" ] && [ ! -f "$f/template.sh" ]; then
-			echo '📁 <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
+			echo '📁 <a onclick="run('\''fcd '"$f"\'')">'"$f"'</a>'
 		fi
 	done
 	for f in *; do
 		if [ -d "$f" ] && [ -f "$f/template.sh" ]; then
-			echo '<span class="hidden">📁</span> <a onclick="run('\''cd '"$f"\'')">'"$f"'</a>'
+			echo '<span class="hidden">📁</span> <a onclick="run('\''fcd '"$f"\'')">'"$f"'</a>'
 		elif [ -f "$f" ]; then
 			echo '<span class="hidden">📁</span> '"$f"
 		fi
@@ -912,6 +912,8 @@ fcrontab_e_sh='
 # ${crontab_contents} @default `crontab -l`
 if ! output=$(echo "${crontab_contents}" | crontab - 2>&1 >/dev/null); then
 	error_modal "$output"
+else
+	fcrontab_l
 fi
 '
 fmkdir_sh='
@@ -945,6 +947,16 @@ show_form() {
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
+}
+eval_form() {
+	# eval_form <args> <sh>
+	local _args="$1"
+	local _sh="$2"
+
+	local _arglist=$(url_2_awk "$_args")
+	local _to_eval=$(prepend_vars "$_sh" "$_arglist")
+
+	eval "$_to_eval"
 }
 fmkdir_form() {
 	echo '%PAGESTART%'
@@ -1211,7 +1223,7 @@ log_dir() {
 		echo '%APPENDPAGEBODYSTART%'
 		make -Bnd -f <(grep -Ev '^make |EOF' exec.sh) |
 			make2graph | grep -Ev 'n2 |n2\[' | awk "$awk_enrich" |
-			dot -Tsvg | sed 's/xlink:href="\([^"]*\)"/onclick="run('\''cd \1'\'')"/'
+			dot -Tsvg | sed 's/xlink:href="\([^"]*\)"/onclick="run('\''fcd \1'\'')"/'
 		echo '%APPENDPAGEBODYEND%'
 	elif [ "$state" == 'after' ]; then
 		echo '%APPENDPAGEBODYSTART%'
@@ -1451,7 +1463,7 @@ while true; do
 	echo "args $args" 1>&2
 
 	case $choice in
-	cd)
+	fcd)
 		fcd "$args"
 		;;
 	history)
@@ -1604,10 +1616,7 @@ while true; do
 		show_form "$fcrontab_e_sh" "fcrontab_e" "Save"
 		;;
 	fcrontab_e)
-		arglist=$(url_2_awk "$args")
-		fcrontab_e_exec=$(prepend_vars "$fcrontab_e_sh" "$arglist")
-		eval "$fcrontab_e_exec"
-		fcrontab_l
+		eval_form "$args" "$fcrontab_e_sh"
 		;;
 	edit_cmd)
 		edit_cmd
