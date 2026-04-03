@@ -474,13 +474,13 @@ fcd() {
 	esac
 
 	case "$(realpath "$d")" in
-		"$FLANK_ROOT"|"$FLANK_ROOT"/*)
-			# carry on...
-			;;
-		*)
-			error_modal "You're only allowed to cd into directories under $FLANK_ROOT"
-			return 1
-			;;
+	"$FLANK_ROOT" | "$FLANK_ROOT"/*)
+		# carry on...
+		;;
+	*)
+		error_modal "You're only allowed to cd into directories under $FLANK_ROOT"
+		return 1
+		;;
 	esac
 	cd "$d"
 	if [ -f template.sh ]; then

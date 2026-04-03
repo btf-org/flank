@@ -133,20 +133,51 @@
       .font-size-0_8 {
         font-size: 0.8rem;
       }
-    .fixed { position: fixed; }
-    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-    .bg-black-50p { background-color: rgba(0, 0, 0, 0.5); }
-    .items-center { align-items: center; }
-    .justify-center { justify-content: center; }
-    .z-50 { z-index: 50; }
+      .fixed {
+        position: fixed;
+      }
+      .inset-0 {
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+      .bg-black-50p {
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+      .items-center {
+        align-items: center;
+      }
+      .justify-center {
+        justify-content: center;
+      }
+      .z-50 {
+        z-index: 50;
+      }
 
-    .bg-white { background-color: #ffffff; }
-    .rounded-lg { border-radius: 0.5rem; }
-    .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }
-    .p-1_5 { padding: 1.5rem; }
-    .max-w-24 { max-width: 24rem; }
-    .flex-col { flex-direction: column; }
-    .gap-1 { gap: 1rem; }
+      .bg-white {
+        background-color: #ffffff;
+      }
+      .rounded-lg {
+        border-radius: 0.5rem;
+      }
+      .shadow-xl {
+        box-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      }
+      .p-1_5 {
+        padding: 1.5rem;
+      }
+      .max-w-24 {
+        max-width: 24rem;
+      }
+      .flex-col {
+        flex-direction: column;
+      }
+      .gap-1 {
+        gap: 1rem;
+      }
       a {
         color: #0000ee;
         text-decoration: underline;
@@ -189,7 +220,6 @@
         sid = randomBase62Id();
         sessionStorage.setItem("sid", sid);
       }
-
 
       function tab(event, el) {
         if (event.key === "Tab") {
@@ -378,7 +408,10 @@
             state = "insidePageBodyStream";
             i += "%STREAMPAGEBODYSTART%\n".length - 1;
             setLoading(true);
-          } else if (thisText[i] == "%" && thisText.startsWith("%PAGEAPPENDSTART%\n", i)){
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%PAGEAPPENDSTART%\n", i)
+          ) {
             accumulatingResponse = "";
             state = "insidePageAppend";
             i += "%PAGEAPPENDSTART%\n".length - 1;
@@ -389,7 +422,10 @@
             const prevState = state;
             i += "%PAGEAPPENDEND%\n".length - 1;
             if (prevState == "insidePageAppend") {
-              document.body.insertAdjacentHTML('beforeend', accumulatingResponse);
+              document.body.insertAdjacentHTML(
+                "beforeend",
+                accumulatingResponse,
+              );
               accumulatingResponse = "";
               state = "outside";
             }
