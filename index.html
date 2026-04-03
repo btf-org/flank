@@ -466,9 +466,9 @@
       async function setup() {
         longPoll();
         if (window.location.pathname === "/") {
-          run("cd ~");
+          run("fcd ~");
         } else {
-          run("cd ~" + window.location.pathname);
+          run("fcd ~" + window.location.pathname);
         }
         const params = Object.fromEntries(
           new URLSearchParams(window.location.search),

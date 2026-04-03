@@ -1649,7 +1649,7 @@ while true; do
 		fkill "$args"
 		;;
 	*)
-		read -rp "Invalid choice! Hit [Enter] to continue" || readerr
+		error_modal "$choice is an invalid command"
 		;;
 	esac
 done
