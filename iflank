@@ -704,15 +704,15 @@ END {
 			if (ctrl["@values"] ~ /^`.*`$/) {
 				cmd = substr(ctrl["@values"], 2, length(ctrl["@values"]) - 2)
 				while ((cmd | getline line) > 0) {
-					html=html"<label class=\"block\"><input type=\""ctrl["@type"]"\" name=\""varname_stripped"[]\" value=\""line"\"> "line"</label>"
+					html=html"<label class=\"block\"><input required type=\""ctrl["@type"]"\" name=\""varname_stripped"[]\" value=\""line"\"> "line"</label>"
 				}
 				close(cmd)
 			}
 		} else {
 			if(ctrl["@type"] == "textarea"){
-				html=html"<textarea class=\"w-100p\" "
+				html=html"<textarea required class=\"w-100p\" "
 			} else {
-				html=html"<input class=\"w-100p\" "
+				html=html"<input required class=\"w-100p\" "
 			}
 			if(ctrl["@capturetab"]){
 				html=html"onkeydown=\"tab(event, this)\" "

@@ -274,6 +274,7 @@
       }
       async function iflankForm(cmd) {
         const form = document.getElementById("form");
+        if (!form.reportValidity()) return;
         const fd = new FormData(form);
         try {
           await fetch(window.location.origin + "/_iflank", {
