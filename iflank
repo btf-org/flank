@@ -595,9 +595,9 @@ flank_ls() {
 }
 awk_parse_vars='
 # match annotation lines
-/^# *\$\{[A-Za-z_][A-Za-z0-9_]*\} / {
+/^# *\$\{[A-Za-z_][A-Za-z0-9_]*(:[+-][^}]*)?\} / {
 	line = $0
-	match(line, /\$\{[A-Za-z_][A-Za-z0-9_]*\}/)
+	match(line, /\$\{[A-Za-z_][A-Za-z0-9_]*(:[+-][^}]*)?\}/)
     var = substr(line, RSTART, RLENGTH)
 
     # strip "# ${var} "
@@ -612,9 +612,11 @@ awk_parse_vars='
 
 # non-comment lines → extract vars
 !/^[[:space:]]*#/ {
-    while (match($0, /\$\{[A-Za-z_][A-Za-z0-9_]*\}/)) {
-        v = substr($0, RSTART, RLENGTH)
-        seen[v] = 1
+	while (match($0, /\$\{[A-Za-z_][A-Za-z0-9_]*(:[+-][^}]*)?\}/)) {
+		v = substr($0, RSTART, RLENGTH)
+		match(v, /[A-Za-z_][A-Za-z0-9_]*/)
+		v = "${" substr(v, RSTART, RLENGTH) "}"
+		seen[v] = 1
         $0 = substr($0, RSTART + RLENGTH)
     }
 }
@@ -704,7 +706,15 @@ END {
 			if (ctrl["@values"] ~ /^`.*`$/) {
 				cmd = substr(ctrl["@values"], 2, length(ctrl["@values"]) - 2)
 				while ((cmd | getline line) > 0) {
-					html=html"<label class=\"block\"><input required type=\""ctrl["@type"]"\" name=\""varname_stripped"[]\" value=\""line"\"> "line"</label>"
+					required_flag=""
+					if(ctrl["@type"] == "radio"){
+						required_flag="required "
+					}
+					brackets=""
+					if(ctrl["@type"] == "checkbox"){
+						brackets="[]"
+					}
+					html=html"<label class=\"block\"><input"required_flag" type=\""ctrl["@type"]"\" name=\""varname_stripped brackets"\" value=\""line"\"> "line"</label>"
 				}
 				close(cmd)
 			}
@@ -1468,9 +1478,10 @@ while true; do
 	run)
 		# run <cmd_dir> <k=v&k=v>
 		IFS=' ' read cmd_dir kvs <<<"$args"
-		delim_kvs=$(echo "$kvs" | sed 's/&/'$'\x1F''/g')
-		decoded_kvs=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${delim_kvs})")
-		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" --arglist "$decoded_kvs")
+		# delim_kvs=$(echo "$kvs" | sed 's/&/'$'\x1F''/g')
+		# decoded_kvs=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${delim_kvs})")
+		arglist=$(url_2_awk "$kvs")
+		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" --arglist "$arglist")
 		fcd "$cmd_run_dir"
 		;;
 	create_cmd_choose_type)
