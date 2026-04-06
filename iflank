@@ -714,10 +714,24 @@ END {
 					if(ctrl["@type"] == "checkbox"){
 						brackets="[]"
 					}
-					html=html"<label class=\"block\"><input"required_flag" type=\""ctrl["@type"]"\" name=\""varname_stripped brackets"\" value=\""line"\"> "line"</label>"
+					html=html"<label class=\"block\"><input "required_flag"type=\""ctrl["@type"]"\" name=\""varname_stripped brackets"\" value=\""line"\"> "line"</label>"
 				}
 				close(cmd)
 			}
+		} else if(ctrl["@type"] == "select") {
+			html=html"<select required name=\""varname_stripped"\">"
+			if (ctrl["@values"] ~ /^`.*`$/) {
+				cmd = substr(ctrl["@values"], 2, length(ctrl["@values"]) - 2)
+				while ((cmd | getline line) > 0) {
+					selected=""
+					if(line == ctrl["@default"]){
+						selected=" selected"
+					}
+					html=html"<option value=\""line"\""selected">"line"</option>"
+				}
+				close(cmd)
+			}
+			html=html"</select>"
 		} else {
 			if(ctrl["@type"] == "textarea"){
 				html=html"<textarea required class=\"w-100p\" "
