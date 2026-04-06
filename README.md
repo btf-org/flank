@@ -55,4 +55,16 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 
 ## How it works under the hood
 
+### Phase 0: I was the human run button
 
+### Phase 1: Getting my command line into the browser.
+
+I wrote a small webserver (see `flankserver.c` above) that starts a Bash process and 1) pipes POST bodies to stdin and 2) pipes the resulting stdout back into the POST response.
+
+### Phase 2: Adding guardrails
+
+I wrote a bash wrapper (see `iflank` above) that restricts the user to a sandboxed area in the filesystem. Also it restricts which commands users can run. 
+
+### Phase 3: Turning the output into something that looks like a web app
+
+I wrote a very simple parser on the website (see index.html above) that looks for keywords like “%PAGESTART%” and injects things into then DOM accordingly.
