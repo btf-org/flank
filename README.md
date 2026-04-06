@@ -28,7 +28,26 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 
 ## A quick webpage for `curl`
 
+#### Get it working
 
+1. Click "Create Cmd" on the bottom bar
+2. Choose the "Hello World" option
+3. Remove the echo and paste in the following, and click "Save"
+
+```bash
+curl -X "${method}" "${url}"
+```
+
+#### Add decorations
+
+1. Click "Edit template.sh" on the bottom bar
+2. Above the curl line, add the following decorations for `${method}` and `{url}`, and click "Save"
+
+```bash
+# ${method} @select @values `echo $'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
+# ${url} @type url @colspan 4
+curl -X "${method}" "${url}"
+```
 
 ## The decoration API
 
