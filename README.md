@@ -4,6 +4,8 @@ Flank is a tool for exposing shell commands, but with guardrails. I use it to ta
 
 FYI, it is currently lacking any concept of users or RBAC, and I use it in a high-trust setting, so this is very much a prototype of a "real" tool.
 
+## Contents 
+
 - [Installation](#installation)
 - [A quick webpage for curl](#a-quick-webpage-for-curl)
 - [The decoration API](#the-decoration-api)
