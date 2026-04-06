@@ -38,7 +38,9 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 curl -X "${method}" "${url}"
 ```
 
-#### Add decorations
+You should see something like this:
+
+#### Add guardrails
 
 1. Click "Edit template.sh" on the bottom bar
 2. Above the curl line, add the following decorations for `${method}` and `{url}`, and click "Save"
