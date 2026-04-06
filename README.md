@@ -32,6 +32,8 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 
 ## The decoration API
 
+Where possible, I've tried to mirror vanilla HTML, so to specify a textarea, you use `@textarea`, but to specify radio buttons, you use `@input @type radio`
+
 ### Command-Level
 
 | Directive | Value | Default | Notes |
