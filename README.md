@@ -1,18 +1,16 @@
 # Flank
 
-Build, monitor, and schedule pipelines of R scripts. Open source. Runs on your laptop (or your VM).
+Flank is a tool for exposing shell commands, but with guardrails. I use it to take myself out of the loop on ad-hoc things that my teammates need.
 
-<img width="410" alt="Screenshot 2026-02-11 at 5 04 09 PM" src="https://github.com/user-attachments/assets/195718fb-832c-4a3d-b81c-26b55482cb58" />   <img width="410" alt="Screenshot 2026-02-11 at 5 04 32 PM" src="https://github.com/user-attachments/assets/affb410b-f1dc-45b7-a8bb-b87cc3c4d141" />
+FYI, it is currently lacking any concept of users or RBAC
 
-## Quickstart
+- [Installation](#installation)
+- [A quick webpage for curl](#a-quick-webpage-for-curl)
+- [The decoration API](#the-decoration-api)
+- [How it works under the hood](#how-it-works-under-the-hood)
 
-1. [Install](#1-install-flank)
-2. [Add your scripts (Part I)](#2-add-your-scripts-to-flank)
-3. [Add your scripts (Part II)](#3-confirm-that-the-flank-generated-wrapper-scripts-are-correct)
-4. [Create pipeline](#4-create-a-pipeline)
-5. [Schedule pipeline](#5-schedule-your-pipeline)
-
-### 1. Install Flank
+  
+## Installation
 
 #### Mac
 
@@ -26,42 +24,33 @@ brew tap btf-org/flank && brew install btf-org/flank/flank && nohup $(which flan
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
 ```
 
-### 2. Add your scripts to Flank
+## A quick webpage for `curl`
 
-#### Add a single script
 
-```bash
-iflank add myscript.R
-```
 
-#### Add multiple scripts
+## The decoration API
 
-To recursively add all the .R scripts in your project, run this:
-```bash
-find . -name *.R | iflank add --
-```
+### Command-Level
 
-To add all the R scripts in your current folder, run this:
-```bash
-ls *.R | iflank add --
-```
+| Directive | Value | Default | Notes |
+|-----------|-------|---------|-------|
+| `@description` | none | - | Renders text underneath the title |
 
-#### If you're using `argparse`...
+### Variable-Level
 
-Add the `--argparse` flag and Flank will use the output to prepopulate the "wrapper script" with the correct inputs (this saves time on the next step)
-```bash
-iflank add --argparse myscript.R
-```
+| Directive | Value | Default | Notes |
+|-----------|-------|---------|-------|
+| `@input` | none | yes | Renders `<input>`. Use with `@type` to control kind. |
+| `@textarea` | none | no | Renders `<textarea>`. Increases default `@colspan` to 6. |
+| `@select` | none | no | Renders `<select>`. Requires `@values`. |
+| `@type` | HTML input type (`text`, `number`, `email`, `url`, `radio`, `checkbox`, …) | `text` | Maps to the HTML `type` attribute. `radio` and `checkbox` require `@values`. |
+| `@values` | backtick shell expression | — | One option per line of output. Required for `@select`, `@type radio`, and `@type checkbox`. |
+| `@default` | literal string or backtick shell expression | — | Sets initial value. `\n` in literals becomes a newline. Matching `@select` option is pre-selected. |
+| `@colspan` | number | `2` (`6` for `@textarea`) | Grid column span. |
+| `@description` | string | — | Small subtitle rendered beneath the variable name. |
+| `@capturetab` | none | no | Tab key inserts a tab character instead of moving focus. |
+| `@ignore` | none | no | Excludes the variable from the form entirely. |
 
-### 3. Confirm that the Flank-generated "wrapper scripts" are correct
+## How it works under the hood
 
-1. Follow the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.R?edit on Mac or http://43.158.119.101:8083/myscript.R?edit on a networked VM)
-2. Confirm that Flank created the correct instructions to run your script.
 
-### 4. Create a pipeline
-
-### 5. Schedule your pipeline
-
-## Contact
-
-Feel free to shoot me an email at anguspmitchell@gmail.com
