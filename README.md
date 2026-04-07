@@ -1,18 +1,18 @@
 # Flank
 
-Build, monitor, and schedule pipelines of R scripts. Open source. Runs on your laptop (or your VM).
+Flank is a tool for exposing shell commands, but with guardrails. 
 
-<img width="410" alt="Screenshot 2026-02-11 at 5 04 09 PM" src="https://github.com/user-attachments/assets/195718fb-832c-4a3d-b81c-26b55482cb58" />   <img width="410" alt="Screenshot 2026-02-11 at 5 04 32 PM" src="https://github.com/user-attachments/assets/affb410b-f1dc-45b7-a8bb-b87cc3c4d141" />
+<img width="838" height="524" alt="curl-ex" src="https://github.com/user-attachments/assets/44d54306-c60c-400e-93e8-98ab6dfb0483" />
 
-## Quickstart
 
-1. [Install](#1-install-flank)
-2. [Add your scripts (Part I)](#2-add-your-scripts-to-flank)
-3. [Add your scripts (Part II)](#3-confirm-that-the-flank-generated-wrapper-scripts-are-correct)
-4. [Create pipeline](#4-create-a-pipeline)
-5. [Schedule pipeline](#5-schedule-your-pipeline)
+## Contents 
 
-### 1. Install Flank
+- [Installation](#installation)
+- [A quick webpage for curl](#a-quick-webpage-for-curl)
+- [The decoration API](#the-decoration-api)
+- [Caveats / Limitations](#caveats--limitations)
+  
+## Installation
 
 #### Mac
 
@@ -26,42 +26,94 @@ brew tap btf-org/flank && brew install btf-org/flank/flank && nohup $(which flan
 wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
 ```
 
-### 2. Add your scripts to Flank
+## A quick webpage for `curl`
 
-#### Add a single script
+### First, get it working
+
+1. Click "Create Cmd" on the bottom bar
+2. Choose the "Hello World" option
+3. Remove the `echo`, paste in the following, and click "Save"
 
 ```bash
-iflank add myscript.R
+curl -X "${method}" "${url}"
 ```
 
-#### Add multiple scripts
+You should see something like this:
 
-To recursively add all the .R scripts in your project, run this:
+<img width="838" height="550" alt="curl-ex-1" src="https://github.com/user-attachments/assets/553e1a6b-a24a-448f-b2db-4b62a2ad0345" />
+
+
+### Then, add guardrails
+
+1. Click "Edit template.sh" on the bottom bar
+2. Above the `curl` line, add the following decorations for `${method}` and `${url}`, and click "Save"
+
 ```bash
-find . -name *.R | iflank add --
+# @description This fetches the content from the URL
+# ${method} @select @values `echo $'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
+# ${url} @type url @colspan 4
+
+curl -X "${method}" "${url}"
 ```
 
-To add all the R scripts in your current folder, run this:
+Now the page should look something like this:
+
+<img width="838" height="550" alt="curl-ex-2" src="https://github.com/user-attachments/assets/3d95bdcf-e984-4768-a9aa-fa96524ca667" />
+
+
+## The decoration API
+
+Where possible, I've tried to mirror vanilla HTML and not add any additional naming conventions. As an example, to specify that a variable be represented by a `<textarea/>`, you use `@textarea`, but to specify it be represented by radio buttons, you use `@input @type radio`, since radios are `<input type="radio"/>`.
+
+### Anatomy of a decoration
+
 ```bash
-ls *.R | iflank add --
-```
+# @description This fetches the content from the URL
+  ──────┬─────
+        │
+        └─ command-level directive (no variable name)
 
-#### If you're using `argparse`...
+# ${method} @select @values `echo $'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
+                            ────┬─────────────────────────────────────────────────────────────────
+                                │
+                                │
+                                └─ certain directives can accept
+                                   backtick expressions as their value
 
-Add the `--argparse` flag and Flank will use the output to prepopulate the "wrapper script" with the correct inputs (this saves time on the next step)
-```bash
-iflank add --argparse myscript.R
-```
+# ${url} @type url @colspan 4
+  ───┬── ──┬── ─┬─ ────┬─────
+     │     │    │      │
+     │     │    │      └─ (one line can contain multiple directives)
+     │     │    │     
+     │     │    └─ value 
+     │     │
+     │     └─ directive
+     │
+     └─ variable name
+````
 
-### 3. Confirm that the Flank-generated "wrapper scripts" are correct
+### Command-Level
 
-1. Follow the hyperlink outputted by `iflank add` (it'll be something like http://localhost:8083/myscript.R?edit on Mac or http://43.158.119.101:8083/myscript.R?edit on a networked VM)
-2. Confirm that Flank created the correct instructions to run your script.
+| Directive | Value | Default | Notes |
+|-----------|-------|---------|-------|
+| `@description` | none | - | Renders text underneath the title |
 
-### 4. Create a pipeline
+### Variable-Level
 
-### 5. Schedule your pipeline
+| Directive | Value | Default | Notes |
+|-----------|-------|---------|-------|
+| `@input` | none | yes | Renders `<input>`. Use with `@type` to control kind. |
+| `@textarea` | none | no | Renders `<textarea>`. Increases default `@colspan` to 6. |
+| `@select` | none | no | Renders `<select>`. Requires `@values`. |
+| `@type` | HTML input type (`text`, `number`, `email`, `url`, `radio`, `checkbox`, …) | `text` | Maps to the HTML `type` attribute. `radio` and `checkbox` require `@values`. |
+| `@values` | backtick shell expression | — | One option per line of output. Required for `@select`, `@type radio`, and `@type checkbox`. |
+| `@default` | literal string or backtick shell expression | — | Sets initial value. `\n` in literals becomes a newline. Matching `@select` option is pre-selected. |
+| `@colspan` | number (1 - 6) | `2` (`6` for `@textarea`) | Grid column span. |
+| `@description` | string | — | Small subtitle rendered beneath the variable name. |
+| `@capturetab` | none | no | Tab key inserts a tab character instead of moving focus. |
+| `@ignore` | none | no | Excludes the variable from the form entirely. |
 
-## Contact
+## Caveats / Limitations
 
-Feel free to shoot me an email at anguspmitchell@gmail.com
+- As it currently stands, users can write destructive shell scripts. I am currently using this is in a small team, high-trust environment, so I haven't invested any effort into RBAC.
+- The logic in flankserver.c is pretty unpolished. I'm pretty sure if you open 64 tabs, it'll just crash the server. A lot of these problems have been masked by systemctl's automatic restart behavior.
