@@ -106,21 +106,3 @@ Where possible, I've tried to mirror vanilla HTML and not add any additional nam
 | `@description` | string | — | Small subtitle rendered beneath the variable name. |
 | `@capturetab` | none | no | Tab key inserts a tab character instead of moving focus. |
 | `@ignore` | none | no | Excludes the variable from the form entirely. |
-
-## How it works under the hood
-
-### Phase 0: I was the human run button
-
-<img width="838" height="292" alt="Can you run that for me github" src="https://github.com/user-attachments/assets/03dcd004-1edf-40f3-b8d2-145b0311b430" />
-
-### Phase 1: Getting my command line into the browser.
-
-I wrote a small webserver (see `flankserver.c` above) that starts a Bash process and 1) pipes POST bodies to stdin and 2) pipes the resulting stdout back into the POST response.
-
-### Phase 2: Adding guardrails
-
-I wrote a bash wrapper (see `iflank` above) that restricts the user to a sandboxed area in the filesystem. Also it restricts which commands users can run. 
-
-### Phase 3: Turning the output into something that looks like a web app
-
-I wrote a very simple parser on the website (see index.html above) that looks for keywords like “%PAGESTART%” and injects things into then DOM accordingly.
