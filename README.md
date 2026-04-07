@@ -28,7 +28,7 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 
 ## A quick webpage for `curl`
 
-#### Get it working
+### First get it working
 
 1. Click "Create Cmd" on the bottom bar
 2. Choose the "Hello World" option
@@ -40,7 +40,7 @@ curl -X "${method}" "${url}"
 
 You should see something like this:
 
-#### Add guardrails
+### Then add guardrails
 
 1. Click "Edit template.sh" on the bottom bar
 2. Above the curl line, add the following decorations for `${method}` and `${url}`, and click "Save"
