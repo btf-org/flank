@@ -56,7 +56,34 @@ Now it should look something like this:
 
 ## The decoration API
 
-Where possible, I've tried to mirror vanilla HTML, so to specify a textarea, you use `@textarea`, but to specify radio buttons, you use `@input @type radio`
+Where possible, I've tried to mirror vanilla HTML and not add any more layers of abstraction than I'm already adding. As an example, to specify that a variable be represented by a `<textarea/>`, you use `@textarea`, but to specify radio buttons, you use `@input @type radio`, since radios are wrapped in an `<input/>`
+
+### Anatomy of a decoration
+
+```bash
+# @description This fetches the content from the URL
+  ──────┬─────
+        │
+        └─ command-level directive (no variable name)
+
+# ${method} @select @values `echo $'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
+                            ────┬─────────────────────────────────────────────────────────────────
+                                │
+                                │
+                                └─ certain directives can accept
+                                   backtick expressions as their value
+
+# ${url} @type url @colspan 4
+  ───┬── ──┬── ─┬─ ────┬─────
+     │     │    │      │
+     │     │    │      └─ (one line can contain multiple directives)
+     │     │    │     
+     │     │    └─ value 
+     │     │
+     │     └─ directive
+     │
+     └─ variable name
+````
 
 ### Command-Level
 
@@ -74,7 +101,7 @@ Where possible, I've tried to mirror vanilla HTML, so to specify a textarea, you
 | `@type` | HTML input type (`text`, `number`, `email`, `url`, `radio`, `checkbox`, …) | `text` | Maps to the HTML `type` attribute. `radio` and `checkbox` require `@values`. |
 | `@values` | backtick shell expression | — | One option per line of output. Required for `@select`, `@type radio`, and `@type checkbox`. |
 | `@default` | literal string or backtick shell expression | — | Sets initial value. `\n` in literals becomes a newline. Matching `@select` option is pre-selected. |
-| `@colspan` | number | `2` (`6` for `@textarea`) | Grid column span. |
+| `@colspan` | number (1 - 6) | `2` (`6` for `@textarea`) | Grid column span. |
 | `@description` | string | — | Small subtitle rendered beneath the variable name. |
 | `@capturetab` | none | no | Tab key inserts a tab character instead of moving focus. |
 | `@ignore` | none | no | Excludes the variable from the form entirely. |
