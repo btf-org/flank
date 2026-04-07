@@ -28,7 +28,7 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 
 ## A quick webpage for `curl`
 
-### First get it working
+### First, get it working
 
 1. Click "Create Cmd" on the bottom bar
 2. Choose the "Hello World" option
@@ -39,8 +39,10 @@ curl -X "${method}" "${url}"
 ```
 
 You should see something like this:
+<img width="838" height="550" alt="curl-ex-1" src="https://github.com/user-attachments/assets/553e1a6b-a24a-448f-b2db-4b62a2ad0345" />
 
-### Then add guardrails
+
+### Then, add guardrails
 
 1. Click "Edit template.sh" on the bottom bar
 2. Above the `curl` line, add the following decorations for `${method}` and `${url}`, and click "Save"
@@ -54,6 +56,8 @@ curl -X "${method}" "${url}"
 ```
 
 Now the page should look something like this:
+<img width="838" height="550" alt="curl-ex-2" src="https://github.com/user-attachments/assets/3d95bdcf-e984-4768-a9aa-fa96524ca667" />
+
 
 ## The decoration API
 
