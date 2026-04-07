@@ -2,6 +2,9 @@
 
 Flank is a tool for exposing shell commands, but with guardrails. I use it to take myself out of the loop on ad-hoc things that my teammates need.
 
+<img width="838" height="524" alt="curl-ex" src="https://github.com/user-attachments/assets/44d54306-c60c-400e-93e8-98ab6dfb0483" />
+
+
 ## Contents 
 
 - [Installation](#installation)
