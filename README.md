@@ -57,7 +57,7 @@ Now it should look something like this:
 
 ## The decoration API
 
-Where possible, I've tried to mirror vanilla HTML and not add any more layers of abstraction than I'm already adding. As an example, to specify that a variable be represented by a `<textarea/>`, you use `@textarea`, but to specify radio buttons, you use `@input @type radio`, since radios are wrapped in an `<input/>`
+Where possible, I've tried to mirror vanilla HTML and not add any additional naming conventions. As an example, to specify that a variable be represented by a `<textarea/>`, you use `@textarea`, but to specify it be represented by radio buttons, you use `@input @type radio`, since radios are `<input type="radio"/>`.
 
 ### Anatomy of a decoration
 
