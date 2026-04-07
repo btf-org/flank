@@ -110,6 +110,8 @@ Where possible, I've tried to mirror vanilla HTML and not add any more layers of
 
 ### Phase 0: I was the human run button
 
+<img width="838" height="354" alt="Can you run that for me readme" src="https://github.com/user-attachments/assets/abcd5512-ee47-4780-9298-b4eaddcbda69" />
+
 ### Phase 1: Getting my command line into the browser.
 
 I wrote a small webserver (see `flankserver.c` above) that starts a Bash process and 1) pipes POST bodies to stdin and 2) pipes the resulting stdout back into the POST response.
