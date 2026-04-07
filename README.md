@@ -46,10 +46,13 @@ You should see something like this:
 2. Above the curl line, add the following decorations for `${method}` and `{url}`, and click "Save"
 
 ```bash
+# @description This fetches the content from the URL
 # ${method} @select @values `echo $'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
 # ${url} @type url @colspan 4
 curl -X "${method}" "${url}"
 ```
+
+Now it should look something like this:
 
 ## The decoration API
 
