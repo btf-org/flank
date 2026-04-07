@@ -1,6 +1,6 @@
 # Flank
 
-Flank is a tool for exposing shell commands, but with guardrails. I use it to take myself out of the loop on ad-hoc things that my teammates need.
+Flank is a tool for exposing shell commands, but with guardrails. 
 
 <img width="838" height="524" alt="curl-ex" src="https://github.com/user-attachments/assets/44d54306-c60c-400e-93e8-98ab6dfb0483" />
 
@@ -39,6 +39,7 @@ curl -X "${method}" "${url}"
 ```
 
 You should see something like this:
+
 <img width="838" height="550" alt="curl-ex-1" src="https://github.com/user-attachments/assets/553e1a6b-a24a-448f-b2db-4b62a2ad0345" />
 
 
@@ -56,6 +57,7 @@ curl -X "${method}" "${url}"
 ```
 
 Now the page should look something like this:
+
 <img width="838" height="550" alt="curl-ex-2" src="https://github.com/user-attachments/assets/3d95bdcf-e984-4768-a9aa-fa96524ca667" />
 
 
