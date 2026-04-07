@@ -110,7 +110,7 @@ Where possible, I've tried to mirror vanilla HTML and not add any more layers of
 
 ### Phase 0: I was the human run button
 
-<img width="838" height="354" alt="Can you run that for me readme" src="https://github.com/user-attachments/assets/abcd5512-ee47-4780-9298-b4eaddcbda69" />
+<img width="838" height="292" alt="Can you run that for me github" src="https://github.com/user-attachments/assets/03dcd004-1edf-40f3-b8d2-145b0311b430" />
 
 ### Phase 1: Getting my command line into the browser.
 
