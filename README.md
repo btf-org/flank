@@ -29,7 +29,7 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd
 
 1. Click "Create Cmd" on the bottom bar
 2. Choose the "Hello World" option
-3. Remove the echo and paste in the following, and click "Save"
+3. Remove the `echo`, paste in the following, and click "Save"
 
 ```bash
 curl -X "${method}" "${url}"
@@ -40,7 +40,7 @@ You should see something like this:
 ### Then add guardrails
 
 1. Click "Edit template.sh" on the bottom bar
-2. Above the curl line, add the following decorations for `${method}` and `${url}`, and click "Save"
+2. Above the `curl` line, add the following decorations for `${method}` and `${url}`, and click "Save"
 
 ```bash
 # @description This fetches the content from the URL
@@ -50,7 +50,7 @@ You should see something like this:
 curl -X "${method}" "${url}"
 ```
 
-Now it should look something like this:
+Now the page should look something like this:
 
 ## The decoration API
 
