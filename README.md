@@ -2,15 +2,12 @@
 
 Flank is a tool for exposing shell commands, but with guardrails. I use it to take myself out of the loop on ad-hoc things that my teammates need.
 
-FYI, it is currently lacking any concept of users or RBAC, and I use it in a high-trust setting, so this is very much a prototype of a "real" tool.
-
 ## Contents 
 
 - [Installation](#installation)
 - [A quick webpage for curl](#a-quick-webpage-for-curl)
 - [The decoration API](#the-decoration-api)
-- [How it works under the hood](#how-it-works-under-the-hood)
-
+- [Caveats / Limitations](#caveats--limitations)
   
 ## Installation
 
@@ -106,3 +103,8 @@ Where possible, I've tried to mirror vanilla HTML and not add any additional nam
 | `@description` | string | — | Small subtitle rendered beneath the variable name. |
 | `@capturetab` | none | no | Tab key inserts a tab character instead of moving focus. |
 | `@ignore` | none | no | Excludes the variable from the form entirely. |
+
+## Caveats / Limitations
+
+- As it currently stands, users can write destructive shell scripts. I am currently using this is in a small team, high-trust environment, so I haven't invested any effort into RBAC.
+- The logic in flankserver.c is pretty unpolished. I'm pretty sure if you open 64 tabs, it'll just crash the server. A lot of these problems have been masked by systemctl's automatic restart behavior.
