@@ -23,7 +23,7 @@ brew tap btf-org/flank && brew install btf-org/flank/flank && nohup $(which flan
 #### Linux
 
 ```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.80/flank_0.1.80_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.80_amd64.deb
 ```
 
 ## A quick webpage for `curl`
