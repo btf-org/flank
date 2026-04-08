@@ -23,7 +23,7 @@ Flank is a tool for exposing shell commands with guardrails.
 #### Mac
 
 ```bash
-brew tap btf-org/flank && brew install btf-org/flank/flank && nohup $(which flankserver) >> $(brew --prefix)/var/log/flank/flankserver.log 2>> $(brew --prefix)/var/log/flank/flankserver.err & sleep 1 && open http://localhost:8083
+brew tap btf-org/flank && brew install btf-org/flank/flank && { nohup $(which flankserver) >> $(brew --prefix)/var/log/flank/flankserver.log 2>> $(brew --prefix)/var/log/flank/flankserver.err & } && sleep 1 && open http://localhost:8083
 ```
 
 #### Linux
