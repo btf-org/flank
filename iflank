@@ -561,7 +561,7 @@ filepicker() {
 	echo '<div id="pFooter">'
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
-	echo '<a onclick="run('\''create_cmd_choose_type'\'')">Create Cmd</a>'
+	echo '<a onclick="run('\''create_cmd_wizard_form'\'')">Create Cmd</a>'
 	echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
@@ -587,7 +587,7 @@ flank_ls() {
 	echo '<div id="pFooter">'
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
-	echo '<a onclick="run('\''create_cmd_choose_type'\'')">Create Cmd</a>'
+	echo '<a onclick="run('\''create_cmd_wizard_form'\'')">Create Cmd</a>'
 	echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
 	echo '<a onclick="run('\''fcrontab_e_form'\'')">Edit crontab</a>'
 	echo '</div>'
@@ -787,7 +787,7 @@ create_cmd_from_existing_script_sh_fn() {
 mkdir -p ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh'
 }
 
-create_cmd_choose_type() {
+create_cmd_wizard_form() {
 	echo '%PAGESTART%'
 	header_pwd
 	echo ''
@@ -1507,15 +1507,14 @@ while true; do
 		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" --arglist "$arglist")
 		fcd "$cmd_run_dir"
 		;;
-	create_cmd_choose_type)
-		create_cmd_choose_type
+	create_cmd_wizard_form)
+		create_cmd_wizard_form
 		;;
 	create_cmd_choose_type_submit)
 		arglist=$(url_2_awk "$args")
 		create_cmd_choose_type_submit_exec=$(prepend_vars "$create_cmd_choose_type_sh" "$arglist")
 		# echo "cpfme: $create_pipeline_form_exec" 1>&2
 		create_cmd_wizard_type=$(eval "$create_cmd_choose_type_submit_exec")
-		echo "$create_cmd_wizard_type" 1>&2
 		case "$create_cmd_wizard_type" in
 		'From Existing R Script')
 			filepicker "$HOME"
