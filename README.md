@@ -23,14 +23,16 @@ Flank is a tool for exposing shell commands with guardrails.
 #### Mac
 
 ```bash
-brew tap btf-org/flank && brew install btf-org/flank/flank && nohup $(which flankserver) >> $(brew --prefix)/var/log/flank/flankserver.log 2>> $(brew --prefix)/var/log/flank/flankserver.err && open http://localhost:8083
+brew tap btf-org/flank && brew install btf-org/flank/flank && { nohup $(which flankserver) >> $(brew --prefix)/var/log/flank/flankserver.log 2>> $(brew --prefix)/var/log/flank/flankserver.err & } && sleep 1 && open http://localhost:8083
 ```
 
 #### Linux
 
 ```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.80/flank_0.1.80_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.80_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.81/flank_0.1.81_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.81_amd64.deb
 ```
+
+Served on port 8083
 
 ## A quick webpage for `curl`
 
