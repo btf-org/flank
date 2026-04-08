@@ -26,10 +26,12 @@ Flank is a tool for exposing shell commands with guardrails.
 brew tap btf-org/flank && brew install btf-org/flank/flank && { nohup $(which flankserver) >> $(brew --prefix)/var/log/flank/flankserver.log 2>> $(brew --prefix)/var/log/flank/flankserver.err & } && sleep 1 && open http://localhost:8083
 ```
 
+Should automatically open localhost:8083
+
 #### Linux
 
 ```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.81/flank_0.1.81_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.81_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.82/flank_0.1.82_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.82_amd64.deb
 ```
 
 Served on port 8083
@@ -58,7 +60,7 @@ You should see something like this:
 
 ```bash
 # @description This fetches the content from the URL
-# ${method} @select @values `echo $'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
+# ${method} @select @values `printf 'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
 # ${url} @type url @colspan 4
 
 curl -X "${method}" "${url}"
