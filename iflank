@@ -816,6 +816,20 @@ create_cmd_from_existing_script() {
 	echo '</div>'
 	echo '%PAGEEND%'
 }
+get_script_page() {
+    local _script="$1"
+    local _page_num="$2"
+
+    echo "$_script" | awk -v target="$_page_num" '
+        /^# @page [0-9]+$/ {
+            current = substr($0, index($0, "@page ") + 6) + 0
+            next
+        }
+        current == target {
+            print
+        }
+    '
+}
 choose_cron_job_from_which_to_make_cmd_sh='
 # ${cron_job} @type radio @values `crontab -l | grep -v '\''iflank run'\'' | grep -E '\''^(\*|[0-9,*/-]+)([[:space:]]+(\*|[0-9,*/-]+)){4}[[:space:]]'\''`
 printf '\''%s'\'' "${cron_job}"'
@@ -972,6 +986,10 @@ show_form() {
 	local _script="$1"
 	local _submit_cmd="$2"
 	local _btn_text="$3"
+
+	if echo "$_script" | grep -q '^# @page [0-9]\+$'; then
+		_script=$(get_script_page "$_script" 1)
+	fi
 
 	echo '%PAGESTART%'
 	header_pwd
@@ -1528,7 +1546,7 @@ while true; do
 		create_cmd_from_hello_world "$script"
 		;;
 	cmd_wizard__cron_job__choose_cron_job_form)
-		show_form "$choose_cron_job_from_which_to_make_cmd_sh" "cmd_wizard__cron_job__choose_cron_job" "Next"
+		show_form "$ideal_thing" "cmd_wizard__cron_job__choose_cron_job" "Next"
 		;;
 	cmd_wizard__cron_job__choose_cron_job)
 		arglist=$(url_2_awk "$args")
