@@ -32,6 +32,8 @@ brew tap btf-org/flank && brew install btf-org/flank/flank && { nohup $(which fl
 wget https://github.com/btf-org/flank/releases/download/v0.1.80/flank_0.1.80_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.80_amd64.deb
 ```
 
+Served on port 8083
+
 ## A quick webpage for `curl`
 
 ### First, get it working
