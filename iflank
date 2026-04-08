@@ -561,7 +561,7 @@ filepicker() {
 	echo '<div id="pFooter">'
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
-	echo '<a onclick="run('\''choose_cmd_wizard_form'\'')">Create Cmd</a>'
+	echo '<a onclick="run('\''choose_cmd_wizard'\'')">Create Cmd</a>'
 	echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
@@ -587,7 +587,7 @@ flank_ls() {
 	echo '<div id="pFooter">'
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
-	echo '<a onclick="run('\''choose_cmd_wizard_form'\'')">Create Cmd</a>'
+	echo '<a onclick="run('\''choose_cmd_wizard'\'')">Create Cmd</a>'
 	echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
 	echo '<a onclick="run('\''fcrontab_e_form'\'')">Edit crontab</a>'
 	echo '</div>'
@@ -772,24 +772,6 @@ END {
 		print kv_string
 	}
 }'
-choose_cmd_wizard_sh='
-# ${wizard_path} @type radio @values `printf '\''From Existing R Script\nFrom Cron Job\nHello World Example\n'\''`
-case "${wizard_path}" in
-'\''From Existing R Script'\'')
-	filepicker "$HOME"
-	;;
-'\''From Cron Job'\'')
-	show_form "$choose_cron_job_from_which_to_make_cmd_sh" "cmd_wizard__cron_job__choose_cron_job" "Next"
-	;;
-'\''Hello World Example'\'')
-	script=$(create_cmd_from_existing_script_sh_fn "echo '\''hello world'\''" "hello-world")
-	create_cmd_from_hello_world "$script"
-	;;
-*)
-	error_modal "${wizard_path} is an invalid option"
-	;;
-esac
-'
 create_cmd_from_existing_script_sh_fn() {
 	# create_cmd_from_existing_script_sh_fn <script_contents> <cmd_name>
 	echo '
@@ -963,6 +945,28 @@ else
 	fcd "$PWD"
 fi
 '
+choose_cmd_wizard() {
+	html=$'Choose a wizard:\n'
+	html="$html"'<a onclick="run('\''cmd_wizard__r_script__filepicker'\'')">From Existing R Script</a>'$'\n'
+	html="$html"'<a onclick="run('\''cmd_wizard__cron_job__choose_cron_job_form'\'')">From Existing Cron Job</a>'$'\n'
+	html="$html"'<a onclick="run('\''cmd_wizard__cron_job__hello_world'\'')">Hello World Example</a>'$'\n'
+	show_body "$html"
+}
+show_body() {
+	# show_body <body>
+	local _body="$1"
+
+	echo '%PAGESTART%'
+	header_pwd
+	echo ''
+	echo '<div id="pBody">'
+	echo "$_body"
+	echo '</div>'
+	echo '<div id="pFooter">'
+	echo '<a onclick="run('\''history'\'')">History</a>'
+	echo '</div>'
+	echo '%PAGEEND%'
+}
 show_form() {
 	# show_form <script> <submit cmd> <btn text>
 	local _script="$1"
@@ -1513,11 +1517,18 @@ while true; do
 		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" --arglist "$arglist")
 		fcd "$cmd_run_dir"
 		;;
-	choose_cmd_wizard_form)
-		show_form "$choose_cmd_wizard_sh" "choose_cmd_wizard" "Next"
-		;;
 	choose_cmd_wizard)
-		eval_form "$args" "$choose_cmd_wizard_sh"
+		choose_cmd_wizard
+		;;
+	cmd_wizard__r_script__filepicker)
+		filepicker "$HOME"
+		;;
+	cmd_wizard__cron_job__choose_cron_job_form)
+		show_form "$choose_cron_job_from_which_to_make_cmd_sh" "cmd_wizard__cron_job__choose_cron_job" "Next"
+		;;
+	cmd_wizard__cron_job__hello_world)
+		script=$(create_cmd_from_existing_script_sh_fn "echo 'hello world'" "hello-world")
+		create_cmd_from_hello_world "$script"
 		;;
 	cmd_wizard__cron_job__choose_cron_job)
 		arglist=$(url_2_awk "$args")
