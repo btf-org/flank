@@ -561,7 +561,7 @@ filepicker() {
 	echo '<div id="pFooter">'
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
-	echo '<a onclick="run('\''create_cmd_wizard_form'\'')">Create Cmd</a>'
+	echo '<a onclick="run('\''choose_cmd_wizard_form'\'')">Create Cmd</a>'
 	echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
@@ -587,7 +587,7 @@ flank_ls() {
 	echo '<div id="pFooter">'
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
-	echo '<a onclick="run('\''create_cmd_wizard_form'\'')">Create Cmd</a>'
+	echo '<a onclick="run('\''choose_cmd_wizard_form'\'')">Create Cmd</a>'
 	echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
 	echo '<a onclick="run('\''fcrontab_e_form'\'')">Edit crontab</a>'
 	echo '</div>'
@@ -772,9 +772,24 @@ END {
 		print kv_string
 	}
 }'
-create_cmd_choose_type_sh='
-# ${type} @type radio @values `printf '\''From Existing R Script\nFrom Cron Job\nHello World Example\n'\''`
-printf '\''%s'\'' "${type}"'
+choose_cmd_wizard_sh='
+# ${wizard_path} @type radio @values `printf '\''From Existing R Script\nFrom Cron Job\nHello World Example\n'\''`
+case "${wizard_path}" in
+'\''From Existing R Script'\'')
+	filepicker "$HOME"
+	;;
+'\''From Cron Job'\'')
+	show_form "$choose_cron_job_from_which_to_make_cmd_sh" "cmd_wizard__cron_job__choose_cron_job" "Next"
+	;;
+'\''Hello World Example'\'')
+	script=$(create_cmd_from_existing_script_sh_fn "echo '\''hello world'\''" "hello-world")
+	create_cmd_from_hello_world "$script"
+	;;
+*)
+	error_modal "${wizard_path} is an invalid option"
+	;;
+esac
+'
 create_cmd_from_existing_script_sh_fn() {
 	# create_cmd_from_existing_script_sh_fn <script_contents> <cmd_name>
 	echo '
@@ -787,21 +802,6 @@ create_cmd_from_existing_script_sh_fn() {
 mkdir -p ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh'
 }
 
-create_cmd_wizard_form() {
-	echo '%PAGESTART%'
-	header_pwd
-	echo ''
-	echo '<div id="pBody">'
-	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
-	awk "$awk_parse_vars" <<<"$create_cmd_choose_type_sh"
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''create_cmd_choose_type_submit'\'')">Next</button></div>'
-	echo '</form>'
-	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
-	echo '%PAGEEND%'
-}
 create_cmd_from_hello_world() {
 	# create_cmd_from_hello_world <script>
 	echo '%PAGESTART%'
@@ -834,29 +834,35 @@ create_cmd_from_existing_script() {
 	echo '</div>'
 	echo '%PAGEEND%'
 }
-create_cmd_from_cron_job_sh='
+choose_cron_job_from_which_to_make_cmd_sh='
 # ${cron_job} @type radio @values `crontab -l | grep -v '\''iflank run'\'' | grep -E '\''^(\*|[0-9,*/-]+)([[:space:]]+(\*|[0-9,*/-]+)){4}[[:space:]]'\''`
 printf '\''%s'\'' "${cron_job}"'
-create_cmd_from_cron_job_form() {
-	echo '%PAGESTART%'
-	header_pwd
-	echo ''
-	echo '<div id="pBody">'
-	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
-	awk "$awk_parse_vars" <<<"$create_cmd_from_cron_job_sh"
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''create_cmd_from_cron_job_confirm_form'\'')">Next</button></div>'
-	echo '</form>'
-	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
-	echo '%PAGEEND%'
-}
+ideal_thing='
+# @page 1
+# ${existing_cj} @type radio @values `crontab -l | grep -v '\''iflank run'\'' | grep -E '\''^(\*|[0-9,*/-]+)([[:space:]]+(\*|[0-9,*/-]+)){4}[[:space:]]'\''`
+
+existing_cj_delim=$(echo "${existing_cj}" | sed '\''s/[[:space:]]/FLNKDLM/5'\'')
+schedule_part="${existing_cj_delim%%FLNKDLM*}"
+cmd_part="${existing_cj_delim#*FLNKDLM}"
+
+# @page 2
+# ${script_contents} @textarea @capturetab
+# ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank">See docs</a> for more details.
+# ${script_contents} @default ${cmd_part}
+# ${cmd_name} @colspan 3
+# ${schedule_for_review} @default ${schedule_part}
+# ${schedule_for_review} @colspan 3
+
+mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh
+new_cron_line="${schedule_for_review} $(which iflank) run $PWD/${cmd_name}/template.sh"
+(crontab -l 2>/dev/null; echo "$new_cron_line") | crontab -
+crontab -l | LINE="${existing_cj}" awk '\''BEGIN{line=ENVIRON["LINE"]} $0 == line { $0 = "# " $0 } 1'\'' | crontab -
+'
 create_cmd_from_cron_job_confirm_sh_fn() {
 	# create_cmd_from_cron_job_confirm_sh_fn <cron> <cmd> <existing cron>
 	echo '# ${cron_expression} @default '"$1"'
 # ${script_contents} @textarea @capturetab
-# ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank/blob/main/docs/create_cmd.md">See docs</a> for more details.
+# ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank">See docs</a> for more details.
 # ${script_contents} @default '"$2"'
 # ${cmd_name} @colspan 3
 # ${existing_cron} @default '"$3"'
@@ -877,7 +883,7 @@ create_cmd_from_cron_job_confirm_form_display() {
 	echo '<div id="pBody">'
 	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
 	awk "$awk_parse_vars" <<<"$1"
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''save_cmd_from_cron_job'\'')">Next</button></div>'
+	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''cmd_wizard__cron_job__cmd_review'\'')">Next</button></div>'
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'
@@ -1507,33 +1513,13 @@ while true; do
 		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" --arglist "$arglist")
 		fcd "$cmd_run_dir"
 		;;
-	create_cmd_wizard_form)
-		create_cmd_wizard_form
+	choose_cmd_wizard_form)
+		show_form "$choose_cmd_wizard_sh" "choose_cmd_wizard" "Next"
 		;;
-	create_cmd_choose_type_submit)
-		arglist=$(url_2_awk "$args")
-		create_cmd_choose_type_submit_exec=$(prepend_vars "$create_cmd_choose_type_sh" "$arglist")
-		# echo "cpfme: $create_pipeline_form_exec" 1>&2
-		create_cmd_wizard_type=$(eval "$create_cmd_choose_type_submit_exec")
-		case "$create_cmd_wizard_type" in
-		'From Existing R Script')
-			filepicker "$HOME"
-			;;
-		'From Cron Job')
-			create_cmd_from_cron_job_form
-			;;
-		'Hello World Example')
-			script=$(create_cmd_from_existing_script_sh_fn "echo 'hello world'" "hello-world")
-			create_cmd_from_hello_world "$script"
-			;;
-		*)
-			echo "REST"
-			;;
-		esac
-		pipeline_name_sh=$(prepend_vars 'echo "${pipeline_name}"' "$arglist")
-		pipeline_name=$(eval "$pipeline_name_sh")
+	choose_cmd_wizard)
+		eval_form "$args" "$choose_cmd_wizard_sh"
 		;;
-	create_cmd_from_cron_job_confirm_form)
+	cmd_wizard__cron_job__choose_cron_job)
 		arglist=$(url_2_awk "$args")
 		existing_cj=$(get_value "$arglist" "cron_job")
 		existing_cj_delim=$(echo "$existing_cj" | sed 's/[[:space:]]/FLNKDLM/5')
@@ -1543,8 +1529,8 @@ while true; do
 		echo "$create_cmd_from_cron_job_confirm_sh" 1>&2
 		create_cmd_from_cron_job_confirm_form_display "$create_cmd_from_cron_job_confirm_sh"
 		;;
-	save_cmd_from_cron_job)
-		# save_cmd_from_cron_job <k=v&k=v>
+	cmd_wizard__cron_job__cmd_review)
+		# cmd_wizard__cron_job__cmd_review <k=v&k=v>
 		arglist=$(url_2_awk "$args")
 		create_cmd_from_cron_job_confirm_sh=$(create_cmd_from_cron_job_confirm_sh_fn "" "" "")
 		save_cmd_from_cron_job_exec=$(prepend_vars "$create_cmd_from_cron_job_confirm_sh" "$arglist")
