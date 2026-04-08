@@ -1,6 +1,6 @@
 # Flank
 
-Flank is a tool for exposing shell commands, but with guardrails. 
+Flank is a tool for exposing shell commands with guardrails. 
 
 <img width="838" height="524" alt="curl-ex" src="https://github.com/user-attachments/assets/44d54306-c60c-400e-93e8-98ab6dfb0483" />
 
@@ -17,13 +17,13 @@ Flank is a tool for exposing shell commands, but with guardrails.
 #### Mac
 
 ```bash
-brew tap btf-org/flank && brew install btf-org/flank/flank && nohup $(which flankserver) >> $(brew --prefix)/var/log/flank/flankserver.log 2>> $(brew --prefix)/var/log/flank/flankserver.err
+brew tap btf-org/flank && brew install btf-org/flank/flank && nohup $(which flankserver) >> $(brew --prefix)/var/log/flank/flankserver.log 2>> $(brew --prefix)/var/log/flank/flankserver.err && open http://localhost:8083
 ```
 
 #### Linux
 
 ```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.65/flank_0.1.65_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.65_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.80/flank_0.1.80_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.80_amd64.deb
 ```
 
 ## A quick webpage for `curl`
@@ -115,5 +115,5 @@ Where possible, I've tried to mirror vanilla HTML and not add any additional nam
 
 ## Caveats / Limitations
 
-- As it currently stands, users can write destructive shell scripts. I am currently using this is in a small team, high-trust environment, so I haven't invested any effort into RBAC.
-- The logic in flankserver.c is pretty unpolished. I'm pretty sure if you open 64 tabs, it'll just crash the server. A lot of these problems have been masked by systemctl's automatic restart behavior.
+- As it currently stands, users can write destructive shell scripts, so beware! I am currently using this is in a small team, high-trust environment, so I haven't invested any effort into RBAC.
+- The logic in flankserver.c is pretty unpolished. I'm pretty sure if you open 64 tabs, it'll just crash the server. A lot of these problems have been masked by systemctl's automatic restart behavior...
