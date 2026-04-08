@@ -29,7 +29,7 @@ brew tap btf-org/flank && brew install btf-org/flank/flank && { nohup $(which fl
 #### Linux
 
 ```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.80/flank_0.1.80_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.80_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.81/flank_0.1.81_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.81_amd64.deb
 ```
 
 Served on port 8083
