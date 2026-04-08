@@ -58,7 +58,7 @@ You should see something like this:
 
 ```bash
 # @description This fetches the content from the URL
-# ${method} @select @values `echo $'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
+# ${method} @select @values `printf 'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
 # ${url} @type url @colspan 4
 
 curl -X "${method}" "${url}"
