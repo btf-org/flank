@@ -71,6 +71,8 @@ Now the page should look something like this:
 
 ## The decoration API
 
+First, a variable needs to be wrapped in the curly bracket notation, ${}, to get picked up by Flank. Then, you can add guardrails through various decorations (see below).
+
 Where possible, I've tried to mirror vanilla HTML and not add any additional naming conventions. As an example, to specify that a variable be represented by a `<textarea/>`, you use `@textarea`, but to specify it be represented by radio buttons, you use `@input @type radio`, since radios are `<input type="radio"/>`.
 
 ### Anatomy of a decoration
@@ -98,6 +100,11 @@ Where possible, I've tried to mirror vanilla HTML and not add any additional nam
      │     └─ directive
      │
      └─ variable name
+
+curl -X "${method}" "${url}"
+        ─────┬─────
+             │
+             └─ variable must use curl brackets, like ${var}, not $var
 ````
 
 ### Command-Level
