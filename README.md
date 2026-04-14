@@ -38,25 +38,9 @@ Served on port 8083
 
 ## A quick webpage for `curl`
 
-### First, get it working
-
 1. Click "Create Cmd" on the bottom bar
 2. Choose the "Hello World" option
 3. Remove the `echo`, paste in the following, and click "Save"
-
-```bash
-curl -X "${method}" "${url}"
-```
-
-You should see something like this:
-
-<img width="838" height="550" alt="curl-ex-1" src="https://github.com/user-attachments/assets/553e1a6b-a24a-448f-b2db-4b62a2ad0345" />
-
-
-### Then, add guardrails
-
-1. Click "Edit template.sh" on the bottom bar
-2. Above the `curl` line, add the following decorations for `${method}` and `${url}`, and click "Save"
 
 ```bash
 # @description This fetches the content from the URL
@@ -114,6 +98,8 @@ curl -X "${method}" "${url}"
 | Directive | Value | Default | Notes |
 |-----------|-------|---------|-------|
 | `@description` | none | - | Renders text underneath the title |
+| `@page` | number | - | Splits the script into multiple forms |
+| `@pass_hidden` | Space-separated list of vars | - | Used with @page. Passes any variables from that step to the next step. |
 
 ### Variable-Level
 
@@ -128,4 +114,3 @@ curl -X "${method}" "${url}"
 | `@colspan` | number (1 - 6) | `2` (`6` for `@textarea`) | Grid column span. |
 | `@description` | string | — | Small subtitle rendered beneath the variable name. |
 | `@capturetab` | none | no | Tab key inserts a tab character instead of moving focus. |
-| `@ignore` | none | no | Excludes the variable from the form entirely. |
