@@ -1006,14 +1006,15 @@ url_encode() {
     printf '%s' "$encoded"
 }
 eval_form_part_n() {
-	# eval_form <args> <script>
+	# eval_form <args>
 	local _args="$1"
-	local _script="$2"
 	echo "IN FUNC" 1>&2
 	local _arglist=$(url_2_awk "$_args")
 	local _current_page=$(get_value "$_arglist" '_fpage')
+	local _script_name=$(get_value "$_arglist" '_fscript')
 	echo "CURRENT PAGE" 1>&2
 	echo "$_current_page" 1>&2
+	local _script="${!_script_name}"
 	local _current_script=$(get_script_page "$_script" "$_current_page")
 	local _to_eval=$(prepend_vars "$_current_script" "$_arglist")
 	echo "TO EVAL" 1>&2
@@ -1047,7 +1048,7 @@ eval_form_part_n() {
 		_hidden_vars="${_hidden_vars}${_sep}${_var}=${_value_encoded}"
 		_sep='&'
 	done
-	_hidden_vars="${_hidden_vars}${_sep}_fpage=${_next_page}"
+	_hidden_vars="${_hidden_vars}${_sep}_fpage=${_next_page}${_sep}_fscript=${_script_name}"
 
 	show_form "$_next_script" 'eval_form_part_n' 'Next' "$_hidden_vars"
 }
@@ -1592,11 +1593,10 @@ while true; do
 		create_cmd_from_hello_world "$script"
 		;;
 	cmd_wizard__cron_job__choose_cron_job_form)
-		show_form "$(get_script_page "$ideal_thing" 1)" "eval_form_part_n" "Next" '_fpage=1'
+		show_form "$(get_script_page "$ideal_thing" 1)" "eval_form_part_n" "Next" '_fpage=1&_fscript=ideal_thing'
 		;;
 	eval_form_part_n)
-		echo "EVAL FORM PART N" 1>&2
-		eval_form_part_n "$args" "$ideal_thing"
+		eval_form_part_n "$args"
 		;;
 	cmd_wizard__cron_job__choose_cron_job)
 		arglist=$(url_2_awk "$args")
