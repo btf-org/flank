@@ -610,20 +610,9 @@ awk_parse_vars='
 	}
 }
 
-# non-comment lines → extract vars
-!/^[[:space:]]*#/ {
-	while (match($0, /\$\{[A-Za-z_][A-Za-z0-9_]*(:[+-][^}]*)?\}/)) {
-		v = substr($0, RSTART, RLENGTH)
-		match(v, /[A-Za-z_][A-Za-z0-9_]*/)
-		v = "${" substr(v, RSTART, RLENGTH) "}"
-		seen[v] = 1
-        $0 = substr($0, RSTART + RLENGTH)
-    }
-}
-
 END {
 	kv_string=""
-    for (v in seen) {
+    for (v in var_concat) {
 		n = split(var_concat[v], values, /(^|[[:space:]][[:space:]]*)@[a-z][a-z]*/)
 		for(j in values){
 			sub(/^[[:space:]]*/, "", values[j])
@@ -640,7 +629,6 @@ END {
 			i++
 		}
 
-		ctrl["@ignore"] = 0
 		ctrl["@description"] = ""
 		ctrl["@type"] = "text"
 		ctrl["@colspan"] = 2
@@ -651,9 +639,7 @@ END {
 		ctrl["@textarea"] = 0
 		ctrl["@select"] = 0
 		for (key in ann){
-			if (key == "@ignore"){
-				ctrl["@ignore"] = 1
-			} else if (key == "@description") {
+			if (key == "@description") {
 				ctrl["@description"] = ann[key]
 			} else if (key == "@type") {
 				ctrl["@type"] = ann[key]
@@ -687,11 +673,6 @@ END {
 				}
 			}
 		}	
-
-		if(ctrl["@ignore"] == 1){
-			delete ann
-			continue
-		}
 
 		varname_stripped=v
 		sub(/^ *\$\{/, "", varname_stripped)
