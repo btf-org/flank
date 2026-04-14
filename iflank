@@ -1005,7 +1005,7 @@ url_encode() {
 
     printf '%s' "$encoded"
 }
-eval_form_part_n_2() {
+eval_form_part_n() {
 	# eval_form <args> <script>
 	local _args="$1"
 	local _script="$2"
@@ -1047,48 +1047,7 @@ eval_form_part_n_2() {
 		_hidden_vars="${_hidden_vars}${_sep}${_var}=${_value_encoded}"
 		_sep='&'
 	done
-
-	show_form "$_next_script" 'eval_form_part_n' 'Next' "$_hidden_vars"
-}
-eval_form_part_n() {
-	# eval_form <args> <script>
-	local _args="$1"
-	local _script="$2"
-
-	local _arglist=$(url_2_awk "$_args")
-	local _current_page=$(get_value "$_arglist" '_fpage')
-	echo "CURRENT PAGE" 1>&2
-	echo "$_current_page" 1>&2
-	local _current_script=$(get_script_page "$_script" "$_current_page")
-	local _to_eval=$(prepend_vars "$_current_script" "$_arglist")
-
-	eval "$_to_eval"
-	
-	local _next_page=$(("$_current_page" + 1))
-	local _next_script=$(get_script_page "$_script" "$_next_page")
-	if [ -z "$_next_script" ]; then
-		return
-	fi
-	echo "NEXT SCRIPT" 1>&2
-	echo "$_next_script" 1>&2
-	local _exported_vars=$(printf '%s' "$_current_script" | grep -o '@pass_hidden[^*]*' | grep -o '\${[a-zA-Z_][a-zA-Z0-9_]*}' | sed 's/[${}]//g')
-
-	# substitute @defaults that are other variables
-	for var in $_exported_vars; do
-		value=$(eval "printf '%s' \"\${$var}\"")
-		value=$(printf '%s' "$value" | sed 's/&/\\&/g')
-		_next_script=$(printf '%s' "$_next_script" | awk -v key="$var" -v val="$value" '{gsub("@default \\${" key "}", "@default " val); print}')
-	done
-
-	# create url-encoded string for hidden inputs 
-	local _sep=''
-	local _hidden_vars=''
-	for _var in $_exported_vars; do
-		local _value=$(eval "printf '%s' \"\${$_var}\"")
-		local _value_encoded=$(url_encode "$_value")
-		_hidden_vars="${_hidden_vars}${_sep}${_var}=${_value_encoded}"
-		_sep='&'
-	done
+	_hidden_vars="${_hidden_vars}${_sep}_fpage=${_next_page}"
 
 	show_form "$_next_script" 'eval_form_part_n' 'Next' "$_hidden_vars"
 }
@@ -1637,7 +1596,7 @@ while true; do
 		;;
 	eval_form_part_n)
 		echo "EVAL FORM PART N" 1>&2
-		eval_form_part_n_2 "$args" "$ideal_thing"
+		eval_form_part_n "$args" "$ideal_thing"
 		;;
 	cmd_wizard__cron_job__choose_cron_job)
 		arglist=$(url_2_awk "$args")
