@@ -810,10 +810,17 @@ get_script_page() {
         }
     '
 }
-choose_cron_job_from_which_to_make_cmd_sh='
-# ${cron_job} @type radio @values `crontab -l | grep -v '\''iflank run'\'' | grep -E '\''^(\*|[0-9,*/-]+)([[:space:]]+(\*|[0-9,*/-]+)){4}[[:space:]]'\''`
-printf '\''%s'\'' "${cron_job}"'
-ideal_thing='
+get_max_page(){
+	# get_max_page <script>
+    local _script="$1"
+	local _page=$(echo "$_script" | grep -o '@page [0-9]*' | awk '{print $2}' | sort -n | tail -1)
+	if [ -n "$_page" ]; then 
+		echo "$_page"
+	else
+		echo '1'
+	fi
+}
+cmd_wizard__cron_job_sh='
 # @page 1 @pass_hidden ${cmd_part} ${schedule_part} ${existing_cj}
 # ${existing_cj} @type radio @values `crontab -l | grep -v '\''iflank run'\'' | grep -E '\''^(\*|[0-9,*/-]+)([[:space:]]+(\*|[0-9,*/-]+)){4}[[:space:]]'\''`
 
@@ -833,6 +840,7 @@ mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/te
 new_cron_line="${schedule_for_review} $(which iflank) run $PWD/${cmd_name}/template.sh"
 (crontab -l 2>/dev/null; echo "$new_cron_line") | crontab -
 crontab -l | LINE="${existing_cj}" awk '\''BEGIN{line=ENVIRON["LINE"]} $0 == line { $0 = "# " $0 } 1'\'' | crontab -
+fcd "./${cmd_name}"
 '
 create_cmd_from_cron_job_confirm_sh_fn() {
 	# create_cmd_from_cron_job_confirm_sh_fn <cron> <cmd> <existing cron>
@@ -936,7 +944,7 @@ fi
 choose_cmd_wizard() {
 	html=$'Choose a wizard:\n'
 	html="$html"'<a onclick="run('\''cmd_wizard__r_script__filepicker'\'')">From Existing R Script</a>'$'\n'
-	html="$html"'<a onclick="run('\''cmd_wizard__cron_job__choose_cron_job_form'\'')">From Existing Cron Job</a>'$'\n'
+	html="$html"'<a onclick="run('\''cmd_wizard__cron_job'\'')">From Existing Cron Job</a>'$'\n'
 	html="$html"'<a onclick="run('\''cmd_wizard__cron_job__hello_world'\'')">Hello World Example</a>'$'\n'
 	show_body "$html"
 }
@@ -958,6 +966,16 @@ show_body() {
 url_decode() {
     local encoded="$1"
     printf '%b' "${encoded//%/\\x}"
+}
+show_multistep_form() {
+	# show_multistep_form <script_name>
+	local _script_name="${1}"
+	local _script="${!_script_name}"
+	local _btn_text='Next'
+	if [ "$(get_max_page "$_script")" -eq 1 ]; then
+		_btn_text='Save'
+	fi
+	show_form "$(get_script_page "$_script" 1)" "eval_multistep_form" "$_btn_text" '_fpage=1&_fscript='"$_script_name"
 }
 show_form() {
 	# show_form <script> <submit cmd> <btn text> <hidden_vars>
@@ -1005,7 +1023,7 @@ url_encode() {
 
     printf '%s' "$encoded"
 }
-eval_form_part_n() {
+eval_multistep_form() {
 	# eval_form <args>
 	local _args="$1"
 	echo "IN FUNC" 1>&2
@@ -1050,7 +1068,11 @@ eval_form_part_n() {
 	done
 	_hidden_vars="${_hidden_vars}${_sep}_fpage=${_next_page}${_sep}_fscript=${_script_name}"
 
-	show_form "$_next_script" 'eval_form_part_n' 'Next' "$_hidden_vars"
+	local _btn_text='Next'
+	if [ "$(get_max_page "$_script")" -eq "$_next_page" ]; then
+		_btn_text='Save'
+	fi
+	show_form "$_next_script" 'eval_multistep_form' "$_btn_text" "$_hidden_vars"
 }
 eval_form() {
 	# eval_form <args> <sh>
@@ -1592,11 +1614,11 @@ while true; do
 		script=$(create_cmd_from_existing_script_sh_fn "echo 'hello world'" "hello-world")
 		create_cmd_from_hello_world "$script"
 		;;
-	cmd_wizard__cron_job__choose_cron_job_form)
-		show_form "$(get_script_page "$ideal_thing" 1)" "eval_form_part_n" "Next" '_fpage=1&_fscript=ideal_thing'
+	cmd_wizard__cron_job)
+		show_multistep_form 'cmd_wizard__cron_job_sh'
 		;;
-	eval_form_part_n)
-		eval_form_part_n "$args"
+	eval_multistep_form)
+		eval_multistep_form "$args"
 		;;
 	cmd_wizard__cron_job__choose_cron_job)
 		arglist=$(url_2_awk "$args")
