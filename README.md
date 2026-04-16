@@ -110,7 +110,7 @@ curl -X "${method}" "${url}"
 | `@select` | none | no | Renders `<select>`. Requires `@values`. |
 | `@type` | HTML input type (`text`, `number`, `email`, `url`, `radio`, `checkbox`, …) | `text` | Maps to the HTML `type` attribute. `radio` and `checkbox` require `@values`. |
 | `@values` | backtick shell expression | — | One option per line of output. Required for `@select`, `@type radio`, and `@type checkbox`. |
-| `@default` | literal string or backtick shell expression | — | Sets initial value. `\n` in literals becomes a newline. Matching `@select` option is pre-selected. |
+| `@default` | literal string, backtick shell expression, or ${variable} if using `@page` (see above) | — | Sets initial value. `\n` in literals becomes a newline. Matching `@select` option is pre-selected. |
 | `@colspan` | number (1 - 6) | `2` (`6` for `@textarea`) | Grid column span. |
 | `@description` | string | — | Small subtitle rendered beneath the variable name. |
 | `@capturetab` | none | no | Tab key inserts a tab character instead of moving focus. |
