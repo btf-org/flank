@@ -824,7 +824,7 @@ cmd_content=$(default_cmd_content "$cd_folder" "$relative_path" "$is_git_repo")
 mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh
 fcd "./${cmd_name}"
 '
-create_cmd_from_existing_script_sh='
+cmd_wizard__hello_world_sh='
 # ${cmd_name} @colspan 2
 # ${cmd_name} @default hello-world
 # ${script_contents} @textarea @capturetab
@@ -835,22 +835,6 @@ mkdir -p ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}
 fcd "$FLANK_ROOT/$cmd_name"
 '
 
-create_cmd_from_hello_world() {
-	# create_cmd_from_hello_world <script>
-	echo '%PAGESTART%'
-	header_pwd
-	echo ''
-	echo '<div id="pBody">'
-	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
-	awk "$awk_parse_vars" <<<"$1"
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''create_cmd_from_hello_world_save'\'')">Save</button></div>'
-	echo '</form>'
-	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
-	echo '%PAGEEND%'
-}
 get_script_page() {
     local _script="$1"
     local _page_num="$2"
@@ -983,7 +967,7 @@ choose_cmd_wizard() {
 	html=$'Choose a wizard:\n'
 	html="$html"'<a onclick="run('\''cmd_wizard__r_script'\'')">From Existing R Script</a>'$'\n'
 	html="$html"'<a onclick="run('\''cmd_wizard__cron_job'\'')">From Existing Cron Job</a>'$'\n'
-	html="$html"'<a onclick="run('\''cmd_wizard__hello_world'\'')">Hello World Example</a>'$'\n'
+	html="$html"'<a onclick="run('\''cmd_wizard__hello_world_form'\'')">Hello World Example</a>'$'\n'
 	show_body "$html"
 }
 show_body() {
@@ -1673,8 +1657,11 @@ while true; do
 	cmd_wizard__r_script)
 		show_multistep_form 'cmd_wizard__r_script_sh' 
 		;;
+	cmd_wizard__hello_world_form)
+		show_form "$cmd_wizard__hello_world_sh" "cmd_wizard__hello_world" "Save"
+		;;
 	cmd_wizard__hello_world)
-		show_form "$create_cmd_from_existing_script_sh" "create_cmd_from_hello_world_save" "Save"
+		eval_form "$args" "$cmd_wizard__hello_world_sh"
 		;;
 	cmd_wizard__cron_job)
 		show_multistep_form 'cmd_wizard__cron_job_sh'
@@ -1688,10 +1675,6 @@ while true; do
 	fcat)
 		# fcat <path>
 		fcat "$args"
-		;;
-	create_cmd_from_hello_world_save)
-		# create_cmd_from_hello_world_save <k=v&k=v>
-		eval_form "$args" "$create_cmd_from_existing_script_sh"
 		;;
 	savefile)
 		# savefile <path> <k=v>
