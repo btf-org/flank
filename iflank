@@ -32,6 +32,29 @@ get_value() {
 	IFS="$old_ifs"
 	return 1
 }
+get_value_url() {
+	# get_value_url <kvs> <keyname>
+	local _kvs="$1"
+	local _keyname="$2"
+	# isolate matching key
+	_value=$(printf '%s' "$_kvs" \
+		| tr '&' '\n' \
+		| awk -F= -v key="$_keyname" '$1 == key {print $2; exit}')
+
+	# URL decode (minimal, POSIX-compatible)
+	printf '%s\n' "$_value" \
+	| sed -e 's/+/ /g' \
+	      -e 's/%20/ /g' \
+	      -e 's/%21/!/g' \
+	      -e 's/%22/"/g' \
+	      -e 's/%23/#/g' \
+	      -e 's/%24/$/g' \
+	      -e 's/%25/%/g' \
+	      -e 's/%26/\&/g' \
+	      -e 's/%27/'"'"'/g' \
+	      -e 's/%28/(/g' \
+	      -e 's/%29/)/g'
+}
 url_2_awk() {
 	# url_2_awk <url_args>
 	# url encoding to Flank awk encoding
@@ -522,14 +545,19 @@ readerr() {
 }
 
 filepicker() {
-	# filepicker <dir>
+	# filepicker <dir> <submit_cmd> <btn_text> <hidden_vars>
+	local _dir="$1"
+	local _submit_cmd="$2"
+	local _btn_text="$3"
+	local _hidden_vars="$4"
+
 	echo '%PAGESTART%'
 	header_pwd
 	echo ""
 	echo '<div id="pBody">'
-	echo "$1" | awk ' 
+	echo "$_dir" | awk ' 
 	{ 
-		line="<a onclick=\"run('\''filepicker /'\'')\">[root]</a>"; 
+		line="<a onclick=\"run('\'"filepicker / ${_submit_cmd} ${_btn_text} ${_hidden_vars}"\'')\">[root]</a>"; 
 	    n = split($0, path_parts, "/"); 
 	    for (i = 2; i <= n; i++) { 
 		concat=""; 
@@ -538,14 +566,14 @@ filepicker() {
 		    ppj=path_parts[j]; 
 		    concat=concat"/"ppj; 
 		} 
-		line=line"/<a onclick=\"run('\''filepicker "concat"'\'')\">"ppi"</a>";
+		line=line"/<a onclick=\"run('\''filepicker "concat"'" ${_submit_cmd} ${_btn_text} ${_hidden_vars}"\'')\">"ppi"</a>";
 	    } 
 	    print "<div>"line"</div>";
 	} '
 	for f in "$1"/*; do
 		f_name="${f##*/}"
 		if [ -d "$f" ]; then
-			echo '📁 <a onclick="run('\''filepicker '"$f"\'')">'"$f_name"'</a>'
+			echo '📁 <a onclick="run('\''filepicker '"$f ${_submit_cmd} ${_btn_text} ${_hidden_vars}"\'')">'"$f_name"'</a>'
 		fi
 	done
 	echo '<form id="form" method="POST" class="line-height-0_5">'
@@ -555,7 +583,13 @@ filepicker() {
 			echo '<label class="block"><input type="radio" name="filepath" value="'"$f"'"> '"$f_name"'</label>'
 		fi
 	done
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''choose_file_to_create_cmd'\'')">Next</button></div>'
+	if [ -n "$_hidden_vars" ]; then
+		printf '%s\n' "$_hidden_vars" | tr '&' '\n' | while IFS='=' read -r _key _value; do
+			local _decoded=$(url_decode "$_value")
+			printf '<input type="hidden" name="%s" value="%s">\n' "$_key" "$_decoded"
+		done
+	fi
+	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\'"$_submit_cmd"\'')">'"$_btn_text"'</button></div>'
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'
@@ -753,6 +787,43 @@ END {
 		print kv_string
 	}
 }'
+cmd_wizard__r_script='
+# things to extract: 1) the folder to cd into, 2) the (possibly) remaining folders between that folder and the file, 3) the file name
+# things to do with them (2) and (3) are used to create the command; (1) and (2)+(3) are used to create the preliminary wrapper script
+
+# @page 1 @pass_hidden ${cmd_content_one_liner} ${relative_path}
+# ${filepath} @system_filepath
+
+_check=$(dirname "$filepath")
+echo "$check" 1>&2
+cd_folder=$_check
+is_git_repo=0
+while [ "$_check" != "/" ]; do
+	echo "$_check" 1>&2
+	if [ -d "$_check/.git" ]; then
+		echo "GIT" 1>&2
+		cd_folder="$_check"
+		is_git_repo=1
+		break
+	fi
+	_check="$(dirname "$_check")"
+done
+relative_path="${filepath#"$cd_folder/"}"
+echo "$filepath" 1>&2
+echo "$cd_folder" 1>&2
+echo "$relative_path" 1>&2
+cmd_content=$(default_cmd_content "$cd_folder" "$relative_path" "$is_git_repo")
+cmd_content_one_liner="${cmd_content//$'\''\n'\''/\\n}"
+
+# @page 2
+# ${script_contents} @textarea @capturetab
+# ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank">See docs</a> for more details.
+# ${script_contents} @default ${cmd_content_one_liner}
+# ${cmd_name} @colspan 3
+# ${cmd_name} @default ${relative_path}
+
+mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh
+'
 create_cmd_from_existing_script_sh_fn() {
 	# create_cmd_from_existing_script_sh_fn <script_contents> <cmd_name>
 	echo '
@@ -859,22 +930,6 @@ crontab -l | LINE="${existing_cron}" awk '\''BEGIN{line=ENVIRON["LINE"]} $0 == l
 '
 }
 
-create_cmd_from_cron_job_confirm_form_display() {
-	# create_cmd_from_cron_job_confirm_form_display <script>
-	echo '%PAGESTART%'
-	header_pwd
-	echo ''
-	echo '<div id="pBody">'
-	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
-	awk "$awk_parse_vars" <<<"$1"
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''cmd_wizard__cron_job__cmd_review'\'')">Next</button></div>'
-	echo '</form>'
-	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
-	echo '%PAGEEND%'
-}
 create_pipeline_form_sh='
 # ${pipeline_name} @colspan 2
 # ${tasks} @type checkbox @values `find '$FLANK_ROOT' -type f -name "template.sh" -exec dirname {} \; | sed "s|^'$FLANK_ROOT'/||" | sort`
@@ -943,7 +998,7 @@ fi
 '
 choose_cmd_wizard() {
 	html=$'Choose a wizard:\n'
-	html="$html"'<a onclick="run('\''cmd_wizard__r_script__filepicker'\'')">From Existing R Script</a>'$'\n'
+	html="$html"'<a onclick="run('\''cmd_wizard__r_script'\'')">From Existing R Script</a>'$'\n'
 	html="$html"'<a onclick="run('\''cmd_wizard__cron_job'\'')">From Existing Cron Job</a>'$'\n'
 	html="$html"'<a onclick="run('\''cmd_wizard__cron_job__hello_world'\'')">Hello World Example</a>'$'\n'
 	show_body "$html"
@@ -984,9 +1039,14 @@ show_form() {
 	local _btn_text="$3"
 	local _hidden_vars="$4"
 
-	# if echo "$_script" | grep -q '^# @page [0-9]\+$'; then
-	# 	_script=$(get_script_page "$_script" 1)
-	# fi
+	if echo "$_script" | grep -q '^#[[:space:]]*\${[_[:alpha:]][_[:alnum:]]*}.*@system_filepath'; then
+		echo "FILEPICKER CHOSEN" 1>&2
+		filepicker "$HOME" "$_submit_cmd" "$_btn_text" "$_hidden_vars"
+		return
+	else
+		echo "FILEPICKER NOT CHOSEN" 1>&2
+		echo "$_script" 1>&2	
+	fi
 
 	echo '%PAGESTART%'
 	header_pwd
@@ -1607,8 +1667,8 @@ while true; do
 	choose_cmd_wizard)
 		choose_cmd_wizard
 		;;
-	cmd_wizard__r_script__filepicker)
-		filepicker "$HOME"
+	cmd_wizard__r_script)
+		show_multistep_form 'cmd_wizard__r_script' 
 		;;
 	cmd_wizard__cron_job__hello_world)
 		script=$(create_cmd_from_existing_script_sh_fn "echo 'hello world'" "hello-world")
@@ -1619,25 +1679,6 @@ while true; do
 		;;
 	eval_multistep_form)
 		eval_multistep_form "$args"
-		;;
-	cmd_wizard__cron_job__choose_cron_job)
-		arglist=$(url_2_awk "$args")
-		existing_cj=$(get_value "$arglist" "cron_job")
-		existing_cj_delim=$(echo "$existing_cj" | sed 's/[[:space:]]/FLNKDLM/5')
-		cron="${existing_cj_delim%%FLNKDLM*}"
-		cmd="${existing_cj_delim#*FLNKDLM}"
-		create_cmd_from_cron_job_confirm_sh=$(create_cmd_from_cron_job_confirm_sh_fn "${cron}" "${cmd}" "${existing_cj}")
-		echo "$create_cmd_from_cron_job_confirm_sh" 1>&2
-		create_cmd_from_cron_job_confirm_form_display "$create_cmd_from_cron_job_confirm_sh"
-		;;
-	cmd_wizard__cron_job__cmd_review)
-		# cmd_wizard__cron_job__cmd_review <k=v&k=v>
-		arglist=$(url_2_awk "$args")
-		create_cmd_from_cron_job_confirm_sh=$(create_cmd_from_cron_job_confirm_sh_fn "" "" "")
-		save_cmd_from_cron_job_exec=$(prepend_vars "$create_cmd_from_cron_job_confirm_sh" "$arglist")
-		eval "$save_cmd_from_cron_job_exec"
-		# feels like this should be a pop...
-		fcd "$PWD"
 		;;
 	create_pipeline_form)
 		create_pipeline_form
@@ -1685,7 +1726,9 @@ while true; do
 		edit_cmd
 		;;
 	filepicker)
-		filepicker "$args"
+		# filepicker <dir> <submit_cmd> <btn_text> <hidden_vars>
+		IFS=' ' read dir submit_cmd btn_text hidden_vars <<<"$args"
+		filepicker "$dir" "$submit_cmd" "$btn_text" "$hidden_vars"
 		;;
 	choose_file_to_create_cmd)
 		arglist=$(url_2_awk "$args")
@@ -1743,6 +1786,8 @@ while true; do
 	add_cron)
 		# add_cron <dir> <k=v&k=v>
 		# everything after first space, then space delimited
+		IFS=' ' read cmd_dir kvs <<<"$args"
+		arglist=$(url_2_awk "$kvs")
 		split_kvs=$(echo "${args#* }" | tr '&' ' ')
 		first_kv="${split_kvs%% *}"
 		first_value="${first_kv#*=}"
