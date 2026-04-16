@@ -787,11 +787,11 @@ END {
 		print kv_string
 	}
 }'
-cmd_wizard__r_script='
+cmd_wizard__r_script_sh='
 # things to extract: 1) the folder to cd into, 2) the (possibly) remaining folders between that folder and the file, 3) the file name
 # things to do with them (2) and (3) are used to create the command; (1) and (2)+(3) are used to create the preliminary wrapper script
 
-# @page 1 @pass_hidden ${cmd_content_one_liner} ${relative_path}
+# @page 1 @pass_hidden ${cmd_content} ${relative_path}
 # ${filepath} @system_filepath
 
 _check=$(dirname "$filepath")
@@ -813,16 +813,16 @@ echo "$filepath" 1>&2
 echo "$cd_folder" 1>&2
 echo "$relative_path" 1>&2
 cmd_content=$(default_cmd_content "$cd_folder" "$relative_path" "$is_git_repo")
-cmd_content_one_liner="${cmd_content//$'\''\n'\''/\\n}"
 
 # @page 2
 # ${script_contents} @textarea @capturetab
 # ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank">See docs</a> for more details.
-# ${script_contents} @default ${cmd_content_one_liner}
+# ${script_contents} @default ${cmd_content}
 # ${cmd_name} @colspan 3
 # ${cmd_name} @default ${relative_path}
 
 mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh
+fcd "./${cmd_name}"
 '
 create_cmd_from_existing_script_sh_fn() {
 	# create_cmd_from_existing_script_sh_fn <script_contents> <cmd_name>
@@ -845,22 +845,6 @@ create_cmd_from_hello_world() {
 	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
 	awk "$awk_parse_vars" <<<"$1"
 	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''create_cmd_from_hello_world_save'\'')">Save</button></div>'
-	echo '</form>'
-	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
-	echo '%PAGEEND%'
-}
-create_cmd_from_existing_script() {
-	# create_cmd_from_existing_script <script>
-	echo '%PAGESTART%'
-	header_pwd
-	echo ''
-	echo '<div id="pBody">'
-	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
-	awk "$awk_parse_vars" <<<"$1"
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''create_cmd_from_existing_script_save'\'')">Save</button></div>'
 	echo '</form>'
 	echo '</div>'
 	echo '<div id="pFooter">'
@@ -1083,6 +1067,24 @@ url_encode() {
 
     printf '%s' "$encoded"
 }
+awk_sub_default='
+BEGIN {
+  target = "@default ${" key "}"
+  prefix = "@default "
+  len = length(target)
+}
+{
+  out = ""
+  start = $0
+
+  while ((i = index(start, target)) > 0) {
+    out = out substr(start, 1, i-1) prefix val
+    start = substr(start, i + len)
+  }
+
+  out = out start
+  print out
+}'
 eval_multistep_form() {
 	# eval_form <args>
 	local _args="$1"
@@ -1113,9 +1115,11 @@ eval_multistep_form() {
 	# substitute @defaults that are other variables
 	for var in $_exported_vars; do
 		value=$(eval "printf '%s' \"\${$var}\"")
-		value=$(printf '%s' "$value" | sed 's/&/\\&/g')
-		_next_script=$(printf '%s' "$_next_script" | awk -v key="$var" -v val="$value" '{gsub("@default \\${" key "}", "@default " val); print}')
+		value="${value//$'\n'/\\\n}"
+		_next_script=$(printf '%s' "$_next_script" | awk -v key="$var" -v val="$value" "$awk_sub_default")
 	done
+
+	echo "SUB DEFAULT DONE" 1>&2
 
 	# create url-encoded string for hidden inputs 
 	local _sep=''
@@ -1668,7 +1672,7 @@ while true; do
 		choose_cmd_wizard
 		;;
 	cmd_wizard__r_script)
-		show_multistep_form 'cmd_wizard__r_script' 
+		show_multistep_form 'cmd_wizard__r_script_sh' 
 		;;
 	cmd_wizard__cron_job__hello_world)
 		script=$(create_cmd_from_existing_script_sh_fn "echo 'hello world'" "hello-world")
@@ -1729,44 +1733,6 @@ while true; do
 		# filepicker <dir> <submit_cmd> <btn_text> <hidden_vars>
 		IFS=' ' read dir submit_cmd btn_text hidden_vars <<<"$args"
 		filepicker "$dir" "$submit_cmd" "$btn_text" "$hidden_vars"
-		;;
-	choose_file_to_create_cmd)
-		arglist=$(url_2_awk "$args")
-		filepath=$(get_value "$arglist" "filepath")
-		echo "$filepath" 1>&2
-		# things to extract: 1) the folder to cd into, 2) the (possibly) remaining folders between that folder and the file, 3) the file name
-		# things to do with them (2) and (3) are used to create the command; (1) and (2)+(3) are used to create the preliminary wrapper script
-		_check=$(dirname "$filepath")
-		echo "$check" 1>&2
-		cd_folder=$_check
-		is_git_repo=0
-		while [ "$_check" != "/" ]; do
-			echo "$_check" 1>&2
-			if [ -d "$_check/.git" ]; then
-				echo "GIT" 1>&2
-				cd_folder="$_check"
-				is_git_repo=1
-				break
-			fi
-			_check="$(dirname "$_check")"
-		done
-		relative_path="${filepath#"$cd_folder/"}"
-		echo "$filepath" 1>&2
-		echo "$cd_folder" 1>&2
-		echo "$relative_path" 1>&2
-		cmd_content=$(default_cmd_content "$cd_folder" "$relative_path" "$is_git_repo")
-		cmd_content_one_liner="${cmd_content//$'\n'/\\n}"
-		create_cmd_from_existing_script_sh=$(create_cmd_from_existing_script_sh_fn "$cmd_content_one_liner" "$relative_path")
-		create_cmd_from_existing_script "$create_cmd_from_existing_script_sh"
-		;;
-	create_cmd_from_existing_script_save)
-		arglist=$(url_2_awk "$args")
-		cmd_path=$(get_value "$arglist" "cmd_name")
-		create_cmd_from_existing_script_sh=$(create_cmd_from_existing_script_sh_fn "" "")
-		create_cmd_from_existing_script_exec=$(prepend_vars "$create_cmd_from_existing_script_sh" "$arglist")
-		echo "ccfme: $create_cmd_from_existing_script_exec" 1>&2
-		eval "$create_cmd_from_existing_script_exec"
-		fcd "$FLANK_ROOT/$cmd_name"
 		;;
 	fcrontab_l)
 		fcrontab_l
