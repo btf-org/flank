@@ -824,17 +824,16 @@ cmd_content=$(default_cmd_content "$cd_folder" "$relative_path" "$is_git_repo")
 mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh
 fcd "./${cmd_name}"
 '
-create_cmd_from_existing_script_sh_fn() {
-	# create_cmd_from_existing_script_sh_fn <script_contents> <cmd_name>
-	echo '
+create_cmd_from_existing_script_sh='
 # ${cmd_name} @colspan 2
-# ${cmd_name} @default '"$2"'
+# ${cmd_name} @default hello-world
 # ${script_contents} @textarea @capturetab
-# ${script_contents} @default '"$1"'
+# ${script_contents} @default echo '\''hello world'\''
 # ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank">See docs</a> for more details.
 
-mkdir -p ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh'
-}
+mkdir -p ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh
+fcd "$FLANK_ROOT/$cmd_name"
+'
 
 create_cmd_from_hello_world() {
 	# create_cmd_from_hello_world <script>
@@ -984,7 +983,7 @@ choose_cmd_wizard() {
 	html=$'Choose a wizard:\n'
 	html="$html"'<a onclick="run('\''cmd_wizard__r_script'\'')">From Existing R Script</a>'$'\n'
 	html="$html"'<a onclick="run('\''cmd_wizard__cron_job'\'')">From Existing Cron Job</a>'$'\n'
-	html="$html"'<a onclick="run('\''cmd_wizard__cron_job__hello_world'\'')">Hello World Example</a>'$'\n'
+	html="$html"'<a onclick="run('\''cmd_wizard__hello_world'\'')">Hello World Example</a>'$'\n'
 	show_body "$html"
 }
 show_body() {
@@ -1674,9 +1673,8 @@ while true; do
 	cmd_wizard__r_script)
 		show_multistep_form 'cmd_wizard__r_script_sh' 
 		;;
-	cmd_wizard__cron_job__hello_world)
-		script=$(create_cmd_from_existing_script_sh_fn "echo 'hello world'" "hello-world")
-		create_cmd_from_hello_world "$script"
+	cmd_wizard__hello_world)
+		show_form "$create_cmd_from_existing_script_sh" "create_cmd_from_hello_world_save" "Save"
 		;;
 	cmd_wizard__cron_job)
 		show_multistep_form 'cmd_wizard__cron_job_sh'
@@ -1693,14 +1691,7 @@ while true; do
 		;;
 	create_cmd_from_hello_world_save)
 		# create_cmd_from_hello_world_save <k=v&k=v>
-		arglist=$(url_2_awk "$args")
-		create_cmd_from_hello_world_sh=$(create_cmd_from_existing_script_sh_fn '' '')
-		create_cmd_from_hello_world_exec=$(prepend_vars "$create_cmd_from_hello_world_sh" "$arglist")
-		echo "ccfme: $create_cmd_from_hello_world_exec" 1>&2
-		eval "$create_cmd_from_hello_world_exec"
-		cmd_name=$(get_value "$arglist" "cmd_name")
-		# feels like this should be a pop...
-		fcd "$FLANK_ROOT/$cmd_name"
+		eval_form "$args" "$create_cmd_from_existing_script_sh"
 		;;
 	savefile)
 		# savefile <path> <k=v>
