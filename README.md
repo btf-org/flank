@@ -2,7 +2,7 @@
 
 Flank is a tool for building dashboards and apps from scripts.
 
-The way it works is that it forwards `stdout` from your terminal to the browser (i.e. what you'd see in the terminal if you ran `$ python scrape_data.py --year 2013`). Then, you can quicky configure input fields so that users can input the `year` field into an HTML input.
+It works with any language because it just forwards `stdout` from your terminal to your browser.  Like if you ran `$ python scrape_data.py --year 2013`, it forwards the output into the Flank website. As the engineer, you can quicky configure input fields and guardrails so that users can intuitively fill in fields like `year`.
 
 ## Contents 
 
@@ -10,7 +10,7 @@ The way it works is that it forwards `stdout` from your terminal to the browser 
 - [What tools have people replaced with Flank?](#what-tools-have-people-replaced-with-flank)
 - [Installation](#installation)
 - [A quick webpage for curl](#a-quick-webpage-for-curl)
-- [UI for inputs](#ui-for-inputs)
+- [Input Configuration](#input-configuration)
 
 ## Caveats / Limitations
 
@@ -60,11 +60,9 @@ Now the page should look something like this:
 <img width="838" height="550" alt="curl-ex-2" src="https://github.com/user-attachments/assets/3d95bdcf-e984-4768-a9aa-fa96524ca667" />
 
 
-## UI for Inputs
+## Input Configuration
 
-First, a variable needs to be wrapped in the curly bracket notation, ${}, to get picked up by Flank. Then, you can add guardrails through various decorations (see below).
-
-Where possible, I've tried to mirror vanilla HTML and not add any additional naming conventions. As an example, to specify that a variable be represented by a `<textarea/>`, you use `@textarea`, but to specify it be represented by radio buttons, you use `@input @type radio`, since radios are `<input type="radio"/>`.
+You can tell Flank "make this field a dropdown". You do this through "decorations", which are just structured comments directly in the script.
 
 ### Anatomy of a decoration
 
@@ -120,3 +118,5 @@ curl -X "${method}" "${url}"
 | `@colspan` | number (1 - 6) | `2` (`6` for `@textarea`) | Grid column span. |
 | `@description` | string | — | Small subtitle rendered beneath the variable name. |
 | `@capturetab` | none | no | Tab key inserts a tab character instead of moving focus. |
+
+Where possible, I've tried to mirror vanilla HTML and not add any additional naming conventions. As an example, to specify that a variable be represented by a `<textarea/>`, you use `@textarea`, but to specify it be represented by radio buttons, you use `@input @type radio`, since radios are `<input type="radio"/>`.
