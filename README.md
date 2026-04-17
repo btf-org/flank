@@ -1,22 +1,27 @@
 # Flank
 
-Flank is a tool for exposing shell commands with guardrails. 
+Flank is a tool for building dashboards and apps from scripts.
 
-<img width="838" height="524" alt="curl-ex" src="https://github.com/user-attachments/assets/44d54306-c60c-400e-93e8-98ab6dfb0483" />
-
+The way it works is that it forwards `stdout` from your terminal to the browser (i.e. what you'd see in the terminal if you ran `$ python scrape_data.py --year 2013`). Then, you can quicky configure input fields so that users can input the `year` field into an HTML input.
 
 ## Contents 
 
 - [Caveats / Limitations](#caveats--limitations)
+- [What tools have people replaced with Flank?](#what-have-people-built-with-this)
 - [Installation](#installation)
 - [A quick webpage for curl](#a-quick-webpage-for-curl)
-- [The decoration API](#the-decoration-api)
+- [UI for inputs](#ui-for-inputs)
 
 ## Caveats / Limitations
 
 - As it currently stands, users can write destructive shell scripts, so beware! I am currently using this is in a small team, high-trust environment, so I haven't invested any effort into RBAC.
 - The logic in flankserver.c is pretty unpolished. I'm pretty sure if you open 64 tabs, it'll just crash the server. A lot of these problems have been masked by systemctl's automatic restart behavior...
 
+## What tools have people replaced with Flank?
+
+- PowerBI (SQL developer just exposes a query that generates a CSV)
+- Portions of a React app (Python developer just exposes scripts that return updated sales data)
+- Airflow (Data Scientist can edit pipelines/schedules and also run tasks on an ad-hoc basis when they fail)
   
 ## Installation
 
@@ -55,7 +60,7 @@ Now the page should look something like this:
 <img width="838" height="550" alt="curl-ex-2" src="https://github.com/user-attachments/assets/3d95bdcf-e984-4768-a9aa-fa96524ca667" />
 
 
-## The decoration API
+## UI for Inputs
 
 First, a variable needs to be wrapped in the curly bracket notation, ${}, to get picked up by Flank. Then, you can add guardrails through various decorations (see below).
 
@@ -108,6 +113,7 @@ curl -X "${method}" "${url}"
 | `@input` | none | yes | Renders `<input>`. Use with `@type` to control kind. |
 | `@textarea` | none | no | Renders `<textarea>`. Increases default `@colspan` to 6. |
 | `@select` | none | no | Renders `<select>`. Requires `@values`. |
+| `@system_filepath` | none | no | Allows user to choose a filepath (not file) on the computer |
 | `@type` | HTML input type (`text`, `number`, `email`, `url`, `radio`, `checkbox`, …) | `text` | Maps to the HTML `type` attribute. `radio` and `checkbox` require `@values`. |
 | `@values` | backtick shell expression | — | One option per line of output. Required for `@select`, `@type radio`, and `@type checkbox`. |
 | `@default` | literal string, backtick shell expression, or ${variable} if using `@page` (see above) | — | Sets initial value. `\n` in literals becomes a newline. Matching `@select` option is pre-selected. |
