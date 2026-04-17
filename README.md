@@ -7,7 +7,7 @@ The way it works is that it forwards `stdout` from your terminal to the browser 
 ## Contents 
 
 - [Caveats / Limitations](#caveats--limitations)
-- [What tools have people replaced with Flank?](#what-have-people-built-with-this)
+- [What tools have people replaced with Flank?](#what-have-people-built-with-flank)
 - [Installation](#installation)
 - [A quick webpage for curl](#a-quick-webpage-for-curl)
 - [UI for inputs](#ui-for-inputs)
