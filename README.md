@@ -1,27 +1,21 @@
 # Flank
 
-Flank is a tool for building dashboards and apps from scripts.
+Flank is a tool for "go to" engineers.
 
-It works with any language that can be invoked from the terminal, because it just forwards `stdout` from your terminal to your browser.  Like if you ran `$ python scrape_data.py --year 2013`, it would forward the output into the Flank website. As the engineer, you can quicky configure input fields and guardrails so that users can intuitively fill in fields like `--year` (more in example below).
+It is small bridge from engineer-land (terminal) to user-land (browser).
+
+It works with any language that can be invoked from the terminal (Python, node, R, Rust, etc), because it just forwards `stdout` from your terminal to your browser. It can be used to quickly build dashboards/apps, schedule cron jobs, run scripts away from your desk, etc.
+
+<img width="838" height="292" alt="Can you run that for me github" src="https://github.com/user-attachments/assets/aeec2b5d-f39a-45b9-a5f6-b9dbd686b6d0" />
 
 ## Contents 
 
-- [Caveats / Limitations](#caveats--limitations)
-- [What tools have people replaced with Flank?](#what-tools-have-people-replaced-with-flank)
 - [Installation](#installation)
 - [A quick webpage for curl](#a-quick-webpage-for-curl)
-- [Input Configuration](#input-configuration)
+- [How to configure the UI](#how-to-configure-the-ui)
+- [What tools have people replaced with Flank?](#what-tools-have-people-replaced-with-flank)
+- [Caveats / Limitations](#caveats--limitations)
 
-## Caveats / Limitations
-
-- As it currently stands, users can write destructive shell scripts, so beware! I am currently using this is in a small team, high-trust environment, so I haven't invested any effort into RBAC.
-- The logic in flankserver.c is pretty unpolished. I'm pretty sure if you open 64 tabs, it'll just crash the server. A lot of these problems have been masked by systemctl's automatic restart behavior...
-
-## What tools have people replaced with Flank?
-
-- PowerBI (SQL developer just exposes a query that generates a CSV)
-- Portions of a React app (Python developer just exposes scripts that return updated sales data)
-- Airflow (Data Scientist can edit pipelines/schedules and also run tasks on an ad-hoc basis when they fail)
   
 ## Installation
 
@@ -36,7 +30,7 @@ Should automatically open localhost:8083
 #### Linux
 
 ```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.82/flank_0.1.82_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.82_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.83/flank_0.1.83_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.83_amd64.deb
 ```
 
 Served on port 8083
@@ -60,9 +54,9 @@ Now the page should look something like this:
 <img width="838" height="550" alt="curl-ex-2" src="https://github.com/user-attachments/assets/3d95bdcf-e984-4768-a9aa-fa96524ca667" />
 
 
-## Input Configuration
+## How to configure the UI
 
-You can tell Flank "make this field a dropdown". You do this through "decorations", which are just structured comments directly in the script.
+You can tell Flank, "Make this field a dropdown". You do this through "decorations", which are just structured comments directly in the script.
 
 ### Anatomy of a decoration
 
@@ -120,3 +114,16 @@ curl -X "${method}" "${url}"
 | `@capturetab` | none | no | Tab key inserts a tab character instead of moving focus. |
 
 Where possible, I've tried to mirror vanilla HTML and not add any additional naming conventions. As an example, to specify that a variable be represented by a `<textarea/>`, you use `@textarea`, but to specify it be represented by radio buttons, you use `@input @type radio`, since radios are `<input type="radio"/>`.
+
+
+## What tools have people replaced with Flank?
+
+- PowerBI (SQL developer just exposes a query that generates a CSV)
+- Portions of a React app (Python developer just exposes scripts that return updated sales data)
+- Airflow (Data Scientist can edit pipelines/schedules and also run tasks on an ad-hoc basis when they fail)
+
+
+## Caveats / Limitations
+
+- As it currently stands, users can write destructive shell scripts, so beware! I am currently using this is in a small team, high-trust environment, so I haven't invested any effort into RBAC.
+- The logic in flankserver.c is pretty unpolished. I'm pretty sure if you open 64 tabs, it'll just crash the server. A lot of these problems have been masked by systemctl's automatic restart behavior...
