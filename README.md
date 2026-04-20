@@ -30,7 +30,7 @@ Should automatically open localhost:8083
 #### Linux
 
 ```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.83/flank_0.1.83_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.83_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.84/flank_0.1.84_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.84_amd64.deb
 ```
 
 Served on port 8083
