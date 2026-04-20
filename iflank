@@ -803,39 +803,42 @@ END {
 		print kv_string
 	}
 }'
+split_filepath() {
+	# split_filepath <filepath> [cwd]
+	# Prints tab-separated: cd_folder, relative_filepath
+	# cd_folder is the nearest git root, or cwd if provided, or dirname(filepath) if not in a repo.
+	local _filepath="$1"
+	local _cwd="${2:-}"
+	local _check
+	local _cd_folder
+	_check=$(dirname "$_filepath")
+	_cd_folder="${_cwd:-$_check}"
+	while [ "$_check" != "/" ]; do
+		if [ -d "$_check/.git" ]; then
+			_cd_folder="$_check"
+			break
+		fi
+		_check="$(dirname "$_check")"
+	done
+	printf '%s\t%s' "$_cd_folder" "${_filepath#"$_cd_folder/"}"
+}
+
 cmd_wizard__r_script_sh='
 # things to extract: 1) the folder to cd into, 2) the (possibly) remaining folders between that folder and the file, 3) the file name
 # things to do with them (2) and (3) are used to create the command; (1) and (2)+(3) are used to create the preliminary wrapper script
 
-# @page 1 @pass_hidden ${cmd_content} ${relative_path}
+# @page 1 @pass_hidden ${cmd_content} ${relative_filepath}
 # ${filepath} @system_filepath
 
-_check=$(dirname "$filepath")
-echo "$check" 1>&2
-cd_folder=$_check
-is_git_repo=0
-while [ "$_check" != "/" ]; do
-	echo "$_check" 1>&2
-	if [ -d "$_check/.git" ]; then
-		echo "GIT" 1>&2
-		cd_folder="$_check"
-		is_git_repo=1
-		break
-	fi
-	_check="$(dirname "$_check")"
-done
-relative_path="${filepath#"$cd_folder/"}"
-echo "$filepath" 1>&2
-echo "$cd_folder" 1>&2
-echo "$relative_path" 1>&2
-cmd_content=$(default_cmd_content "$cd_folder" "$relative_path" "$is_git_repo")
+IFS=$'\''\t'\'' read -r cd_folder relative_filepath <<< "$(split_filepath "$filepath")"
+cmd_content=$(default_cmd_content "$cd_folder" "$relative_filepath")
 
 # @page 2
 # ${script_contents} @textarea @capturetab
 # ${script_contents} @description Wrap a variable in ${} to expose it as an input. <a target="_blank" href="https://github.com/btf-org/flank">See docs</a> for more details.
 # ${script_contents} @default ${cmd_content}
 # ${cmd_name} @colspan 3
-# ${cmd_name} @default ${relative_path}
+# ${cmd_name} @default ${relative_filepath}
 
 mkdir ${cmd_name} && printf '\''%s\n'\'' "${script_contents}" > ./${cmd_name}/template.sh
 fcd "./${cmd_name}"
@@ -1391,12 +1394,11 @@ flank_error() {
 }
 
 default_cmd_content() {
-	# default_cmd_content <cd_dir> <cmd_contents>
+	# default_cmd_content <cd_dir> <relative_filepath>
 	cd_dir="$1"
-	cmd_contents="$2"
-	is_git_repo="$3"
+	relative_filepath="$2"
 	git_line='flock .git/flank.lock -c '\''git checkout -q main && git pull -q'\'
-	if [ "$is_git_repo" != 1 ]; then
+	if [ ! -d "$cd_dir/.git" ]; then
 		git_line="# ${git_line}"
 	fi
 	cat <<EOF
@@ -1449,80 +1451,29 @@ cd $cd_dir
 # them bash variables (need to use bracket syntax, \${}), 
 # like \`Rscript myscript.R --year="\${year}" --mode="\${mode}"\`
 
-Rscript $cmd_contents
+Rscript $relative_filepath
 EOF
 
 }
 
 add_cmd() {
-	# add_cmd <wd> <params>
-	local wd=$1
-	shift
-	if [ -z "$*" ]; then
-		echo 'ERROR: Must specify <scriptname> after `iflank add`'
-		exit 1
-	fi
-	local dir_name="$*"
-	if [ -d "${FLANK_ROOT}/${dir_name}" ]; then
+	# add_cmd <wd> <wd_relative_filepath>
+	local _wd=$1
+	local _wd_relative_filepath="$2"
+	IFS=$'\t' read -r _cd_folder _relative_filepath <<< "$(split_filepath "$_wd/$_wd_relative_filepath" "$_wd")"
+	local _orig_relative_filepath="$_relative_filepath"
+	if [ -d "${FLANK_ROOT}/${_relative_filepath}" ]; then
 		suffix_i=2
-		while [ -d "${FLANK_ROOT}/${dir_name}_${suffix_i}" ]; do
+		while [ -d "${FLANK_ROOT}/${_relative_filepath}_${suffix_i}" ]; do
 			suffix_i=$((suffix_i + 1))
 		done
-		dir_name="${dir_name}_${suffix_i}"
-		echo 'WARNING: '"$FLANK_ROOT/$*"' already exists. Creating '"$dir_name"
+		_relative_filepath="${_relative_filepath}_${suffix_i}"
+		echo 'WARNING: '"$FLANK_ROOT/$_orig_relative_filepath"' already exists. Creating '"$_relative_filepath"
 	fi
-	mkdir "${FLANK_ROOT}/${dir_name}"
-	cat >"${FLANK_ROOT}/${dir_name}/template.sh" <<EOF
-# This bash script runs your R script like you'd run it from the CLI
-
-# ---- Bash setup -----
-#
-# "Stop execution if any variables are unset (u), or if any command fails (e), 
-# including intermediate commands in pipelines (-o pipefail)
-
-set -euo pipefail
-
-# ---- Go to project directory -----
-#
-# First, it switches to the directory from where you'd run this script
-# This was based on where you ran \`iflank add\`, so you might need to adjust it.
-
-cd $wd
-
-
-# ---- (Optional) Pull git repo -----
-#
-# This ensures that the pipeline always runs the latest version of some file.
-# (The "flock" command prevents a race condition if two pipeline tasks do this simultaneously)
-
-flock .git/flank.lock -c 'git checkout -q main && git pull -q'
-
-
-# ---- (Optional) Install packages -----
-#
-# If you're using renv and your requirements are changing,
-# you might want to make sure all depdendencies are installed.
-# If so, uncomment/tweak the line below by removing the leading "# "
-
-# Rscript -e "renv::restore()"
-
-
-# ---- Run Script -----
-# 
-# Finally it runs your command
-#
-# If your command takes parameters, you'll need to add them below
-#
-# Like if you run \`Rscript myscript.R --year=2015 --mode='fast'\` from the CLI,
-# copy those parameters below.
-#
-# Advanced: You can expose those parameters for user input by making them
-# bash variables (need to use bracket syntax, \${}), like \`Rscript myscript.R --year="\${year}" --mode="\${mode}"\`
-
-Rscript $*
-EOF
+	mkdir "${FLANK_ROOT}/${_relative_filepath}"
+	default_cmd_content "$_cd_folder" "$_relative_filepath" >"${FLANK_ROOT}/${_relative_filepath}/template.sh"
 	echo ''
-	echo 'Go to http://localhost:8083/'"${dir_name}"'?_cmd=edit_cmd'
+	echo 'Go to http://localhost:8083/'"${_relative_filepath}"'?_cmd=edit_cmd'
 	echo ''
 }
 help_msg() {
@@ -1570,8 +1521,12 @@ while [ "$1" != "" ]; do
 		exit $exit_code
 		;;
 	add)
-		shift
-		add_cmd "$PWD" "$@"
+		# iflank add <wd_relative_filepath>
+		if [ -z "$2" ]; then
+			echo 'ERROR: Must specify <scriptname> after `iflank add`'
+			exit 1
+		fi
+		add_cmd "$PWD" "$2"
 		exit
 		;;
 	-h | --help)
