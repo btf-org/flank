@@ -2,7 +2,7 @@
 
 Flank is a tool for "go to" engineers.
 
-It is small bridge from engineer-land (terminal) to user-land (browser).
+It is a bridge that directly connects engineer-land (terminal) to user-land (browser), eliminating many layers of software.
 
 It works with any language that can be invoked from the terminal (Python, node, R, Rust, etc), because it just forwards `stdout` from your terminal to your browser. It can be used to quickly build dashboards/apps, schedule cron jobs, run scripts away from your desk, etc.
 
@@ -30,7 +30,7 @@ Should automatically open localhost:8083
 #### Linux
 
 ```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.83/flank_0.1.83_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.83_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.84/flank_0.1.84_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.84_amd64.deb
 ```
 
 Served on port 8083
