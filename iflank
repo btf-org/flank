@@ -275,6 +275,26 @@ header_pwd() {
 	html=$html'</div>'
 	printf '%s' "$html"
 }
+footer() {
+	# footer <addtl html>
+	local _addtl_html="$1"
+	echo '<div id="pFooter">'
+	if [ -n "$_addtl_html" ]; then
+		echo "$_addtl_html"
+	fi
+	echo '<a onclick="run('\''history'\'')">History</a>'
+	if [ -f 'template.sh' ]; then
+		echo '<a onclick="run('\''edit_cmd'\'')">Edit template.sh</a>'
+		echo '<a onclick="run('\''fcrontab_l'\'')">View Cron</a>'
+		echo '<a onclick="run('\''add_cron_form'\'')">Create Cron</a>'
+	else
+		echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
+		echo '<a onclick="run('\''choose_cmd_wizard'\'')">Create Cmd</a>'
+		echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
+		echo '<a onclick="run('\''fcrontab_e_form'\'')">Edit crontab</a>'
+	fi
+	echo '</div>'
+}
 
 kill_tree() {
 	local parent=$1
@@ -592,12 +612,7 @@ filepicker() {
 	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\'"$_submit_cmd"\'')">'"$_btn_text"'</button></div>'
 	echo '</form>'
 	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
-	echo '<a onclick="run('\''choose_cmd_wizard'\'')">Create Cmd</a>'
-	echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
-	echo '</div>'
+	footer
 	echo '%PAGEEND%'
 }
 fls() {
@@ -617,13 +632,6 @@ fls() {
 			echo '<span class="hidden">📁</span> '"$f"
 		fi
 	done
-	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
-	echo '<a onclick="run('\''choose_cmd_wizard'\'')">Create Cmd</a>'
-	echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
-	echo '<a onclick="run('\''fcrontab_e_form'\'')">Edit crontab</a>'
 	echo '</div>'
 	echo '%PAGEEND%'
 }
@@ -975,9 +983,7 @@ show_body() {
 	echo '<div id="pBody">'
 	echo "$_body"
 	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
+	footer
 	echo '%PAGEEND%'
 }
 url_decode() {
@@ -1025,9 +1031,7 @@ show_form() {
 	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\'"$_submit_cmd"\'')">'"$_btn_text"'</button></div>'
 	echo '</form>'
 	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
+	footer
 	echo '%PAGEEND%'
 }
 url_encode() {
@@ -1126,27 +1130,12 @@ eval_form() {
 
 	eval "$_to_eval"
 }
-fmkdir_form() {
-	echo '%PAGESTART%'
-	header_pwd
-	echo ''
-	echo '<div id="pBody">'
-	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
-	awk "$awk_parse_vars" <<<"$fmkdir_sh"
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''fmkdir'\'')">Save</button></div>'
-	echo '</form>'
-	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
-	echo '%PAGEEND%'
-}
 flank_hist() {
 	echo '%PAGESTART%'
 	header_pwd
 	echo ''
 	echo '<div id="pBody"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>'
-	echo '<div id='pFooter'></div>'
+	footer
 	echo '%PAGEEND%'
 
 	if [ -z "$PS_VERSION" ]; then
@@ -1216,12 +1205,7 @@ run_form() {
 	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''run .'\'')">Run</button></div>'
 	echo '</form>'
 	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '<a onclick="run('\''edit_cmd'\'')">Edit template.sh</a>'
-	echo '<a onclick="run('\''fcrontab_l'\'')">View Cron</a>'
-	echo '<a onclick="run('\''add_cron_form'\'')">Create Cron</a>'
-	echo '</div>'
+	footer
 	echo '%PAGEEND%'
 }
 edit_cmd() {
@@ -1247,9 +1231,7 @@ edit_cmd() {
 	echo '<div><button type="button" onclick="iflankForm('\''savefile .'\'')">Save</button></div>'
 	echo '</form>'
 	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
+	footer
 	echo '%PAGEEND%'
 }
 
@@ -1259,9 +1241,7 @@ fcrontab_l() {
 	echo '<div id="pBody">'
 	crontab -l
 	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
+	footer
 	echo '%PAGEEND%'
 }
 fcat() {
@@ -1270,9 +1250,7 @@ fcat() {
 	echo '<div id="pBody">'
 	cat "$@"
 	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
+	footer
 	echo '%PAGEEND%'
 }
 add_cron_form() {
@@ -1285,9 +1263,7 @@ add_cron_form() {
 	echo '<div><button type="button" onclick="iflankForm('\''add_cron .'\'')">Save</button></div>'
 	echo '</form>'
 	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
+	footer
 	echo '%PAGEEND%'
 }
 log_dir() {
@@ -1315,9 +1291,8 @@ log_dir() {
 	if [ -z "$running_pid" ]; then
 		disabled_class='class="disabled"'
 	fi
-	echo '<div id="pFooter">'
-	echo '<a '"$disabled_class"' onclick="run('\''fkill '"$PWD"\'')">Kill</a>'
-	echo '<a '"$disabled_class"' onclick="run('\''fcat exec.sh'\'')">View exec.sh</a>'
+	footer_html='<a '"$disabled_class"' onclick="run('\''fkill '"$PWD"\'')">Kill</a>'
+	footer_html="$footer_html"'<a '"$disabled_class"' onclick="run('\''fcat exec.sh'\'')">View exec.sh</a>'
 	disabled_class=''
 	path_components=(${PWD//\// })
 	length=${#path_components[@]}
@@ -1325,8 +1300,8 @@ log_dir() {
 	if [ ! -f console.log ]; then
 		disabled_class='class="disabled"'
 	fi
-	echo '<a '"$disabled_class"' href="'"_files${PWD}/console.log"'" download="'"$filename"'">Download Output</a>'
-	echo '</div>'
+	footer_html="$footer_html"'<a '"$disabled_class"' href="'"_files${PWD}/console.log"'" download="'"$filename"'">Download Output</a>'
+	footer "$footer_html"
 	echo '%PAGEEND%'
 
 	# Write the PID to a file so that the background job running `tail -f`
