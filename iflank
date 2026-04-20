@@ -747,11 +747,19 @@ END {
 			if (ctrl["@values"] ~ /^`.*`$/) {
 				cmd = substr(ctrl["@values"], 2, length(ctrl["@values"]) - 2)
 				while ((cmd | getline line) > 0) {
+					tab_pos = index(line, "\t")
+					if (tab_pos > 0) {
+						opt_val = substr(line, 1, tab_pos - 1)
+						opt_display = substr(line, tab_pos + 1)
+					} else {
+						opt_val = line
+						opt_display = line
+					}
 					selected=""
-					if(line == ctrl["@default"]){
+					if(opt_val == ctrl["@default"]){
 						selected=" selected"
 					}
-					html=html"<option value=\""line"\""selected">"line"</option>"
+					html=html"<option value=\""opt_val"\""selected">"opt_display"</option>"
 				}
 				close(cmd)
 			}
