@@ -1,8 +1,8 @@
 # Flank
 
-Flank is a tool for building dashboards and apps from scripts.
+Flank is a tool for "go to" engineers.
 
-It works with any language that can be invoked from the terminal, because it just forwards `stdout` from your terminal to your browser.  Like if you ran `$ python scrape_data.py --year 2013`, it would forward the output into the Flank website. As the engineer, you can quicky configure input fields and guardrails so that users can intuitively fill in fields like `--year` (more in example below).
+It is small bridge from engineer-land (terminal) to user-land (browser). It works with any language that can be invoked from the terminal, because it just forwards `stdout` from your terminal to your browser. It can be used to quickly build dashboards/apps, schedule cron jobs, run scripts away from your desk, etc.
 
 ## Contents 
 
