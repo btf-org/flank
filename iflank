@@ -930,22 +930,9 @@ contents="${contents}${nodes}"
 contents="${contents}EOF\n" 
 
 printf '\''%b'\'' "${contents}" > ./${pipeline_name}/template.sh
+fcd "${pipeline_name}"
+edit_cmd
 '
-create_pipeline_form() {
-	echo '%PAGESTART%'
-	header_pwd
-	echo ''
-	echo '<div id="pBody">'
-	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
-	awk "$awk_parse_vars" <<<"$create_pipeline_form_sh"
-	echo '<div class="col-start-1"><button type="button" onclick="iflankForm('\''save_pipeline'\'')">Save</button></div>'
-	echo '</form>'
-	echo '</div>'
-	echo '<div id="pFooter">'
-	echo '<a onclick="run('\''history'\'')">History</a>'
-	echo '</div>'
-	echo '%PAGEEND%'
-}
 fcrontab_e_sh='
 # ${crontab_contents} @textarea @capturetab
 # ${crontab_contents} @default `crontab -l`
@@ -1670,7 +1657,10 @@ while true; do
 		eval_multistep_form "$args"
 		;;
 	create_pipeline_form)
-		create_pipeline_form
+		show_form "$create_pipeline_form_sh" "create_pipeline" "Save"
+		;;
+	create_pipeline)
+		eval_form "$args" "$create_pipeline_form_sh"
 		;;
 	fcat)
 		# fcat <path>
@@ -1690,18 +1680,6 @@ while true; do
 		cat <<<"$cleaned_file" >template.sh
 
 		run_form
-		;;
-	save_pipeline)
-		# save_pipeline <k=v&k=v>
-		arglist=$(url_2_awk "$args")
-		create_pipeline_form_exec=$(prepend_vars "$create_pipeline_form_sh" "$arglist")
-		# echo "cpfme: $create_pipeline_form_exec" 1>&2
-		eval "$create_pipeline_form_exec"
-		pipeline_name_sh=$(prepend_vars 'echo "${pipeline_name}"' "$arglist")
-		pipeline_name=$(eval "$pipeline_name_sh")
-		echo "pipeline_name ${pipeline_name}" 1>&2
-		fcd "$pipeline_name"
-		edit_cmd
 		;;
 	filepicker)
 		# filepicker <dir> <submit_cmd> <btn_text> <hidden_vars>
