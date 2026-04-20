@@ -633,6 +633,7 @@ fls() {
 		fi
 	done
 	echo '</div>'
+	footer
 	echo '%PAGEEND%'
 }
 awk_parse_vars='
