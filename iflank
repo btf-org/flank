@@ -511,7 +511,7 @@ fcd() {
 	elif [ -f status ] || [ -f exec.sh ]; then
 		log_dir
 	else
-		flank_ls
+		fls
 	fi
 }
 
@@ -600,7 +600,7 @@ filepicker() {
 	echo '</div>'
 	echo '%PAGEEND%'
 }
-flank_ls() {
+fls() {
 	echo '%PAGESTART%'
 	header_pwd
 	echo ""
