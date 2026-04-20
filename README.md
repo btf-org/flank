@@ -1,10 +1,8 @@
 # Flank
 
-Flank is a tool for "go to" engineers.
+Flank is for "go to" engineers on small teams. It allows you to build dashboards / apps in the language of your choice (Python, node, R, Rust, etc).
 
-It is a pipe that directly connects engineer-land (terminal) to user-land (browser), eliminating many layers of software.
-
-It works with any language that can be invoked from the terminal (Python, node, R, Rust, etc), because it just forwards `stdout` from your terminal to your browser. It can be used to quickly build dashboards/apps, schedule cron jobs, run scripts away from your desk, etc.
+The way it works is that it forwards `stdout` from your terminal to your browser. You can go from a working script to a live website in about 30 seconds (see below).
 
 <img width="838" height="292" alt="Can you run that for me github" src="https://github.com/user-attachments/assets/aeec2b5d-f39a-45b9-a5f6-b9dbd686b6d0" />
 
@@ -118,9 +116,9 @@ Where possible, I've tried to mirror vanilla HTML and not add any additional nam
 
 ## What tools have people replaced with Flank?
 
-- PowerBI (SQL developer just exposes a query that generates a CSV)
-- Portions of a React app (Python developer just exposes scripts that return updated sales data)
-- Airflow (Data Scientist can edit pipelines/schedules and also run tasks on an ad-hoc basis when they fail)
+- PowerBI - SQL developer just exposes a query that generates a CSV
+- React app (or portions of it) - Python developer just exposes scripts that return updated sales data
+- Airflow - Data Scientist can edit pipelines/schedules and also run tasks on an ad-hoc basis when they fail
 
 
 ## Caveats / Limitations
