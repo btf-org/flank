@@ -2,7 +2,7 @@
 
 Flank is a tool for "go to" engineers.
 
-It is small bridge from engineer-land (terminal) to user-land (browser).
+It is a bridge from engineer-land (terminal) to user-land (browser).
 
 It works with any language that can be invoked from the terminal (Python, node, R, Rust, etc), because it just forwards `stdout` from your terminal to your browser. It can be used to quickly build dashboards/apps, schedule cron jobs, run scripts away from your desk, etc.
 
