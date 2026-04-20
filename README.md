@@ -8,22 +8,12 @@ It is small bridge from engineer-land (terminal) to user-land (browser). It work
 
 ## Contents 
 
-- [Caveats / Limitations](#caveats--limitations)
-- [What tools have people replaced with Flank?](#what-tools-have-people-replaced-with-flank)
 - [Installation](#installation)
 - [A quick webpage for curl](#a-quick-webpage-for-curl)
-- [Input Configuration](#input-configuration)
+- [How to configure the UI](#how-to-configure-the-ui)
+- [What tools have people replaced with Flank?](#what-tools-have-people-replaced-with-flank)
+- [Caveats / Limitations](#caveats--limitations)
 
-## Caveats / Limitations
-
-- As it currently stands, users can write destructive shell scripts, so beware! I am currently using this is in a small team, high-trust environment, so I haven't invested any effort into RBAC.
-- The logic in flankserver.c is pretty unpolished. I'm pretty sure if you open 64 tabs, it'll just crash the server. A lot of these problems have been masked by systemctl's automatic restart behavior...
-
-## What tools have people replaced with Flank?
-
-- PowerBI (SQL developer just exposes a query that generates a CSV)
-- Portions of a React app (Python developer just exposes scripts that return updated sales data)
-- Airflow (Data Scientist can edit pipelines/schedules and also run tasks on an ad-hoc basis when they fail)
   
 ## Installation
 
@@ -62,9 +52,9 @@ Now the page should look something like this:
 <img width="838" height="550" alt="curl-ex-2" src="https://github.com/user-attachments/assets/3d95bdcf-e984-4768-a9aa-fa96524ca667" />
 
 
-## Input Configuration
+## How to configure the UI
 
-You can tell Flank "make this field a dropdown". You do this through "decorations", which are just structured comments directly in the script.
+You can tell Flank, "Make this field a dropdown". You do this through "decorations", which are just structured comments directly in the script.
 
 ### Anatomy of a decoration
 
@@ -122,3 +112,16 @@ curl -X "${method}" "${url}"
 | `@capturetab` | none | no | Tab key inserts a tab character instead of moving focus. |
 
 Where possible, I've tried to mirror vanilla HTML and not add any additional naming conventions. As an example, to specify that a variable be represented by a `<textarea/>`, you use `@textarea`, but to specify it be represented by radio buttons, you use `@input @type radio`, since radios are `<input type="radio"/>`.
+
+
+## What tools have people replaced with Flank?
+
+- PowerBI (SQL developer just exposes a query that generates a CSV)
+- Portions of a React app (Python developer just exposes scripts that return updated sales data)
+- Airflow (Data Scientist can edit pipelines/schedules and also run tasks on an ad-hoc basis when they fail)
+
+
+## Caveats / Limitations
+
+- As it currently stands, users can write destructive shell scripts, so beware! I am currently using this is in a small team, high-trust environment, so I haven't invested any effort into RBAC.
+- The logic in flankserver.c is pretty unpolished. I'm pretty sure if you open 64 tabs, it'll just crash the server. A lot of these problems have been masked by systemctl's automatic restart behavior...
