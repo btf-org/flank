@@ -156,7 +156,7 @@ Where possible, I've tried to mirror vanilla HTML and not add any additional nam
 
 ## What tools have people mostly replaced with Flank?
 
-The original idea was "developer tools, but safer". But it can also be framed as "[some enterprise software thing], but simpler".
+The original idea was "developer tools, but safer". But it can also be framed as "[some enterprise software tool], but simpler". With simple UI and some scripts, you can cover 80% of the use cases of many tools.
 
 - **PowerBI** - MSSQL developer writes SPROCs to solve one-offs, Flank generates a UI using DB metadata.
 - **React app** - Python developer writes Lambdas, Flank generates a UI for each one
