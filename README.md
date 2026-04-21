@@ -156,10 +156,10 @@ Where possible, I've tried to mirror vanilla HTML and not add any additional nam
 
 ## What tools have people replaced with Flank?
 
-- PowerBI - SQL developer just exposes a query that generates a CSV
-- React app (or portions of it) - Python developer just exposes scripts that return updated sales data
-- Airflow - Data Scientist can edit pipelines/schedules and also run tasks on an ad-hoc basis when they fail
-
+- PowerBI - MSSQL developer writes SPROCs to solve one-offs, Flank generates a UI using DB metadata.
+- React app (or portions of it) - Python developer writes Lambdas, Flank generates a UI for each one
+- Retool - Data Scientist writes R scripts that make one-off data corrections, Flank generates a UI from `argparse`
+- Airflow - Data Engineer writes tasks to create/edit/schedule pipelines, Flank generates a UI that others can use
 
 ## Caveats / Limitations
 
