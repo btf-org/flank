@@ -68,7 +68,7 @@ Now the page should look something like this:
 
 ### Configure the UI
 
-You can tell Flank, "Make this field a dropdown". You do this through "decorations", which are just structured comments directly in the script.
+You can tell Flank things like, "Make this field a dropdown". You do this through "decorations", which are just structured comments directly in the script.
 
 #### Anatomy of a decoration
 
@@ -104,7 +104,27 @@ curl -X "${method}" "${url}"
 
 ### Guard input with a dropdown
 
+First you need to specify the HTML element. Dropdowns are `<select>` elements in HTML, so the directive is `@select`
+
+The dropdown also needs values to populate it, so you need a `@values` directive as well. This interface is clunky IMO -- currently it accepts a line-delimited shell expression. I can imagine that you might want to pipe the output of another command, or use a list of values in a CSV.
+
+```bash
+# ${method} @select @values `echo $'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
+```
+
+By default it treats each line from `@values` as the value and display, but it's possible to add a tab-separated display value (once again, this is a clunky interface...)
+
+```bash
+# ${method} @select @values `echo $'GET\tget request\nPOST\tpost\nPUT\tput\nDELETE\tdelete\nPATCH\tpatch\nHEAD\thead\nOPTIONS\toptions\nCONNECT\tconnect\nTRACE\ttrace'`
+```
+
 ### Set a default value for the user
+
+Sometimes you'll want set a default value for the user. This is possible using the `@default` directive.
+
+```bash
+# ${url} @default https://www.google.com
+```
 
 ## Configuration API
 
