@@ -1,6 +1,6 @@
 # Flank
 
-Flank is a Backend-as-Frontend that solves the problem of "one-off" requests that aren't actually one-off requests.
+Flank is a Backend-as-Frontend that solves the problem of "one-off" requests that come up again and again.
 
 <img width="838" height="292" alt="Can you run that for me github" src="https://github.com/user-attachments/assets/aeec2b5d-f39a-45b9-a5f6-b9dbd686b6d0" />
 
