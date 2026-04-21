@@ -15,7 +15,7 @@ Flank is a Backend-as-Frontend that solves the problem of "one-off" requests tha
    - [Guard input with a dropdown](#guard-input-with-a-dropdown)
    - [Set a default value for the user](#set-a-default-value-for-the-user)
 - [Configuration API](#configuration-api)
-- [What tools have people replaced with Flank?](#what-tools-have-people-replaced-with-flank)
+- [What tools have people mostly replaced with Flank?](#what-tools-have-people-mostly-replaced-with-flank)
 - [Caveats / Limitations](#caveats--limitations)
 
 ## The problem with "one-off" requests
@@ -154,7 +154,9 @@ Sometimes you'll want set a default value for the user. This is possible using t
 Where possible, I've tried to mirror vanilla HTML and not add any additional naming conventions. As an example, to specify that a variable be represented by a `<textarea/>`, you use `@textarea`, but to specify it be represented by radio buttons, you use `@input @type radio`, since radios are `<input type="radio"/>`.
 
 
-## What tools have people replaced with Flank?
+## What tools have people mostly replaced with Flank?
+
+The original idea was "developer tools, but safer". But it can also be framed as "[some enterprise software thing], but simpler".
 
 - **PowerBI** - MSSQL developer writes SPROCs to solve one-offs, Flank generates a UI using DB metadata.
 - **React app** - Python developer writes Lambdas, Flank generates a UI for each one
