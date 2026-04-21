@@ -1,21 +1,34 @@
 # Flank
 
-Flank is for "go to" engineers on small teams. It allows you to build dashboards / apps in the language of your choice (Python, node, R, Rust, etc).
-
-The way it works is that it forwards `stdout` from your terminal to your browser. You can go from a working script to a live website in about 30 seconds (see below).
+Flank is a Backend-as-Frontend that solves the problem of "one-off" requests that aren't actually one-off requests.
 
 <img width="838" height="292" alt="Can you run that for me github" src="https://github.com/user-attachments/assets/aeec2b5d-f39a-45b9-a5f6-b9dbd686b6d0" />
 
 ## Contents 
 
-- [Installation](#installation)
-- [A quick webpage for curl](#a-quick-webpage-for-curl)
-- [How to configure the UI](#how-to-configure-the-ui)
+- [The problem with "one-off" requests](#the-problem-with-one-off-requests)
+- [Quickstart](#quickstart)
+  - [Installation](#installation)
+  - [A quick webpage for curl](#a-quick-webpage-for-curl)
+- [How to](#how-to)
+   - [Configure the UI](#configure-the-ui)
+   - [Guard input with a dropdown](#guard-input-with-a-dropdown)
+   - [Set a default value for the user](#set-a-default-value-for-the-user)
+- [Configuration API](#configuration-api)
 - [What tools have people replaced with Flank?](#what-tools-have-people-replaced-with-flank)
 - [Caveats / Limitations](#caveats--limitations)
 
-  
-## Installation
+## The problem with "one-off" requests
+
+Frontends are overkill for little ad-hoc requests (e.g. update some value in the prod database), so they turn into [toil](https://sre.google/sre-book/eliminating-toil/) as companies grow and these requests pile up.
+
+But these days we have enough data to generate useful frontends from the backend code — if you’re not already using an OpenAPI schema, any LLM can inspect a script and pull out the args.
+
+This creates the possibility of automatic apps, almost like an additional step to CI/CD, where every time an engineer makes a “one-off” fix, he/she leaves behind an artifact that can be used to self-serve the next time it comes up.
+
+## Quickstart 
+
+### Installation
 
 #### Mac
 
@@ -33,7 +46,7 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.84/flank_0.1.84_amd
 
 Served on port 8083
 
-## A quick webpage for `curl`
+### A quick webpage for `curl`
 
 1. Click "Create Cmd" on the bottom bar
 2. Choose the "Hello World" option
@@ -51,12 +64,13 @@ Now the page should look something like this:
 
 <img width="838" height="550" alt="curl-ex-2" src="https://github.com/user-attachments/assets/3d95bdcf-e984-4768-a9aa-fa96524ca667" />
 
+## How to
 
-## How to configure the UI
+### Configure the UI
 
 You can tell Flank, "Make this field a dropdown". You do this through "decorations", which are just structured comments directly in the script.
 
-### Anatomy of a decoration
+#### Anatomy of a decoration
 
 ```bash
 # @description This fetches the content from the URL
@@ -87,6 +101,12 @@ curl -X "${method}" "${url}"
              │
              └─ variable must use curl brackets, like ${var}, not $var
 ````
+
+### Guard input with a dropdown
+
+### Set a default value for the user
+
+## Configuration API
 
 ### Command-Level
 
