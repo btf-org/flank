@@ -6,7 +6,7 @@ Flank is a Backend-as-Frontend that solves the problem of "one-off" requests tha
 
 ## Contents 
 
-- [The problem with "one-off" requests](#the-problem-with-one-off-requests)
+- [The dilemma with "one-off" requests](#the-dilemma-with-one-off-requests)
 - [Quickstart](#quickstart)
   - [Installation](#installation)
   - [A quick webpage for curl](#a-quick-webpage-for-curl)
@@ -18,13 +18,11 @@ Flank is a Backend-as-Frontend that solves the problem of "one-off" requests tha
 - [What tools have people mostly replaced with Flank?](#what-tools-have-people-mostly-replaced-with-flank)
 - [Caveats / Limitations](#caveats--limitations)
 
-## The problem with "one-off" requests
+## The dilemma with "one-off" requests
 
-Frontends are overkill for little ad-hoc requests (e.g. update some value in the prod database), so they turn into [toil](https://sre.google/sre-book/eliminating-toil/) as companies grow and these requests pile up.
+It's overkill to build a frontend for every little ad-hoc reqeust (e.g. "plz update that value in the db"), but some of those requests turn into repeated requests.
 
-But these days we have enough data to generate useful frontends from the backend code — if you’re not already using an OpenAPI schema, any LLM can inspect a script and pull out the args.
-
-This creates the possibility of automatic apps, almost like an additional step to CI/CD, where every time an engineer makes a “one-off” fix, he/she leaves behind an artifact that can be used to self-serve the next time it comes up.
+The only way to escape this dilemma is to automatically create an "app" every time an engineer makes an ad-hoc fix. (That is, to inspect the backend code/schema and use that to generate a frontend, aka Backend-as-Frontend) Then, the business stakeholder can self-serve the next time.
 
 ## Quickstart 
 
