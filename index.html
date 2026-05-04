@@ -430,6 +430,18 @@
               accumulatingResponse = "";
               state = "outside";
             }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%STDIN%\n", i)
+          ) {
+            i += "%STDIN%\n".length - 1;
+            const pBody = document.getElementById("pBody");
+            if (pBody) {
+              const wrapper = document.createElement("span");
+              wrapper.innerHTML =
+                '<input type="text" /><button onclick="run(this.previousElementSibling.value)">Submit</button>';
+              pBody.appendChild(wrapper);
+            }
           } else if (state.startsWith("inside")) {
             accumulatingResponse += thisText[i];
           }

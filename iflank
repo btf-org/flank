@@ -244,7 +244,7 @@ prepend_vars_url_encoded() {
 }
 run_cmd() {
 	# iflank  run   <cmd dir> [--output_key <key>] k1=v1 k2=v2
-	# run_cmd fg|bg <cmd dir> [--output_key <key>] [--arglist k1=v1FLNKDLMk2=v2] k1=v1 k2=v2
+	# run_cmd fg|bg|int <cmd dir> [--output_key <key>] [--arglist k1=v1FLNKDLMk2=v2] k1=v1 k2=v2
 	local p_fgbg="$1"
 	shift
 	local p_path="$1"
@@ -267,7 +267,7 @@ run_cmd() {
 		esac
 		shift
 	done
-	if [ "$p_fgbg" != 'bg' ] && [ "$p_fgbg" != 'fg' ]; then
+	if [ "$p_fgbg" != 'bg' ] && [ "$p_fgbg" != 'fg' ] && [ "$p_fgbg" != 'int' ]; then
 		echo "first parameter $1 must be 'fg' or 'bg'"
 		return 1
 	fi
@@ -393,10 +393,52 @@ run_cmd() {
 		printf 'StartTime:\t%s\n' $(date "+%s") >status
 		# Turn off "exit on error" for the actual exeuction so that we can write out the exit code afterwards
 		set +e
-		/usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &>console.log &
-		PID=$!
-		wait $PID
-		local exit_code=$?
+		if [ "$p_fgbg" == 'fg' ]; then
+			/usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &>console.log &
+			PID=$!
+			wait $PID
+			local exit_code=$?
+		elif [ "$p_fgbg" == 'int' ]; then
+			echo "INT" 1>&2
+			local fifo_in fifo_out
+			fifo_in=$(mktemp -u)
+			fifo_out=$(mktemp -u)
+			mkfifo "$fifo_in" "$fifo_out"
+
+			echo "INT2" 1>&2
+			# Header
+			echo "[Session start: $(date)]" | tee console.log
+
+			# Intercept stdin: tag each line [IN], write to log, pass to fifo_in
+			awk '{ print "[IN]  " $0; system("") }' < /dev/stdin \
+				> >(tee -a console.log > "$fifo_in") &
+			STDIN_AWK_PID=$!
+
+			echo "INT3" 1>&2
+			# Run exec.sh with intercepted stdin, capture stdout to fifo_out
+			bash "$cmd_run_dir/exec.sh" < "$fifo_in" > "$fifo_out" 2>&1 &
+			PID=$!
+
+			echo "INT4" 1>&2
+			# Intercept stdout: tag each line [OUT], write to log, pass to terminal
+			{
+				echo '%APPENDPAGEBODYSTART%'
+				awk '{ print "[OUT] " $0; system("") }' < "$fifo_out" \
+					| tee -a console.log
+				echo '%APPENDPAGEBODYEND%'
+			}  > /dev/tty &
+			STDOUT_AWK_PID=$!
+
+			echo "INT5" 1>&2
+			wait $PID
+			local exit_code=$?
+
+			# Cleanup
+			kill $STDIN_AWK_PID $STDOUT_AWK_PID 2>/dev/null
+			rm -f "$fifo_in" "$fifo_out"
+
+			echo "[Session end: $(date)]" | tee -a console.log
+		fi
 		printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >>status
 		if [ -f time.gnu.out ]; then
 			awk -F: ' /Maximum resident set size \(kbytes\)/ { bytes = $2 * 1000; print "MaxRSSBytes:\t"bytes } ' time.gnu.out >>status
@@ -1490,7 +1532,12 @@ while true; do
 	run)
 		# run <cmd_dir> <k=v&k=v>
 		IFS=' ' read cmd_dir kvs <<<"$args"
-		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" --arglist "$kvs")
+		if grep -q '# @interactive' "$cmd_dir"/template.sh; then
+			run_mode='int'
+		else
+			run_mode='bg'
+		fi
+		cmd_run_dir=$(run_cmd "$run_mode" "$cmd_dir" --arglist "$kvs")
 		fcd "$cmd_run_dir"
 		;;
 	choose_cmd_wizard)
