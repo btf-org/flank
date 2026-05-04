@@ -13,25 +13,6 @@ else
 	exit
 fi
 
-get_value() {
-	input="$1"
-	target_key="$2"
-
-	old_ifs="$IFS"
-	IFS=$(printf '\037')
-	for pair in $input; do
-		key="${pair%%=*}"
-		value="${pair#*=}"
-		if [ "$key" = "$target_key" ]; then
-			IFS="$old_ifs"
-			printf '%s\n' "$value"
-			return 0
-		fi
-	done
-
-	IFS="$old_ifs"
-	return 1
-}
 get_value_url() {
 	# get_value_url <kvs> <keyname>
 	local _kvs="$1"
@@ -55,45 +36,7 @@ get_value_url() {
 	      -e 's/%28/(/g' \
 	      -e 's/%29/)/g'
 }
-url_2_awk() {
-	# url_2_awk <url_args>
-	# url encoding to Flank awk encoding
-	local _args="$1"
-	local _arglist=''
-	local _prev_key=''
-
-	for kv in $(echo "$_args" | tr '&' '\n' | sort); do
-		local _decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
-
-		local _key="${_decoded_kv%%=*}"
-		local _val="${_decoded_kv#*=}"
-
-		if [ "${_key%\[\]}" != "$_key" ]; then
-			# Array key - strip [] and append with newline if same key
-			local _base_key="${_key%\[\]}"
-			if [ "$_arglist" = '' ]; then
-				_arglist="${_base_key}=${_val}"
-			elif [ "$_base_key" = "$_prev_key" ]; then
-				_arglist="${_arglist}"$'\n'"${_val}"
-			else
-				_arglist="${_arglist}"$'\x1F'"${_base_key}=${_val}"
-			fi
-			_prev_key="$_base_key"
-		else
-			# Normal key
-			if [ "$_arglist" = '' ]; then
-				_arglist="${_key}=${_val}"
-			else
-				_arglist="${_arglist}"$'\x1F'"${_key}=${_val}"
-			fi
-			_prev_key="$_key"
-		fi
-	done
-	printf '%s' "$_arglist"
-}
-awk_columns='
-NR==1 { prev=FILENAME; } 
-FNR==1 && NR!=1 { 
+awk_hist_row_body='
 	if(st != ""){
 	if(DATE_VERSION == "gnu"){
 		cmd = "date -d @"st" +\"%Y-%m-%d %H:%M:%S\""; 
@@ -154,7 +97,11 @@ FNR==1 && NR!=1 {
 	linkDrilldown = "<a onclick=\"run('\''fcd "dir"'\'')\">Drilldown</a>"
 
 	print linkDrilldown, link, path_parts[n - 4], stf, etf, status, maxRSSGiB;
-
+'
+awk_columns='
+NR==1 { prev=FILENAME; } 
+FNR==1 && NR!=1 { 
+'"$awk_hist_row_body"'
 	prev=FILENAME; 
 	st=""; 
 	et=""; 
@@ -167,66 +114,7 @@ FNR==1 && NR!=1 {
 /ExitCode/ { code=$2 } 
 /MaxRSSBytes/ { maxRSSGiB= sprintf("%.3f", $2 / 1073741824); }
 END { 
-	if(st != ""){
-	if(DATE_VERSION == "gnu"){
-		cmd = "date -d @"st" +\"%Y-%m-%d %H:%M:%S\""; 
-	} else {
-		cmd = "date -r "st" +\"%Y-%m-%d %H:%M:%S\""; 
-	}
-	cmd | getline stf; 
-	close(cmd);
-	} else {
-	stf = "";
-	}
-
-	if(et != ""){
-	if(DATE_VERSION == "gnu"){
-		cmd = "date -d @"et" +\"%Y-%m-%d %H:%M:%S\""; 
-	} else {
-		cmd = "date -r "et" +\"%Y-%m-%d %H:%M:%S\""; 
-	}
-	cmd | getline etf;
-	close(cmd);
-	} else {
-	etf = "";
-	}
-
-	n = split(prev, path_parts, "/");
-	
-	pid="";
-	if(code == ""){
-	logdir="";
-	for(i = 1; i < n; i++){
-		logdir=logdir""path_parts[i];
-		if(i < n - 1) {
-		logdir=logdir"/";
-		}
-	}
-	if(PS_VERSION=="procps"){
-		cmd = "ps -eo pid,args | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
-	}
-	else {
-		cmd = "ps -x | grep \""logdir"\" | grep -v \"grep .*"logdir"\" | grep -v \"bash -c .*StartTime\" | grep -v \"/usr/bin/time\" | sed -e  '\''s/^[[:space:]]*//'\'' -e '\''s/[[:space:]].*//'\''";
-	}
-	cmd | getline pid;
-	close(cmd);
-	}
-	status=""
-	if(pid != ""){
-		status = "RUNNING (PID "pid")"
-	} else if (code == 0){
-		status = "done (0)"
-	} else if (code != 0){
-		status = "FAILURE ("code")"
-	}
-	cmd = "dirname "prev;
-	cmd | getline dir;
-	close(cmd);
-	filename=path_parts[n-4]"-"path_parts[n-2]"_"path_parts[n-1]".log";
-	link = "<a href=\"_files"dir"/console.log\" download=\""filename"\">Download Output</a>"
-	linkDrilldown = "<a onclick=\"run('\''fcd "dir"'\'')\">Drilldown</a>"
-
-	print linkDrilldown, link, path_parts[n - 4], stf, etf, status, maxRSSGiB;
+'"$awk_hist_row_body"'
 }'
 awk_tsv_to_html='
 { print "<tr><td>"$1"</td><td>"$2"</td><td>"$3"</td><td>"$4"</td><td>"$5"</td><td>"$6"</td><td>"$7"</td></tr>" }'
@@ -307,18 +195,47 @@ kill_tree() {
 	# kill the parent itself
 	kill -TERM "$parent" 2>/dev/null
 }
-prepend_vars() {
-	# prepend_vars <input_file_contents> <arglist>
+prepend_vars_url_encoded() {
+	# prepend_vars_url_encoded <input_file_contents> <url_encoded_args>
 
 	if [ -n "$2" ]; then
 		local assignments=""
-		while IFS= read -r -d $'\x1F' pair; do
-			local key="${pair%%=*}"
-			local value="${pair#*=}"
+		local _pending_key=''
+		local _pending_val=''
+
+		for kv in $(echo "$2" | tr '&' '\n' | sort); do
+			local _decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
+			local _key="${_decoded_kv%%=*}"
+			local _val="${_decoded_kv#*=}"
+			local _base_key="${_key%\[\]}"
+
+			if [ -n "$_pending_key" ] && [ "$_base_key" != "$_pending_key" ]; then
+				replacement="'\''"
+				_pending_val="${_pending_val//\'/$replacement}"
+				assignments="${assignments}${_pending_key}='${_pending_val}'"$'\n'
+				_pending_key=''
+				_pending_val=''
+			fi
+
+			if [ "${_key%\[\]}" != "$_key" ]; then
+				if [ -z "$_pending_key" ]; then
+					_pending_key="$_base_key"
+					_pending_val="$_val"
+				else
+					_pending_val="${_pending_val}"$'\n'"${_val}"
+				fi
+			else
+				replacement="'\''"
+				_val="${_val//\'/$replacement}"
+				assignments="${assignments}${_key}='${_val}'"$'\n'
+			fi
+		done
+
+		if [ -n "$_pending_key" ]; then
 			replacement="'\''"
-			value="${value//\'/$replacement}"
-			assignments="${assignments}${key}='${value}'"$'\n'
-		done < <(printf '%s'$'\x1F' "$2")
+			_pending_val="${_pending_val//\'/$replacement}"
+			assignments="${assignments}${_pending_key}='${_pending_val}'"$'\n'
+		fi
 
 		printf '%s\n' "$assignments"
 	fi
@@ -384,9 +301,9 @@ run_cmd() {
 	fi
 
 	if [ -n "$p_path" ] && [ "$p_path" != '.' ]; then
-		prepend_vars "$(cat $p_path)" "$arglist" >$cmd_run_dir/exec.sh
+		prepend_vars_url_encoded "$(cat $p_path)" "$arglist" >$cmd_run_dir/exec.sh
 	else
-		prepend_vars "$(cat template.sh)" "$arglist" >$cmd_run_dir/exec.sh
+		prepend_vars_url_encoded "$(cat template.sh)" "$arglist" >$cmd_run_dir/exec.sh
 	fi
 
 	# These only get called when iflank itself is killed
@@ -1075,14 +992,13 @@ eval_multistep_form() {
 	# eval_form <args>
 	local _args="$1"
 	echo "IN FUNC" 1>&2
-	local _arglist=$(url_2_awk "$_args")
-	local _current_page=$(get_value "$_arglist" '_fpage')
-	local _script_name=$(get_value "$_arglist" '_fscript')
+	local _current_page=$(get_value_url "$_args" '_fpage')
+	local _script_name=$(get_value_url "$_args" '_fscript')
 	echo "CURRENT PAGE" 1>&2
 	echo "$_current_page" 1>&2
 	local _script="${!_script_name}"
 	local _current_script=$(get_script_page "$_script" "$_current_page")
-	local _to_eval=$(prepend_vars "$_current_script" "$_arglist")
+	local _to_eval=$(prepend_vars_url_encoded "$_current_script" "$_args")
 	echo "TO EVAL" 1>&2
 	echo "$_to_eval" 1>&2
 
@@ -1129,8 +1045,7 @@ eval_form() {
 	local _args="$1"
 	local _sh="$2"
 
-	local _arglist=$(url_2_awk "$_args")
-	local _to_eval=$(prepend_vars "$_sh" "$_arglist")
+	local _to_eval=$(prepend_vars_url_encoded "$_sh" "$_args")
 
 	eval "$_to_eval"
 }
@@ -1508,10 +1423,14 @@ while [ "$1" != "" ]; do
 				ok_value="$1"
 				;;
 			*)
+				local _k="${1%%=*}"
+				local _v="${1#*=}"
+				local _v_enc
+				_v_enc=$(url_encode "$_v")
 				if [ -z "$arglist" ]; then
-					arglist="$1"
+					arglist="${_k}=${_v_enc}"
 				else
-					arglist="${arglist}"$'\x1F'"$1"
+					arglist="${arglist}&${_k}=${_v_enc}"
 				fi
 				;;
 			esac
@@ -1571,10 +1490,7 @@ while true; do
 	run)
 		# run <cmd_dir> <k=v&k=v>
 		IFS=' ' read cmd_dir kvs <<<"$args"
-		# delim_kvs=$(echo "$kvs" | sed 's/&/'$'\x1F''/g')
-		# decoded_kvs=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${delim_kvs})")
-		arglist=$(url_2_awk "$kvs")
-		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" --arglist "$arglist")
+		cmd_run_dir=$(run_cmd 'bg' "$cmd_dir" --arglist "$kvs")
 		fcd "$cmd_run_dir"
 		;;
 	choose_cmd_wizard)
@@ -1644,7 +1560,6 @@ while true; do
 		# add_cron <dir> <k=v&k=v>
 		# everything after first space, then space delimited
 		IFS=' ' read cmd_dir kvs <<<"$args"
-		arglist=$(url_2_awk "$kvs")
 		split_kvs=$(echo "${args#* }" | tr '&' ' ')
 		first_kv="${split_kvs%% *}"
 		first_value="${first_kv#*=}"
