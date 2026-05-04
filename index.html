@@ -326,9 +326,19 @@
         let thisText = await response.text();
         if (terminalMode) {
           console.log("TERMMODE")
-          if (term) term.write(thisText);
-          longPoll();
-          return;
+          const exitMarker = "%EXITTERMINAL%";
+          const exitIdx = thisText.indexOf(exitMarker);
+          if (exitIdx !== -1) {
+            if (term) term.write(thisText.slice(0, exitIdx));
+            terminalMode = false;
+            term = null;
+            thisText = thisText.slice(exitIdx + exitMarker.length);
+            // fall through to normal state-machine parsing of remainder
+          } else {
+            if (term) term.write(thisText);
+            longPoll();
+            return;
+          }
         }
         for (let i = 0; i < thisText.length; i++) {
           if (thisText[i] == "%" && thisText.startsWith("%PAGESTART%\n", i)) {

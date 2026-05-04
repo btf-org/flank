@@ -410,6 +410,8 @@ run_cmd() {
 			echo '%INITTERMINAL%'
 			# echo '%APPENDPAGEBODYSTART%'
 			/usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh # &>console.log &
+			echo '%EXITTERMINAL%'
+			error_modal 'Terminal closed'
 			# local exit_code=$?
 			# echo '%APPENDPAGEBODYEND%'
 			# local fifo_in fifo_out
