@@ -215,6 +215,8 @@
       let accumulatingResponse = "";
       let accumulatingUrl = "";
       let state = "outside";
+      let terminalMode = false;
+      let term = null;
       let sid = sessionStorage.getItem("sid");
       if (!sid) {
         sid = randomBase62Id();
@@ -291,7 +293,7 @@
           return;
         }
       }
-      async function run(cmd) {
+      async function run(cmd, newline = true) {
         try {
           await fetch(window.location.origin + "/_iflank", {
             method: "POST",
@@ -299,7 +301,7 @@
               "Content-Type": "text/plain",
               "X-Session-ID": sid,
             },
-            body: cmd + "\n",
+            body: newline ? cmd + "\n" : cmd,
           });
         } catch (err) {
           console.error(err);
@@ -322,6 +324,12 @@
           headers: { "X-Session-ID": sid },
         });
         let thisText = await response.text();
+        if (terminalMode) {
+          console.log("TERMMODE")
+          if (term) term.write(thisText);
+          longPoll();
+          return;
+        }
         for (let i = 0; i < thisText.length; i++) {
           if (thisText[i] == "%" && thisText.startsWith("%PAGESTART%\n", i)) {
             accumulatingResponse = "";
@@ -334,6 +342,7 @@
             const prevState = state;
             i += "%PAGEEND%\n".length - 1;
             if (prevState == "insidePage") {
+              console.log("PAGEEND");
               document.body.innerHTML = accumulatingResponse;
               accumulatingResponse = "";
               state = "outside";
@@ -430,6 +439,70 @@
               accumulatingResponse = "";
               state = "outside";
             }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%LOADSTYLESHEET%", i)
+          ) {
+            accumulatingResponse = "";
+            state = "insideLoadStylesheet";
+            i += "%LOADSTYLESHEET%".length - 1;
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%LOADSTYLESHEETEND%", i)
+          ) {
+            const prevState = state;
+            i += "%LOADSTYLESHEETEND%".length - 1;
+            if (prevState == "insideLoadStylesheet") {
+              const link = document.createElement("link");
+              link.rel = "stylesheet";
+              link.href = accumulatingResponse.trim();
+              document.head.appendChild(link);
+              accumulatingResponse = "";
+              state = "outside";
+            }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%JSIMPORT%", i)
+          ) {
+            accumulatingResponse = "";
+            state = "insideJsImport";
+            i += "%JSIMPORT%".length - 1;
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%JSIMPORTEND%", i)
+          ) {
+            const prevState = state;
+            i += "%JSIMPORTEND%".length - 1;
+            if (prevState == "insideJsImport") {
+              await new Promise((resolve, reject) => {
+                const script = document.createElement("script");
+                script.src = accumulatingResponse.trim();
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+              });
+              accumulatingResponse = "";
+              state = "outside";
+            }
+          } else if (
+            thisText[i] == "%" &&
+            thisText.startsWith("%INITTERMINAL%", i)
+          ) {
+              console.log("TERMINAL1");
+            i += "%INITTERMINAL%".length - 1;
+            const termEl = document.getElementById("terminal");
+            console.log(termEl);
+            console.log(window.Terminal);
+            if (termEl && window.Terminal) {
+              console.log("TERMINAL2");
+              term = new window.Terminal();
+              term.open(termEl);
+              term.onData((data) => run(data, false));
+            }
+            terminalMode = true;
+            const remaining = thisText.slice(i + 1);
+            if (remaining && term) term.write(remaining);
+            break;
           } else if (state.startsWith("inside")) {
             accumulatingResponse += thisText[i];
           }

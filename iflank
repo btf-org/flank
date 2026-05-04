@@ -404,13 +404,14 @@ run_cmd() {
 			echo '%PAGESTART%'
 			header_pwd
 			echo ''
-			echo '<div id="pBody"></div>'
+			echo '<div id="pBody"><div id="terminal"></div></div>'
 			footer 
 			echo '%PAGEEND%'
-			echo '%APPENDPAGEBODYSTART%'
+			echo '%INITTERMINAL%'
+			# echo '%APPENDPAGEBODYSTART%'
 			/usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh # &>console.log &
-			local exit_code=$?
-			echo '%APPENDPAGEBODYEND%'
+			# local exit_code=$?
+			# echo '%APPENDPAGEBODYEND%'
 			# local fifo_in fifo_out
 			# fifo_in=$(mktemp -u)
 			# fifo_out=$(mktemp -u)
@@ -1545,6 +1546,10 @@ while true; do
 		IFS=' ' read cmd_dir kvs <<<"$args"
 		if grep -q '# @interactive' "$cmd_dir"/template.sh; then
 			run_mode='int'
+			echo '%LOADSTYLESHEET%https://cdn.jsdelivr.net/npm/xterm/css/xterm.css%LOADSTYLESHEETEND%'
+			# echo '%LOADSTYLESHEET%https://cdn.jsdelivr.net/npm/xterm/css/xterm.css%LOADSTYLESHEETEND%' 1>&2
+			echo '%JSIMPORT%https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js%JSIMPORTEND%'
+			# echo '%JSIMPORT%https://cdn.jsdelivr.net/npm/xterm/css/xterm.css%JSIMPORTEND%' 1>&2
 			run_cmd "$run_mode" "$cmd_dir" --arglist "$kvs"
 		else
 			run_mode='bg'
