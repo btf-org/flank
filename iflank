@@ -181,6 +181,7 @@ footer() {
 		echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
 		echo '<a onclick="run('\''fcrontab_e_form'\'')">Edit crontab</a>'
 	fi
+	echo '<span><input type="text" id="stdinInput" /><button onclick="run(document.getElementById('"'"'stdinInput'"'"').value)">Submit</button></span>'
 	echo '</div>'
 }
 
@@ -400,44 +401,54 @@ run_cmd() {
 			local exit_code=$?
 		elif [ "$p_fgbg" == 'int' ]; then
 			echo "INT" 1>&2
-			local fifo_in fifo_out
-			fifo_in=$(mktemp -u)
-			fifo_out=$(mktemp -u)
-			mkfifo "$fifo_in" "$fifo_out"
-
-			echo "INT2" 1>&2
-			# Header
-			echo "[Session start: $(date)]" | tee console.log
-
-			# Intercept stdin: tag each line [IN], write to log, pass to fifo_in
-			awk '{ print "[IN]  " $0; system("") }' < /dev/stdin \
-				> >(tee -a console.log > "$fifo_in") &
-			STDIN_AWK_PID=$!
-
-			echo "INT3" 1>&2
-			# Run exec.sh with intercepted stdin, capture stdout to fifo_out
-			bash "$cmd_run_dir/exec.sh" < "$fifo_in" > "$fifo_out" 2>&1 &
-			PID=$!
-
-			echo "INT4" 1>&2
-			# Intercept stdout: tag each line [OUT], write to log, pass to terminal
-			{
-				echo '%APPENDPAGEBODYSTART%'
-				awk '{ print "[OUT] " $0; system("") }' < "$fifo_out" \
-					| tee -a console.log
-				echo '%APPENDPAGEBODYEND%'
-			}  > /dev/tty &
-			STDOUT_AWK_PID=$!
-
-			echo "INT5" 1>&2
-			wait $PID
+			echo '%PAGESTART%'
+			header_pwd
+			echo ''
+			echo '<div id="pBody"></div>'
+			footer 
+			echo '%PAGEEND%'
+			echo '%APPENDPAGEBODYSTART%'
+			/usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh # &>console.log &
 			local exit_code=$?
+			echo '%APPENDPAGEBODYEND%'
+			# local fifo_in fifo_out
+			# fifo_in=$(mktemp -u)
+			# fifo_out=$(mktemp -u)
+			# mkfifo "$fifo_in" "$fifo_out"
 
-			# Cleanup
-			kill $STDIN_AWK_PID $STDOUT_AWK_PID 2>/dev/null
-			rm -f "$fifo_in" "$fifo_out"
+			# echo "INT2" 1>&2
+			# # Header
+			# echo "[Session start: $(date)]" | tee console.log
 
-			echo "[Session end: $(date)]" | tee -a console.log
+			# # Intercept stdin: tag each line [IN], write to log, pass to fifo_in
+			# awk '{ print "[IN]  " $0; system("") }' < /dev/stdin \
+			# 	> >(tee -a console.log > "$fifo_in") &
+			# STDIN_AWK_PID=$!
+
+			# echo "INT3" 1>&2
+			# # Run exec.sh with intercepted stdin, capture stdout to fifo_out
+			# bash "$cmd_run_dir/exec.sh" < "$fifo_in" > "$fifo_out" 2>&1 &
+			# PID=$!
+
+			# echo "INT4" 1>&2
+			# # Intercept stdout: tag each line [OUT], write to log, pass to terminal
+			# {
+			# 	echo '%APPENDPAGEBODYSTART%'
+			# 	awk '{ print "[OUT] " $0; system("") }' < "$fifo_out" \
+			# 		| tee -a console.log
+			# 	echo '%APPENDPAGEBODYEND%'
+			# }  > /dev/tty &
+			# STDOUT_AWK_PID=$!
+
+			# echo "INT5" 1>&2
+			# wait $PID
+			# local exit_code=$?
+
+			# # Cleanup
+			# kill $STDIN_AWK_PID $STDOUT_AWK_PID 2>/dev/null
+			# rm -f "$fifo_in" "$fifo_out"
+
+			# echo "[Session end: $(date)]" | tee -a console.log
 		fi
 		printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >>status
 		if [ -f time.gnu.out ]; then
@@ -1534,11 +1545,12 @@ while true; do
 		IFS=' ' read cmd_dir kvs <<<"$args"
 		if grep -q '# @interactive' "$cmd_dir"/template.sh; then
 			run_mode='int'
+			run_cmd "$run_mode" "$cmd_dir" --arglist "$kvs"
 		else
 			run_mode='bg'
+			cmd_run_dir=$(run_cmd "$run_mode" "$cmd_dir" --arglist "$kvs")
+			fcd "$cmd_run_dir"
 		fi
-		cmd_run_dir=$(run_cmd "$run_mode" "$cmd_dir" --arglist "$kvs")
-		fcd "$cmd_run_dir"
 		;;
 	choose_cmd_wizard)
 		choose_cmd_wizard
