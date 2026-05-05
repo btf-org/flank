@@ -215,7 +215,6 @@
       let accumulatingResponse = "";
       let accumulatingUrl = "";
       let state = "outside";
-      let terminalMode = false;
       let term = null;
       let sid = sessionStorage.getItem("sid");
       if (!sid) {
@@ -293,7 +292,10 @@
           return;
         }
       }
-      async function run(cmd, newline = true) {
+      async function run(cmd, sendRaw=false) {
+        if(state === "rawMode" && !sendRaw){
+          await run("%FKILLTERMINAL%", true);
+        }
         try {
           await fetch(window.location.origin + "/_iflank", {
             method: "POST",
@@ -301,7 +303,7 @@
               "Content-Type": "text/plain",
               "X-Session-ID": sid,
             },
-            body: newline ? cmd + "\n" : cmd,
+            body: state === "rawMode" ? cmd: cmd + "\n",
           });
         } catch (err) {
           console.error(err);
@@ -324,13 +326,13 @@
           headers: { "X-Session-ID": sid },
         });
         let thisText = await response.text();
-        if (terminalMode) {
+        if (state === "rawMode") {
           console.log("TERMMODE")
           const exitMarker = "%EXITTERMINAL%";
           const exitIdx = thisText.indexOf(exitMarker);
           if (exitIdx !== -1) {
             if (term) term.write(thisText.slice(0, exitIdx));
-            terminalMode = false;
+            state = "outside";
             term = null;
             thisText = thisText.slice(exitIdx + exitMarker.length);
             // fall through to normal state-machine parsing of remainder
@@ -505,11 +507,17 @@
             console.log(window.Terminal);
             if (termEl && window.Terminal) {
               console.log("TERMINAL2");
-              term = new window.Terminal();
+              term = new window.Terminal({
+                theme: {
+                  background: "#ffffff",
+                  foreground: "#000000",
+                  cursor: "#000000"
+                }
+              });
               term.open(termEl);
-              term.onData((data) => run(data, false));
+              term.onData((data) => run(data, true));
             }
-            terminalMode = true;
+            state = "rawMode";
             const remaining = thisText.slice(i + 1);
             if (remaining && term) term.write(remaining);
             break;

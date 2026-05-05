@@ -408,50 +408,45 @@ run_cmd() {
 			footer 
 			echo '%PAGEEND%'
 			echo '%INITTERMINAL%'
-			# echo '%APPENDPAGEBODYSTART%'
-			/usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh # &>console.log &
+			# local in_kill_keyword_so_far=0
+			# while IFS= LC_ALL=C read -r -n1 char; do
+			# 	printf "%s" "$char"
+			# done | /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh
+			keyword="%FKILLTERMINAL%"
+			buffer=""
+
+			while IFS= LC_ALL=C read -r -n1 char; do
+				if [ -z "$buffer" ]; then
+					if [ "$char" = "${keyword:0:1}" ]; then
+						buffer="$char"
+					else
+						printf "%s" "$char"
+					fi
+				else
+					buffer="$buffer$char"
+					klen=${#keyword}
+					blen=${#buffer}
+
+					if [ "$buffer" = "${keyword:0:$blen}" ]; then
+						if [ "$blen" -eq "$klen" ]; then
+							echo 'KEYWORD BREAK' 1>&2
+							break
+						fi
+					else
+						# Flush everything except current char, then recheck current char
+						printf "%s" "${buffer:0:$((blen-1))}"
+						if [ "$char" = "${keyword:0:1}" ]; then
+							buffer="$char"
+						else
+							printf "%s" "$char"
+							buffer=""
+						fi
+					fi
+				fi
+			done | /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh
+			echo '%EXITTERMINAL%' 1>&2
 			echo '%EXITTERMINAL%'
 			error_modal 'Terminal closed'
-			# local exit_code=$?
-			# echo '%APPENDPAGEBODYEND%'
-			# local fifo_in fifo_out
-			# fifo_in=$(mktemp -u)
-			# fifo_out=$(mktemp -u)
-			# mkfifo "$fifo_in" "$fifo_out"
-
-			# echo "INT2" 1>&2
-			# # Header
-			# echo "[Session start: $(date)]" | tee console.log
-
-			# # Intercept stdin: tag each line [IN], write to log, pass to fifo_in
-			# awk '{ print "[IN]  " $0; system("") }' < /dev/stdin \
-			# 	> >(tee -a console.log > "$fifo_in") &
-			# STDIN_AWK_PID=$!
-
-			# echo "INT3" 1>&2
-			# # Run exec.sh with intercepted stdin, capture stdout to fifo_out
-			# bash "$cmd_run_dir/exec.sh" < "$fifo_in" > "$fifo_out" 2>&1 &
-			# PID=$!
-
-			# echo "INT4" 1>&2
-			# # Intercept stdout: tag each line [OUT], write to log, pass to terminal
-			# {
-			# 	echo '%APPENDPAGEBODYSTART%'
-			# 	awk '{ print "[OUT] " $0; system("") }' < "$fifo_out" \
-			# 		| tee -a console.log
-			# 	echo '%APPENDPAGEBODYEND%'
-			# }  > /dev/tty &
-			# STDOUT_AWK_PID=$!
-
-			# echo "INT5" 1>&2
-			# wait $PID
-			# local exit_code=$?
-
-			# # Cleanup
-			# kill $STDIN_AWK_PID $STDOUT_AWK_PID 2>/dev/null
-			# rm -f "$fifo_in" "$fifo_out"
-
-			# echo "[Session end: $(date)]" | tee -a console.log
 		fi
 		printf 'ExitCode:\t%d\nEndTime:\t%d\n' $exit_code "$(date '+%s')" >>status
 		if [ -f time.gnu.out ]; then
@@ -1546,7 +1541,7 @@ while true; do
 	run)
 		# run <cmd_dir> <k=v&k=v>
 		IFS=' ' read cmd_dir kvs <<<"$args"
-		if grep -q '# @interactive' "$cmd_dir"/template.sh; then
+		if grep -q '# @pty' "$cmd_dir"/template.sh; then
 			run_mode='int'
 			echo '%LOADSTYLESHEET%https://cdn.jsdelivr.net/npm/xterm/css/xterm.css%LOADSTYLESHEETEND%'
 			# echo '%LOADSTYLESHEET%https://cdn.jsdelivr.net/npm/xterm/css/xterm.css%LOADSTYLESHEETEND%' 1>&2
