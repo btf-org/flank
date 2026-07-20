@@ -1,167 +1,253 @@
 # Flank
 
-Flank is a Backend-as-Frontend that solves the problem of "one-off" requests that come up again and again.
+> A modern, open-source SSRS.
 
-<img width="838" height="292" alt="Can you run that for me github" src="https://github.com/user-attachments/assets/aeec2b5d-f39a-45b9-a5f6-b9dbd686b6d0" />
+Flank is a browser-first, developer-friendly reporting platform that reimagines SQL Server Reporting Services for modern development workflows.
 
-## Contents 
+Build reports faster. Deploy them like software. Integrate with modern tooling.
 
-- [The dilemma with "one-off" requests](#the-dilemma-with-one-off-requests)
-- [Quickstart](#quickstart)
-  - [Installation](#installation)
-  - [A quick webpage for curl](#a-quick-webpage-for-curl)
-- [How to](#how-to)
-   - [Configure the UI](#configure-the-ui)
-   - [Guard input with a dropdown](#guard-input-with-a-dropdown)
-   - [Set a default value for the user](#set-a-default-value-for-the-user)
-- [Configuration API](#configuration-api)
-- [What tools have people mostly replaced with Flank?](#what-tools-have-people-mostly-replaced-with-flank)
-- [Caveats / Limitations](#caveats--limitations)
+---
 
-## The dilemma with "one-off" requests
+## Why?
 
-It's overkill to build a frontend for every little ad-hoc reqeust (e.g. "plz update that value in the db"), but some of those requests turn into repeated requests.
+SQL Server Reporting Services has powered operational reporting for decades.
 
-The only way to escape this dilemma is to automatically create an "app" every time an engineer makes an ad-hoc fix. (That is, to inspect the backend code/schema and use that to generate a frontend, aka Backend-as-Frontend) Then, the business stakeholder can self-serve the next time.
+But it was built for a different era:
 
-## Quickstart 
+- Windows-first
+- Visual Studio projects
+- Report Builder
+- Manual deployments
+- SOAP APIs
+- RDL XML
+- Heavy installation
+- Limited AI workflows
 
-### Installation
+Flank keeps the strengths of SSRS while embracing modern software development.
 
-#### Mac
+---
+
+# Developer Features
+
+## Cross-platform
+
+Run on Windows, Linux, Docker, or Kubernetes.
+
+---
+
+## Lightweight installation
+
+Get started in minutes.
 
 ```bash
-brew tap btf-org/flank && brew install btf-org/flank/flank && { nohup $(which flankserver) >> $(brew --prefix)/var/log/flank/flankserver.log 2>> $(brew --prefix)/var/log/flank/flankserver.err & } && sleep 1 && open http://localhost:8083
+docker run flank/server
 ```
 
-Should automatically open localhost:8083
+No Configuration Manager.
 
-#### Linux
+No Windows Features.
 
-```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.84/flank_0.1.84_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.84_amd64.deb
-```
+---
 
-Served on port 8083
+## Browser-first
 
-### A quick webpage for `curl`
+Create, edit, and manage reports entirely from the browser.
 
-1. Click "Create Cmd" on the bottom bar
-2. Choose the "Hello World" option
-3. Remove the `echo`, paste in the following, and click "Save"
+No desktop tooling required.
 
-```bash
-# @description This fetches the content from the URL
-# ${method} @select @values `printf 'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
-# ${url} @type url @colspan 4
+---
 
-curl -X "${method}" "${url}"
-```
+## Git-centric
 
-Now the page should look something like this:
+Store reports in Git.
 
-<img width="838" height="550" alt="curl-ex-2" src="https://github.com/user-attachments/assets/3d95bdcf-e984-4768-a9aa-fa96524ca667" />
+Review changes.
 
-## How to
+Use pull requests.
 
-### Configure the UI
+Rollback with Git history.
 
-You can tell Flank things like, "Make this field a dropdown". You do this through "decorations", which are just structured comments directly in the script.
+---
 
-#### Anatomy of a decoration
+## SQL → Report
 
-```bash
-# @description This fetches the content from the URL
-  ──────┬─────
-        │
-        └─ command-level directive (no variable name)
+Write a query or stored procedure.
 
-# ${method} @select @values `echo $'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
-                            ────┬─────────────────────────────────────────────────────────────────
-                                │
-                                │
-                                └─ certain directives can accept
-                                   backtick expressions as their value
+Flank automatically generates a usable report with parameters, sorting, filtering, and exports.
 
-# ${url} @type url @colspan 4
-  ───┬── ──┬── ─┬─ ────┬─────
-     │     │    │      │
-     │     │    │      └─ (one line can contain multiple directives)
-     │     │    │     
-     │     │    └─ value 
-     │     │
-     │     └─ directive
-     │
-     └─ variable name
+No drag-and-drop designer.
 
-curl -X "${method}" "${url}"
-        ─────┬─────
-             │
-             └─ variable must use curl brackets, like ${var}, not $var
-````
+---
 
-### Guard input with a dropdown
+## Multi-server
 
-First you need to specify the HTML element. Dropdowns are `<select>` elements in HTML, so the directive is `@select`
+Connect to multiple databases and servers from a single installation.
 
-The dropdown also needs values to populate it, so you need a `@values` directive as well. This interface is clunky IMO -- currently it accepts a line-delimited shell expression. I can imagine that you might want to pipe the output of another command, or use a list of values in a CSV.
+No separate report server per database.
 
-```bash
-# ${method} @select @values `echo $'GET\nPOST\nPUT\nDELETE\nPATCH\nHEAD\nOPTIONS\nCONNECT\nTRACE'`
-```
+---
 
-By default it treats each line from `@values` as the value and display, but it's possible to add a tab-separated display value (once again, this is a clunky interface...)
+## Beyond SQL
 
-```bash
-# ${method} @select @values `echo $'GET\tget request\nPOST\tpost\nPUT\tput\nDELETE\tdelete\nPATCH\tpatch\nHEAD\thead\nOPTIONS\toptions\nCONNECT\tconnect\nTRACE\ttrace'`
-```
+Create reports from
 
-### Set a default value for the user
+- SQL
+- Python
+- REST APIs
+- Scripts
+- Other data sources
 
-Sometimes you'll want set a default value for the user. This is possible using the `@default` directive.
+---
 
-```bash
-# ${url} @default https://www.google.com
-```
+## Open Source
 
-## Configuration API
+MIT licensed.
 
-### Command-Level
+Self-host anywhere.
 
-| Directive | Value | Default | Notes |
-|-----------|-------|---------|-------|
-| `@description` | none | - | Renders text underneath the title |
-| `@page` | number | - | Splits the script into multiple forms |
-| `@pass_hidden` | Space-separated list of vars | - | Used with @page. Passes any variables from that step to the next step. |
+Extend anything.
 
-### Variable-Level
+---
 
-| Directive | Value | Default | Notes |
-|-----------|-------|---------|-------|
-| `@input` | none | yes | Renders `<input>`. Use with `@type` to control kind. |
-| `@textarea` | none | no | Renders `<textarea>`. Increases default `@colspan` to 6. |
-| `@select` | none | no | Renders `<select>`. Requires `@values`. |
-| `@system_filepath` | none | no | Allows user to choose a filepath (not file) on the computer |
-| `@type` | HTML input type (`text`, `number`, `email`, `url`, `radio`, `checkbox`, …) | `text` | Maps to the HTML `type` attribute. `radio` and `checkbox` require `@values`. |
-| `@values` | backtick shell expression | — | One option per line of output. Required for `@select`, `@type radio`, and `@type checkbox`. |
-| `@default` | literal string, backtick shell expression, or ${variable} if using `@page` (see above) | — | Sets initial value. `\n` in literals becomes a newline. Matching `@select` option is pre-selected. |
-| `@colspan` | number (1 - 6) | `2` (`6` for `@textarea`) | Grid column span. |
-| `@description` | string | — | Small subtitle rendered beneath the variable name. |
-| `@capturetab` | none | no | Tab key inserts a tab character instead of moving focus. |
+## AI-ready
 
-Where possible, I've tried to mirror vanilla HTML and not add any additional naming conventions. As an example, to specify that a variable be represented by a `<textarea/>`, you use `@textarea`, but to specify it be represented by radio buttons, you use `@input @type radio`, since radios are `<input type="radio"/>`.
+Use AI to
 
+- write SQL
+- create reports
+- edit reports
+- run reports
+- explain reports
 
-## What tools have people mostly replaced with Flank?
+---
 
-The original idea was "developer tools, but safer". But it can also be framed as "[some enterprise software tool], but simpler". With simple UI and some scripts, you can cover 80% of the use cases of many tools.
+# Platform Features
 
-- **PowerBI** - MSSQL developer writes SPROCs to solve one-offs, Flank generates a UI using DB metadata.
-- **React app** - Python developer writes Lambdas, Flank generates a UI for each one
-- **Retool** - Data Scientist writes R scripts that make one-off data corrections, Flank generates a UI from `argparse`
-- **Airflow** - Data Engineer writes tasks to create/edit/schedule pipelines, Flank generates a UI that others can use
+## Modern Authentication
 
-## Caveats / Limitations
+Supports
 
-- As it currently stands, users can write destructive shell scripts, so beware! I am currently using this is in a small team, high-trust environment, so I haven't invested any effort into RBAC.
-- The logic in flankserver.c is pretty unpolished. I'm pretty sure if you open 64 tabs, it'll just crash the server. A lot of these problems have been masked by systemctl's automatic restart behavior...
+- Entra ID
+- OAuth
+- OpenID Connect
+- SAML
+- LDAP
+
+---
+
+## Simple Deployments
+
+Deploy from Git.
+
+No Publish wizard.
+
+---
+
+## CI/CD
+
+Integrates naturally with
+
+- GitHub Actions
+- Azure DevOps
+- GitLab CI
+
+Automatically validate and deploy reports.
+
+---
+
+# Power User Features
+
+## API-first
+
+Everything is accessible through a REST API.
+
+Create reports.
+
+Run reports.
+
+Manage permissions.
+
+Schedule reports.
+
+---
+
+# Standard Features
+
+## Scheduling
+
+Run reports automatically.
+
+---
+
+## Modern Exports
+
+- PDF
+- Excel
+- CSV
+- JSON
+
+---
+
+## Responsive UI
+
+Works on desktop, tablet, and mobile.
+
+---
+
+## Themes
+
+Light mode.
+
+Dark mode.
+
+Custom branding.
+
+---
+
+## Search
+
+Quickly find reports.
+
+---
+
+## Permissions
+
+Role-based access control.
+
+---
+
+## Observability
+
+Execution history.
+
+Logs.
+
+Metrics.
+
+---
+
+## Version History
+
+Built-in report history and rollback.
+
+---
+
+## High Availability
+
+Run multiple application nodes.
+
+---
+
+# Migration
+
+Import existing SSRS reports and projects.
+
+Designed for gradual adoption.
+
+---
+
+# Philosophy
+
+ModernSSRS isn't trying to reinvent reporting.
+
+It's trying to modernize everything around reporting.
