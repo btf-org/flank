@@ -18,17 +18,12 @@ Flank is a browser-first, developer-friendly reporting platform that reimagines 
 * **Git-centric** - Designed to be used with source control
 * **Open source** - No lock-in
 * **Extensible** - REST API, CLI, and various entrypoints for customization
-
-## Platform Features
-
-* Modern authentication (Entra ID, OAuth, OIDC, LDAP)
-* CI/CD friendly
-* Simple deployments
-* Observability
-* Written in C
+* **Execution history** — See who ran what, when they ran it, and exactly which parameters they used.
+* **Written in C** - Tiny runtime footprint
 
 ## Standard Features
 
+* Modern authentication (Entra ID, OAuth, OIDC, LDAP)
 * Scheduling
 * PDF / Excel / CSV exports
 * Responsive UI
