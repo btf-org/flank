@@ -1,38 +1,31 @@
 # Flank
 
-> A modern, open-source SSRS.
+> A modern, open-source report builder for SQL Server.
 
-Flank is a browser-first, developer-friendly reporting platform that reimagines SQL Server Reporting Services for modern development workflows.
+Flank is a browser-first, developer-friendly reporting platform that reimagines SQL Server reporting for modern development workflows.
 
-## Why Flank?
+## Blazing fast development
 
-### ⚡ Blazing-fast authoring
-
-Go from SQL to a usable report in seconds. No report designer. No dragging controls onto a canvas. No repetitive setup. Start with sensible defaults and iterate from there.
-
-### 🎨 Progressive customization
-
-Need more control? Customize layouts, styling, and HTML as much—or as little—as you want. Start simple. Go deep only when necessary.
-
-### 🤖 AI, where it helps
-
-Adopt AI incrementally instead of rebuilding your reporting stack around it. A CLI and a filesystem-native database give Claude Code et al the ability to do whatever a human can do, out of the box.
+- **SQL → Report** — Turn a query into a web-based report as quickly as you can export a spreadsheet from SSMS.
+- **Prototype then polish** — Start with sensible defaults; customize HTML as much as you need.
+- **Incrementally add AI** — AI can write SQL, edit reports, or automate repetitive work without becoming the center of the product.
 
 ##  Developer Features
 
-* Build reports from SQL, Python, REST APIs, scripts, and more.
-* Run on Windows, Linux, Docker, or Kubernetes.
-* Git-centric development and deployment.
-* Fully open source.
-* REST API for everything.
+* **One-line installation** - `winget install flank`
+* **Not just SQL** - Build reports from Python, REST APIs, PowerShell scripts, and more
+* **Cross platform** - Run on Windows, Linux, Docker, or Kubernetes
+* **Git-centric** - Designed to be used with source control
+* **Open source** - No lock-in
+* **Extensible** - REST API, CLI, and various entrypoints for customization
 
 ## Platform Features
 
 * Modern authentication (Entra ID, OAuth, OIDC, LDAP)
 * CI/CD friendly
 * Simple deployments
-* High availability
 * Observability
+* Written in C
 
 ## Standard Features
 
