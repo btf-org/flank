@@ -15,6 +15,7 @@ Flank is a browser-first, developer-friendly reporting platform that reimagines 
 * **One-line installation** - `winget install flank`
 * **Not just SQL** - Build reports from Python, REST APIs, PowerShell scripts, and more
 * **Cross platform** - Run on Windows, Linux, Docker, or Kubernetes
+* **Multi-server** - Consolidate reporting from multiple servers in one place
 * **Git-centric** - Designed to be used with source control
 * **Open source** - No lock-in
 * **Extensible** - REST API, CLI, and various entrypoints for customization
