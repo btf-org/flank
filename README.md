@@ -6,8 +6,8 @@ Flank is a browser-first, developer-friendly reporting platform that reimagines 
 
 ## Blazing fast development
 
-- **SQL → Report** — Turn a query into a web-based report as quickly as you can export a spreadsheet from SSMS.
-- **Prototype then polish** — Start with sensible defaults; customize HTML as much as you need.
+- **Just write SQL** — Turn a query into a parameterized, web-based report as quickly as you can export a spreadsheet from SSMS.
+- **Incrementally add formatting** — Start with sensible defaults, but customize every pixel if you want to.
 - **Incrementally add AI** — AI can write SQL, edit reports, or automate repetitive work without becoming the center of the product.
 
 ##  Developer Features
