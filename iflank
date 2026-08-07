@@ -1228,10 +1228,10 @@ fetch_mssql_sprocs(){
 }
 mssql_sproc_to_cmd(){
 	# <schema> <name>
-	echo '%PAGESTART%'
-	header_pwd
-	echo '<div id="pBody">'
-	echo ''
+	# echo '%PAGESTART%'
+	# header_pwd
+	# echo '<div id="pBody">'
+	# echo ''
 	local _schema="$1"
 	local _object_name="$2"
 
@@ -1331,7 +1331,17 @@ mssql_sproc_to_cmd(){
 		_decoration_section="$_decoration_section"$(printf '# ${%s} %s\n' "$name" "$decoration")$'\n'
 	done <<< "$_param_metadata"
 
-	cat <<EOF
+	local _dirpath="${PWD}/${_object_name}"
+	if [ -d "$_dirpath" ]; then
+		suffix_i=2
+		while [ -d "${PWD}/${_object_name}_${suffix_i}" ]; do
+			suffix_i=$((suffix_i + 1))
+		done
+		_dirpath="${PWD}/${_object_name}_${suffix_i}"
+	fi
+	
+	mkdir -p "${_dirpath}"
+	cat >"${_dirpath}/template.sh" <<EOF
 ${_decoration_section}
 
 sqlcmd \
@@ -1341,9 +1351,10 @@ sqlcmd \
 ${_exec_stmt}
 "
 EOF
-	echo '</div>'
-	footer
-	echo '%PAGEEND%'
+	fcd "${_dirpath}"
+	# echo '</div>'
+	# footer
+	# echo '%PAGEEND%'
 }
 run_form() {
 	echo '%PAGESTART%'
