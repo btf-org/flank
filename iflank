@@ -179,6 +179,7 @@ footer() {
 		echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
 		echo '<a onclick="run('\''choose_cmd_wizard'\'')">Create Cmd</a>'
 		echo '<a onclick="run('\''cmd_wizard__mssql_sproc'\'')">Create SPROC</a>'
+		echo '<a onclick="run('\''create_mssql_creds_form'\'')">Add DB Creds</a>'
 		echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
 		echo '<a onclick="run('\''fcrontab_e_form'\'')">Edit crontab</a>'
 	fi
@@ -1373,6 +1374,26 @@ ${_exec_stmt}
 EOF
 	fcd "${_dirpath}"
 }
+create_mssql_creds='
+# ${db_server} @input
+# ${db_name} @input
+# ${db_user} @input
+# ${db_password} @input @type password
+# ${db_port} @input @type number @default 1433
+# ${db_encrypt} @input @default true
+# ${db_trust_server_certificate} @input @default false
+
+mkdir -p "'$FLANK_ROOT'/.creds"
+cat > '$FLANK_ROOT'/.creds/fomf.sh <<EOF
+DB_SERVER="${db_server}"
+DB_NAME="${db_name}"
+DB_USER="${db_user}"
+DB_PASSWORD="${db_password}"
+DB_PORT="${db_port}"
+DB_ENCRYPT="${db_encrypt}"
+DB_TRUST_SERVER_CERTIFICATE="${db_trust_server_certificate}"
+EOF
+'
 run_form() {
 	echo '%PAGESTART%'
 	header_pwd
@@ -1788,6 +1809,12 @@ while true; do
 	mssql_sproc_to_cmd)
 		IFS=' ' read schema obj_name <<<"$args"
 		mssql_sproc_to_cmd "$schema" "$obj_name"
+		;;
+	create_mssql_creds_form)
+		show_form "$create_mssql_creds" "create_mssql_creds" "Save"
+		;;
+	create_mssql_creds)
+		eval_form "$args" "$create_mssql_creds"
 		;;
 	eval_multistep_form)
 		eval_multistep_form "$args"
