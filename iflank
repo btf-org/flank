@@ -1227,11 +1227,6 @@ fetch_mssql_sprocs(){
 	echo '%PAGEEND%'
 }
 mssql_sproc_to_cmd(){
-	# <schema> <name>
-	# echo '%PAGESTART%'
-	# header_pwd
-	# echo '<div id="pBody">'
-	# echo ''
 	local _schema="$1"
 	local _object_name="$2"
 
@@ -1377,9 +1372,6 @@ ${_exec_stmt}
 " | awk -F $'\t' "\$_awk_query_to_html"
 EOF
 	fcd "${_dirpath}"
-	# echo '</div>'
-	# footer
-	# echo '%PAGEEND%'
 }
 run_form() {
 	echo '%PAGESTART%'
