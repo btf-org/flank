@@ -1303,8 +1303,6 @@ mssql_sproc_to_cmd(){
 	ORDER BY p.parameter_id;
 	"
 	)
-	echo "$_param_metadata"
-	echo "$_param_metadata" | od -c
 	local _decoration_section=''
 	while IFS=$'\t' read -r name type max_length precision scale is_output; do
 		case "$type" in
