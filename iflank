@@ -1347,6 +1347,8 @@ mssql_sproc_to_cmd(){
 	cat >"${_dirpath}/template.sh" <<EOF
 ${_decoration_section}
 
+source ${FLANK_ROOT}/.creds/fomf.sh
+
 _awk_query_to_html='
 	NR == 2 { next }   # remove SQLCMD dashed separator
 
@@ -1370,8 +1372,10 @@ _awk_query_to_html='
 	}'
 
 sqlcmd \
-  -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
-  -d "fomf-ss-sandbox-db"   -U "fomf-user"   -P "xQ56dDHWYrLfSfx" \
+  -S "tcp:\${DB_SERVER},\${DB_PORT}" \
+  -d "\${DB_NAME}" \
+  -U "\${DB_USER}" \
+  -P "\${DB_PASSWORD}" \
   -W -s \$'\t' -Q "
 ${_exec_stmt}
 " | awk -F $'\t' "\$_awk_query_to_html"
