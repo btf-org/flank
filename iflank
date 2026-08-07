@@ -624,6 +624,8 @@ awk_parse_vars='
     sub(/^# *\$\{[A-Za-z_][A-Za-z0-9_]*\} */, "", line)
 
 	if (var_concat[var] == "") {
+		var_count++
+		var_order[var_count] = var
 		var_concat[var] = line
 	} else {
 		var_concat[var] = var_concat[var] " " line
@@ -632,7 +634,8 @@ awk_parse_vars='
 
 END {
 	kv_string=""
-    for (v in var_concat) {
+	for (vi = 1; vi <= var_count; vi++) {
+		v = var_order[vi]
 		n = split(var_concat[v], values, /(^|[[:space:]][[:space:]]*)@[a-z][a-z]*/)
 		for(j in values){
 			sub(/^[[:space:]]*/, "", values[j])
