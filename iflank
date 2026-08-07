@@ -1181,8 +1181,45 @@ fetch_mssql_sprocs(){
 	echo '%PAGESTART%'
 	header_pwd
 	echo ''
+	local _sproc_query='
+		SELECT
+			s.name AS schema_name,
+			o.name AS object_name,
+			o.type,
+			o.type_desc
+		FROM sys.objects o
+		JOIN sys.schemas s ON o.schema_id = s.schema_id
+		WHERE o.type IN ('\''P'\'', '\''FN'\'', '\''IF'\'', '\''TF'\'')
+		  AND o.is_ms_shipped = 0
+		ORDER BY s.name, o.name;
+	'
+	local _awk_query_to_html='
+		NR == 2 { next }   # remove SQLCMD dashed separator
+
+		NR == 1 {
+			print "<table><thead><tr>"
+			for (i = 1; i <= NF; i++)
+				print "<th>" $i "</th>"
+			print "<th>Custom</th>"
+			print "</tr></thead><tbody>"
+			next
+		}
+
+		{
+			print "<tr>"
+			for (i = 1; i <= NF; i++)
+				print "<td>" $i "</td>"
+			print "<td>whatever</td>"
+			print "</tr>"
+		}
+
+		END {
+			print "</tbody></table>"
+		}'
 	echo '<div id="pBody"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>'
-	echo "$_db_creds"
+	sqlcmd -W -s $'\t'  -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
+		-d "fomf-ss-sandbox-db"   -U "fomf-user"   -P "xQ56dDHWYrLfSfx"   -Q "$_sproc_query" \
+  		| awk -F $'\t' "$_awk_query_to_html"
 	footer
 	echo '%PAGEEND%'
 }
