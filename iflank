@@ -624,6 +624,7 @@ awk_parse_vars='
     sub(/^# *\$\{[A-Za-z_][A-Za-z0-9_]*\} */, "", line)
 
 	if (var_concat[var] == "") {
+		# arrays are unordered, so need to maintain order separately
 		var_count++
 		var_order[var_count] = var
 		var_concat[var] = line
