@@ -294,7 +294,7 @@
       }
       async function run(cmd, sendRaw=false) {
         if(state === "rawMode" && !sendRaw){
-          await run("%FKILLTERMINAL%", true);
+          await run("%FESIGKILLTERM%", true);
         }
         try {
           await fetch(window.location.origin + "/_iflank", {

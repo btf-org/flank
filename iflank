@@ -408,13 +408,11 @@ run_cmd() {
 			footer 
 			echo '%PAGEEND%'
 			echo '%INITTERMINAL%'
-			# local in_kill_keyword_so_far=0
-			# while IFS= LC_ALL=C read -r -n1 char; do
-			# 	printf "%s" "$char"
-			# done | /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh
-			keyword="%FKILLTERMINAL%"
-			buffer=""
-
+			local keyword="%FESIGKILLTERM%"
+			local buffer=""
+			
+			local INT_PID_FILE=$(mktemp)
+			trap "rm -f '$INT_PID_FILE'" EXIT
 			while IFS= LC_ALL=C read -r -n1 char; do
 				if [ -z "$buffer" ]; then
 					if [ "$char" = "${keyword:0:1}" ]; then
@@ -429,7 +427,11 @@ run_cmd() {
 
 					if [ "$buffer" = "${keyword:0:$blen}" ]; then
 						if [ "$blen" -eq "$klen" ]; then
-							echo 'KEYWORD BREAK' 1>&2
+							local child_pid=$(cat "$INT_PID_FILE")
+							echo "KEYWORD BREAK FILE: $INT_PID_FILE $child_pid" 1>&2
+							if [ -n "$child_pid" ]; then
+								kill_tree "$child_pid"
+							fi
 							break
 						fi
 					else
@@ -443,7 +445,12 @@ run_cmd() {
 						fi
 					fi
 				fi
-			done | /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh
+			done | /usr/bin/time $time_flag -o $time_filename bash $cmd_run_dir/exec.sh &
+			local interactive_pid=$!
+			echo "CHILD PID $interactive_pid" 1>&2
+			echo "$interactive_pid" > "$INT_PID_FILE"
+			wait $interactive_pid
+			: >"$INT_PID_FILE"
 			echo '%EXITTERMINAL%' 1>&2
 			echo '%EXITTERMINAL%'
 			error_modal 'Terminal closed'
