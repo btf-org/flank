@@ -1196,33 +1196,33 @@ fetch_mssql_sprocs(){
 		  AND o.is_ms_shipped = 0
 		ORDER BY o.modify_date DESC;
 	'
-	local _awk_query_to_html='
-		NR == 2 { next }   # remove SQLCMD dashed separator
-
-		NR == 1 {
-			print "<table><thead><tr>"
-			print "<th></th>"
-			for (i = 1; i <= NF; i++)
-				print "<th>" $i "</th>"
-			print "</tr></thead><tbody>"
-			next
-		}
-
-		{
-			print "<tr>"
-			print "<td><button onclick=\"run('\''mssql_sproc_to_cmd "$1" "$2"'\'')\">Create Cmd</button></td>"
-			for (i = 1; i <= NF; i++)
-				print "<td>" $i "</td>"
-			print "</tr>"
-		}
-
-		END {
-			print "</tbody></table>"
-		}'
 	echo '<div id="pBody"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>'
+	awk_query_to_html='
+	NR == 2 { next }   # remove SQLCMD dashed separator
+
+	NR == 1 {
+		print "<table><thead><tr>"
+		print "<th></th>"
+		for (i = 1; i <= NF; i++)
+			print "<th>" $i "</th>"
+		print "</tr></thead><tbody>"
+		next
+	}
+
+	{
+		print "<tr>"
+		print "<td><button onclick=\"run('\''mssql_sproc_to_cmd "$1" "$2"'\'')\">Create Cmd</button></td>"
+		for (i = 1; i <= NF; i++)
+			print "<td>" $i "</td>"
+		print "</tr>"
+	}
+
+	END {
+		print "</tbody></table>"
+	}'
 	sqlcmd -W -s $'\t'  -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
 		-d "fomf-ss-sandbox-db"   -U "fomf-user"   -P "xQ56dDHWYrLfSfx"   -Q "$_sproc_query" \
-  		| awk -F $'\t' "$_awk_query_to_html"
+  		| awk -F $'\t' "$awk_query_to_html"
 	footer
 	echo '%PAGEEND%'
 }
@@ -1239,6 +1239,7 @@ mssql_sproc_to_cmd(){
 	SET NOCOUNT ON;
 
 	SELECT
+		'SET NOCOUNT ON;' + CHAR(10) + CHAR(10) +
 		'EXEC [' + '$_schema' + '].[' + '$_object_name' + ']' +
 		CASE WHEN COUNT(*) > 0 THEN CHAR(10) ELSE '' END +
 		STRING_AGG(
@@ -1341,15 +1342,39 @@ mssql_sproc_to_cmd(){
 	fi
 	
 	mkdir -p "${_dirpath}"
+	local _replacement="'\''"
+	local _escaped_awk_query_to_html="${awk_query_to_html//\'/$_replacement}"
 	cat >"${_dirpath}/template.sh" <<EOF
 ${_decoration_section}
+
+_awk_query_to_html='
+	NR == 2 { next }   # remove SQLCMD dashed separator
+
+	NR == 1 {
+		print "<table><thead><tr>"
+		for (i = 1; i <= NF; i++)
+			print "<th>" \$i "</th>"
+		print "</tr></thead><tbody>"
+		next
+	}
+
+	{
+		print "<tr>"
+		for (i = 1; i <= NF; i++)
+			print "<td>" \$i "</td>"
+		print "</tr>"
+	}
+
+	END {
+		print "</tbody></table>"
+	}'
 
 sqlcmd \
   -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
   -d "fomf-ss-sandbox-db"   -U "fomf-user"   -P "xQ56dDHWYrLfSfx" \
-  -Q "
+  -W -s \$'\t' -Q "
 ${_exec_stmt}
-"
+" | awk -F $'\t' "\$_awk_query_to_html"
 EOF
 	fcd "${_dirpath}"
 	# echo '</div>'
