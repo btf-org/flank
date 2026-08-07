@@ -1232,8 +1232,68 @@ mssql_sproc_to_cmd(){
 	header_pwd
 	echo '<div id="pBody">'
 	echo ''
-	echo "$1"
-	echo "$2"
+	local _schema="$1"
+	local _object_name="$2"
+
+	local _query_that_builds_stmt="
+	SET NOCOUNT ON;
+
+	SELECT
+		'EXEC [' + '$_schema' + '].[' + '$_object_name' + ']' +
+		CASE WHEN COUNT(*) > 0 THEN CHAR(10) ELSE '' END +
+		STRING_AGG(
+			CAST(
+				'    ' + p.name + ' = ' +
+				CASE
+					-- strings / dates / GUIDs: quote
+					WHEN t.name IN (
+						'char', 'varchar', 'nchar', 'nvarchar',
+						'text', 'ntext',
+						'date', 'datetime', 'datetime2',
+						'smalldatetime', 'datetimeoffset', 'time',
+						'uniqueidentifier', 'xml'
+					)
+					THEN '''\${' + SUBSTRING(p.name, 2, 128) + '}'''
+
+					-- everything else: unquoted
+					ELSE '\${' + SUBSTRING(p.name, 2, 128) + '}'
+				END +
+				CASE WHEN p.is_output = 1 THEN ' OUTPUT' ELSE '' END
+			AS nvarchar(max)),
+			',' + CHAR(10)
+		) WITHIN GROUP (ORDER BY p.parameter_id)
+	FROM sys.parameters p
+	JOIN sys.types t
+		ON p.user_type_id = t.user_type_id
+	WHERE p.object_id = OBJECT_ID(
+		QUOTENAME('$_schema') + '.' + QUOTENAME('$_object_name')
+	);
+	"
+
+	echo "$_query_that_builds_stmt"
+
+	_exec_stmt=$(
+	  sqlcmd -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
+		-d "fomf-ss-sandbox-db"   -U "fomf-user"   -P "xQ56dDHWYrLfSfx" \
+		-h -1 -W \
+		-Q "$_query_that_builds_stmt"
+	)
+
+	echo "$_exec_stmt"
+	cat <<EOF
+#!/usr/bin/env bash
+
+# @input
+# @type number
+CustomerId=""
+
+sqlcmd \
+  -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
+  -d "fomf-ss-sandbox-db"   -U "fomf-user"   -P "xQ56dDHWYrLfSfx" \
+  -Q "
+${_exec_stmt}
+"
+EOF
 	echo '</div>'
 	footer
 	echo '%PAGEEND%'
@@ -1651,7 +1711,8 @@ while true; do
 		fetch_mssql_sprocs "$args"
 		;;
 	mssql_sproc_to_cmd)
-		mssql_sproc_to_cmd "$args"
+		IFS=' ' read schema obj_name <<<"$args"
+		mssql_sproc_to_cmd "$schema" "$obj_name"
 		;;
 	eval_multistep_form)
 		eval_multistep_form "$args"
