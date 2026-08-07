@@ -1270,22 +1270,71 @@ mssql_sproc_to_cmd(){
 	);
 	"
 
-	echo "$_query_that_builds_stmt"
 
-	_exec_stmt=$(
+	local _exec_stmt=$(
 	  sqlcmd -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
 		-d "fomf-ss-sandbox-db"   -U "fomf-user"   -P "xQ56dDHWYrLfSfx" \
 		-h -1 -W \
 		-Q "$_query_that_builds_stmt"
 	)
 
-	echo "$_exec_stmt"
-	cat <<EOF
-#!/usr/bin/env bash
+	local _param_metadata=$(
+	  sqlcmd -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
+		-d "fomf-ss-sandbox-db"   -U "fomf-user"   -P "xQ56dDHWYrLfSfx" \
+		-h -1 \
+		-W \
+		-s $'\t' \
+		-Q "
+	SET NOCOUNT ON;
 
-# @input
-# @type number
-CustomerId=""
+	SELECT
+		SUBSTRING(p.name, 2, 128) AS parameter_name,
+		t.name                    AS data_type,
+		p.max_length,
+		p.precision,
+		p.scale,
+		p.is_output
+	FROM sys.parameters p
+	JOIN sys.types t
+		ON p.user_type_id = t.user_type_id
+	WHERE p.object_id = OBJECT_ID(
+		QUOTENAME('$_schema') + '.' + QUOTENAME('$_object_name')
+	)
+	ORDER BY p.parameter_id;
+	"
+	)
+	echo "$_param_metadata"
+	echo "$_param_metadata" | od -c
+	local _decoration_section=''
+	while IFS=$'\t' read -r name type max_length precision scale is_output; do
+		case "$type" in
+			int|bigint|smallint|tinyint|decimal|numeric|float|real)
+				decoration="@input @type number"
+				;;
+
+			bit)
+				decoration="@input @type checkbox"
+				;;
+
+			date)
+				decoration="@input @type date"
+				;;
+
+			datetime|datetime2|smalldatetime|datetimeoffset)
+				decoration="@input @type datetime-local"
+				;;
+
+			*)
+				decoration="@input"
+				;;
+		esac
+
+		# $() strips trailing newlines
+		_decoration_section="$_decoration_section"$(printf '# ${%s} %s\n' "$name" "$decoration")$'\n'
+	done <<< "$_param_metadata"
+
+	cat <<EOF
+${_decoration_section}
 
 sqlcmd \
   -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
