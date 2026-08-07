@@ -1179,7 +1179,8 @@ flank_hist() {
 		: >$ACTIVE_PID_FILE
 	} &
 }
-fetch_mssql_sprocs(){
+# whole function is a subshell to not pollute global state with db creds
+fetch_mssql_sprocs() (
 	# <args>
 	local _args="$1"
 	local _db_creds=$(get_value_url "$_args" 'db_creds')
@@ -1225,12 +1226,18 @@ fetch_mssql_sprocs(){
 	END {
 		print "</tbody></table>"
 	}'
-	sqlcmd -W -s $'\t'  -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
-		-d "fomf-ss-sandbox-db"   -U "fomf-user"   -P "xQ56dDHWYrLfSfx"   -Q "$_sproc_query" \
+	source ${FLANK_ROOT}/.creds/fomf.sh
+	sqlcmd \
+	  -S "tcp:${DB_SERVER},${DB_PORT}" \
+	  -d "${DB_NAME}" \
+	  -U "${DB_USER}" \
+	  -P "${DB_PASSWORD}" \
+	  -W -s $'\t' \
+   	  -Q "$_sproc_query" \
   		| awk -F $'\t' "$awk_query_to_html"
 	footer
 	echo '%PAGEEND%'
-}
+)
 mssql_sproc_to_cmd(){
 	local _schema="$1"
 	local _object_name="$2"
@@ -1272,16 +1279,23 @@ mssql_sproc_to_cmd(){
 	"
 
 
+	source ${FLANK_ROOT}/.creds/fomf.sh
 	local _exec_stmt=$(
-	  sqlcmd -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
-		-d "fomf-ss-sandbox-db"   -U "fomf-user"   -P "xQ56dDHWYrLfSfx" \
+	  sqlcmd \
+		  -S "tcp:${DB_SERVER},${DB_PORT}" \
+		  -d "${DB_NAME}" \
+		  -U "${DB_USER}" \
+		  -P "${DB_PASSWORD}" \
 		-h -1 -W \
 		-Q "$_query_that_builds_stmt"
 	)
 
 	local _param_metadata=$(
-	  sqlcmd -S "tcp:fomf-sandbox-ssdb.database.windows.net,1433" \
-		-d "fomf-ss-sandbox-db"   -U "fomf-user"   -P "xQ56dDHWYrLfSfx" \
+	  sqlcmd \
+		  -S "tcp:${DB_SERVER},${DB_PORT}" \
+		  -d "${DB_NAME}" \
+		  -U "${DB_USER}" \
+		  -P "${DB_PASSWORD}" \
 		-h -1 \
 		-W \
 		-s $'\t' \
