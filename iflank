@@ -183,7 +183,6 @@ footer() {
 		echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
 		echo '<a onclick="run('\''fcrontab_e_form'\'')">Edit crontab</a>'
 	fi
-	echo '<span><input type="text" id="stdinInput" /><button onclick="run(document.getElementById('"'"'stdinInput'"'"').value)">Submit</button></span>'
 	echo '</div>'
 }
 
