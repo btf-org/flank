@@ -1178,14 +1178,18 @@ flank_hist() {
 		: >$ACTIVE_PID_FILE
 	} &
 }
-# whole function is a subshell to not pollute global state with db creds
-fetch_mssql_sprocs() (
+fetch_mssql_sprocs() {
 	# <args>
 	local _args="$1"
 	local _db_creds=$(get_value_url "$_args" 'db_creds')
+
 	echo '%PAGESTART%'
 	header_pwd
 	echo ''
+	echo '<div id="pBody"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>'
+	footer
+	echo '%PAGEEND%'
+
 	local _sproc_query='
 		SET NOCOUNT ON;
 		SELECT
@@ -1225,18 +1229,24 @@ fetch_mssql_sprocs() (
 	END {
 		print "</tbody></table>"
 	}'
-	source ${FLANK_ROOT}/.creds/fomf.sh
-	sqlcmd \
-	  -S "tcp:${DB_SERVER},${DB_PORT}" \
-	  -d "${DB_NAME}" \
-	  -U "${DB_USER}" \
-	  -P "${DB_PASSWORD}" \
-	  -W -s $'\t' \
-   	  -Q "$_sproc_query" \
-  		| awk -F $'\t' "$awk_query_to_html"
-	footer
-	echo '%PAGEEND%'
-)
+	echo %APPENDTRSTART%
+	ACTIVE_PID_FILE=$(mktemp)
+	{
+		source ${FLANK_ROOT}/.creds/fomf.sh
+		sqlcmd \
+		  -S "tcp:${DB_SERVER},${DB_PORT}" \
+		  -d "${DB_NAME}" \
+		  -U "${DB_USER}" \
+		  -P "${DB_PASSWORD}" \
+		  -W -s $'\t' \
+		  -Q "$_sproc_query" \
+			| awk -F $'\t' "$awk_query_to_html" && echo '%APPENDTREND%' &
+		sproc_pid=$!
+		echo "$sproc_pid" >$ACTIVE_PID_FILE
+		wait "$sproc_pid"
+		: >$ACTIVE_PID_FILE
+	} &
+}
 mssql_sproc_to_cmd(){
 	local _schema="$1"
 	local _object_name="$2"
@@ -1825,7 +1835,7 @@ while true; do
 	cmd_wizard__mssql_sproc)
 		num_creds=$(find "$FLANK_ROOT/.creds" -type f | wc -l)
 		if [ "$num_creds" -eq 0 ]; then
-			show_form "$create_mssql_creds" "create_mssql_creds" "Save"
+			show_form "$create_mssql_creds" "create_mssql_creds_and_fetch" "Save"
 		elif [ "$num_creds" -eq 1 ]; then
 			fetch_mssql_sprocs "db_creds=$(find /opt/homebrew/var/flank/.creds -type f -exec basename {} \;)"
 		else
@@ -1844,6 +1854,11 @@ while true; do
 		;;
 	create_mssql_creds)
 		eval_form "$args" "$create_mssql_creds"
+		fcd "$PWD"
+		;;
+	create_mssql_creds_and_fetch)
+		eval_form "$args" "$create_mssql_creds"
+		fetch_mssql_sprocs "db_creds=$(find /opt/homebrew/var/flank/.creds -type f -exec basename {} \;)"
 		;;
 	eval_multistep_form)
 		eval_multistep_form "$args"
