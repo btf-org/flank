@@ -883,7 +883,7 @@ fcd "./${cmd_name}"
 '
 cmd_wizard__mssql_sproc='
 # @page 1 @pass_hidden ${db_creds}
-# ${db_creds} @select @values `printf "1\n2\n"`
+# ${db_creds} @select @values `find '$FLANK_ROOT'/.creds -type f`
 '
 create_cmd_from_cron_job_confirm_sh_fn() {
 	# create_cmd_from_cron_job_confirm_sh_fn <cron> <cmd> <existing cron>
@@ -1404,9 +1404,10 @@ create_mssql_creds='
 # ${db_port} @input @type number @default 1433
 # ${db_encrypt} @input @default true
 # ${db_trust_server_certificate} @input @default false
+# ${nickname} @input
 
 mkdir -p "'$FLANK_ROOT'/.creds"
-cat > '$FLANK_ROOT'/.creds/fomf.sh <<EOF
+cat > '$FLANK_ROOT'/.creds/${nickname}.sh <<EOF
 DB_SERVER="${db_server}"
 DB_NAME="${db_name}"
 DB_USER="${db_user}"
@@ -1823,7 +1824,14 @@ while true; do
 		show_multistep_form 'cmd_wizard__cron_job_sh'
 		;;
 	cmd_wizard__mssql_sproc)
-		show_form "$cmd_wizard__mssql_sproc" "fetch_mssql_sprocs" "Next"
+		num_creds=$(find "$FLANK_ROOT/.creds" -type f | wc -l)
+		if [ "$num_creds" -eq 0 ]; then
+			show_form "$create_mssql_creds" "create_mssql_creds" "Save"
+		elif [ "$num_creds" -eq 1 ]; then
+			fetch_mssql_sprocs "db_creds=$(find /opt/homebrew/var/flank/.creds -type f -exec basename {} \;)"
+		else
+			show_form "$cmd_wizard__mssql_sproc" "fetch_mssql_sprocs" "Next"
+		fi
 		;;
 	fetch_mssql_sprocs)
 		fetch_mssql_sprocs "$args"
