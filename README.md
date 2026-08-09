@@ -45,7 +45,7 @@ It will be served on port 8083 (localhost:8083 if local, <cloud-ip>:8083 if on a
 
 #### 3. Create a report from a SPROC
 
-Look for `Import SPROC` on the bottom bar and click it.
+Look for `Import SPROC` on the bottom bar and click it. (This assumes you've already got a database set up with a SPROC you'd like to share)
 
 ----
 
