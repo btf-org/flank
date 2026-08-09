@@ -21,7 +21,7 @@ The above command should automatically open http://localhost:8083, but if it doe
 
 #### 3. Create a report from a SPROC
 
-Look for `Import SPROC` on the bottom bar and click it.
+Look for `Import SPROC` on the bottom bar and click it. (This assumes you've already got a database set up with a SPROC you'd like to share)
 
 ----
 
