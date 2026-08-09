@@ -1008,6 +1008,10 @@ show_form() {
 	header_pwd
 	echo ''
 	echo '<div id="pBody">'
+	local _description=$(printf '%s\n' "$_script" | sed -n 's/^# @description //p')
+	if [ -n "$_description" ]; then
+		printf '<div class="max-w-42 overflow-wrap-break-word white-space-normal">%s</div>\n' "$_description"
+	fi
 	echo '<form id="form" class="grid grid-cols-6 gap-2 max-w-42" method="POST">'
 	awk "$awk_parse_vars" <<<"$_script"
 	if [ -n "$_hidden_vars" ]; then
@@ -1406,6 +1410,7 @@ EOF
 	fcd "${_dirpath}"
 }
 create_mssql_creds='
+# @description This user must have SELECT access to sys.objects and sys.schemas, and EXECUTE permission on any stored procedure you want to wire up.
 # ${db_server} @input
 # ${db_name} @input
 # ${db_user} @input
