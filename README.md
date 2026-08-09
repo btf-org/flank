@@ -17,7 +17,7 @@ brew tap btf-org/flank && brew install btf-org/flank/flank && { nohup $(which fl
 
 #### 2. Open Flank in a browser
 
-The above command should automatically open <a href="http://localhost:8083" target="_blank">http://localhost:8083</a>, but if it doesn't, do that now.
+The above command should automatically open http://localhost:8083, but if it doesn't, do that now.
 
 #### 3. Create a report from a SPROC
 
