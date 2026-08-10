@@ -73,78 +73,86 @@ Click on `Import SPROC` and follow the flow
 
 ----
 
-### Flank isn't running
+## Troubleshooting
 
-Check the service:
+### Installation failed
 
-```bash
-systemctl status flank
-```
+If the installation command fails, send me the **full terminal output**, including the command you ran.
 
-Restart it:
+---
 
-```bash
-sudo systemctl restart flank
-```
+### Web address spins and nothing happens
 
-### I can't open Flank in my browser
-
-First, check whether Flank is reachable inside the VM:
+First, check whether Flank is responding inside the Ubuntu VM:
 
 ```bash
 curl http://localhost:8083
 ```
 
-If that works, Flank is running and the issue is probably networking
-between your VM and Windows.
+If that doesn't work, check whether Flank is running:
 
-Get the VM's IP:
+```bash
+systemctl status flank
+```
+
+If Flank is running but isn't responding, restart it:
+
+```bash
+sudo systemctl restart flank
+```
+
+If `curl http://localhost:8083` **does work** and you're running Flank in a VM, Flank is running and the problem is likely the connection between Windows and your VM.
+
+Get the VM's IP address:
 
 ```bash
 hostname -I
 ```
 
-Then open:
+Then try opening `http://\<vm-ip\>:8083` in Windows.
 
-```bash
-http://<vm-ip>:8083
-```
+---
 
+### Flank freezes when importing SPROCs
 
-### Flank can't connect to SQL Server
-
-Remember that the connection is being made from the Ubuntu VM, not
-from Windows.
-
-Test the connection directly:
-
-```bash
-sqlcmd -S <server> -U <username> -P '<password>' -Q "SELECT 1"
-```
-
-### Logs
+Check the Flank logs:
 
 ```bash
 journalctl -u flank -n 100 --no-pager
 ```
 
-### Uninstall / Start Over
+Send me the output along with what you were trying to import.
+
+---
+
+### Flank freezes when running a SPROC
+
+Check the Flank logs:
 
 ```bash
-sudo apt remove flank
+journalctl -u flank -n 100 --no-pager
 ```
 
-This will not remove any Flank data that you created in your session
+Send me the output along with the SPROC you were trying to run and the parameters you entered.
 
-### Still stuck?
+---
+
+### Something else
+
+This is an early build, so don't spend too long trying to debug unexpected behavior.
 
 Send me:
 
-- What you were trying to do
-- The output of:
+* What you were trying to do
+* What happened
+* Any error message or screenshot
+* The output of:
+
 ```bash
 journalctl -u flank -n 100 --no-pager
 ```
+
+Thanks!
 
 ----
 
