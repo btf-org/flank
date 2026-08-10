@@ -47,7 +47,17 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.88/flank_0.1.88_amd
 
 #### 3. Open Flank in a browser
 
-It will be served on port 8083 (http://localhost:8083 if local, \<cloud-ip\>:8083 if on a cloud VM)
+Flank runs on port 8083 by default.
+
+- **Native Ubuntu**: Open http://localhost:8083
+- **Cloud VM**: Open http://\<public-ip\>:8083. You may need to allow inbound TCP traffic on port 8083 in your cloud provider's firewall/security settings.
+- **VM inside Windows**
+  - If your VM forwards localhost ports to Windows, open http://localhost:8083 in Windows
+  - If not, run the following in your VM to get your VM's IP
+    ```bash
+    hostname -I
+    ```
+    Then open http://\<vm-ip\>:8083
 
 #### 4. Create a report from a SPROC
 
