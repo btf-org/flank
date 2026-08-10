@@ -1,1 +1,1 @@
-docker build --platform linux/amd64 -t flank-ubuntu-test ./test
+docker build --platform linux/amd64 -t flank-ubuntu-test ./test/Dockerfile.day-0
