@@ -36,7 +36,7 @@ Look for `Import SPROC` on the bottom bar and click it. (This assumes you've alr
 #### 1. Install `sqlcmd`
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/heads/main/build/install-scripts/sqlcmd.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/tags/v0.1.87/build/install-scripts/sqlcmd.sh | sudo bash
 ```
 
 #### 2. Install / Run Flank
