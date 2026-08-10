@@ -33,25 +33,23 @@ Look for `Import SPROC` on the bottom bar and click it. (This assumes you've alr
 
 ----
 
-#### 1. Install `sqlcmd`
+### 1. Install `sqlcmd`
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/tags/v0.1.89/build/install-scripts/sqlcmd.sh | sudo bash
 ```
 
-#### 2. Install / Run Flank
+### 2. Install / Run Flank
 
 ```bash
 wget https://github.com/btf-org/flank/releases/download/v0.1.89/flank_0.1.89_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.89_amd64.deb
 ```
 
-#### 3. Open Flank in a browser
+### 3. Open Flank in a browser
 
 Flank runs on port 8083 by default.
 
-- **Native Ubuntu**: Open http://localhost:8083
-- **Cloud VM**: Open http://\<public-ip\>:8083. You may need to allow inbound TCP traffic on port 8083 in your cloud provider's firewall/security settings.
-- **VM inside Windows**
+**Note if running on a VM:**
   - If your VM forwards localhost ports to Windows, open http://localhost:8083 in Windows
   - If not, run the following in your VM to get your VM's IP
     ```bash
@@ -59,11 +57,74 @@ Flank runs on port 8083 by default.
     ```
     Then open http://\<vm-ip\>:8083
 
-#### 4. Create a report from a SPROC
+### 4. Create a report from a SPROC
 
-Look for `Import SPROC` on the bottom bar and click it. (This assumes you've already got a database set up with a SPROC you'd like to share)
+Click on `Import SPROC` and follow the flow
 
 ----
 
 </details>
 
+## Troubleshooting
+
+### Flank isn't running
+
+Check the service:
+
+    systemctl status flank
+
+Restart it:
+
+    sudo systemctl restart flank
+
+
+### I can't open Flank in my browser
+
+First, check whether Flank is reachable inside the VM:
+
+    curl http://localhost:8083
+
+If that works, Flank is running and the issue is probably networking
+between your VM and Windows.
+
+Get the VM's IP:
+
+    hostname -I
+
+Then open:
+
+    http://<vm-ip>:8083
+
+
+### Flank can't connect to SQL Server
+
+Remember that the connection is being made from the Ubuntu VM, not
+from Windows.
+
+Test the connection directly:
+
+    sqlcmd -S <server> -U <username> -P '<password>' -Q "SELECT 1"
+
+
+### Logs
+
+    journalctl -u flank -n 100 --no-pager
+
+
+### Uninstall / Start Over
+
+    sudo apt remove flank
+
+[explain whether this preserves data/config]
+
+
+### Still stuck?
+
+Send me:
+
+- What you were trying to do
+- The command you ran
+- The full error message
+- The output of:
+
+      journalctl -u flank -n 100 --no-pager
