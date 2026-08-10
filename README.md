@@ -55,7 +55,7 @@ Flank runs on port 8083 by default.
     ```bash
     hostname -I
     ```
-    Then open http://<vm-ip>:8083
+    Then open `http://<vm-ip>:8083`
 
 ### 4. Create a report from a SPROC
 
@@ -105,7 +105,7 @@ Get the VM's IP address:
 hostname -I
 ```
 
-Then try opening `http://\<vm-ip\>:8083` in Windows.
+Then try opening `http://<vm-ip>:8083` in Windows.
 
 
 ### Flank freezes when importing SPROCs
