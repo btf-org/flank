@@ -5,4 +5,5 @@ Priority: optional
 Architecture: amd64
 Maintainer: Angus Mitchell <anguspmitchell@gmail.com>
 Description: A CLI wrapper for building and sharing tools
-Depends: time, mawk, make, graphviz, makefile2graph, cron
+Depends: time, mawk
+Suggests: make, graphviz, makefile2graph
