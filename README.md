@@ -67,33 +67,48 @@ Click on `Import SPROC` and follow the flow
 
 ## Troubleshooting
 
+<details>
+  
+<summary>Debian / Ubuntu</summary>
+
+----
+
 ### Flank isn't running
 
 Check the service:
 
-    systemctl status flank
+```bash
+systemctl status flank
+```
 
 Restart it:
 
-    sudo systemctl restart flank
-
+```bash
+sudo systemctl restart flank
+```
 
 ### I can't open Flank in my browser
 
 First, check whether Flank is reachable inside the VM:
 
-    curl http://localhost:8083
+```bash
+curl http://localhost:8083
+```
 
 If that works, Flank is running and the issue is probably networking
 between your VM and Windows.
 
 Get the VM's IP:
 
-    hostname -I
+```bash
+hostname -I
+```
 
 Then open:
 
-    http://<vm-ip>:8083
+```bash
+http://<vm-ip>:8083
+```
 
 
 ### Flank can't connect to SQL Server
@@ -103,28 +118,34 @@ from Windows.
 
 Test the connection directly:
 
-    sqlcmd -S <server> -U <username> -P '<password>' -Q "SELECT 1"
-
+```bash
+sqlcmd -S <server> -U <username> -P '<password>' -Q "SELECT 1"
+```
 
 ### Logs
 
-    journalctl -u flank -n 100 --no-pager
-
+```bash
+journalctl -u flank -n 100 --no-pager
+```
 
 ### Uninstall / Start Over
 
-    sudo apt remove flank
+```bash
+sudo apt remove flank
+```
 
-[explain whether this preserves data/config]
-
+This will not remove any Flank data that you created in your session
 
 ### Still stuck?
 
 Send me:
 
 - What you were trying to do
-- The command you ran
-- The full error message
 - The output of:
+```bash
+journalctl -u flank -n 100 --no-pager
+```
 
-      journalctl -u flank -n 100 --no-pager
+----
+
+</details>
