@@ -112,7 +112,19 @@ Then try opening `http://\<vm-ip\>:8083` in Windows.
 
 ### Flank freezes when importing SPROCs
 
-Check the Flank logs:
+First, make sure sqlcmd is installed:
+
+```bash
+sqlcmd -?
+```
+
+Then check that sqlcmd can connect to your database:
+
+```bash
+sqlcmd -S <server> -d <database> -U <username> -P '<password>' -Q "SELECT 1"
+```
+
+If that works, check the Flank logs:
 
 ```bash
 journalctl -u flank -n 100 --no-pager
@@ -122,7 +134,19 @@ Send me the output along with what you were trying to import.
 
 ### Flank freezes when running a SPROC
 
-Check the Flank logs:
+First, make sure sqlcmd can connect to your database:
+
+```bash
+sqlcmd -S <server> -d <database> -U <username> -P '<password>' -Q "SELECT 1"
+```
+
+If that works, try running the SPROC directly with sqlcmd:
+
+```bash
+sqlcmd -S <server> -d <database> -U <username> -P '<password>' -Q "EXEC <sproc>"
+```
+
+If the SPROC works with sqlcmd but freezes in Flank, check the Flank logs:
 
 ```bash
 journalctl -u flank -n 100 --no-pager
