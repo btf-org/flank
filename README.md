@@ -79,8 +79,6 @@ Click on `Import SPROC` and follow the flow
 
 If the installation command fails, send me the **full terminal output**, including the command you ran.
 
----
-
 ### Web address spins and nothing happens
 
 First, check whether Flank is responding inside the Ubuntu VM:
@@ -111,7 +109,6 @@ hostname -I
 
 Then try opening `http://\<vm-ip\>:8083` in Windows.
 
----
 
 ### Flank freezes when importing SPROCs
 
@@ -123,8 +120,6 @@ journalctl -u flank -n 100 --no-pager
 
 Send me the output along with what you were trying to import.
 
----
-
 ### Flank freezes when running a SPROC
 
 Check the Flank logs:
@@ -134,8 +129,6 @@ journalctl -u flank -n 100 --no-pager
 ```
 
 Send me the output along with the SPROC you were trying to run and the parameters you entered.
-
----
 
 ### Something else
 
