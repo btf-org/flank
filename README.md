@@ -55,7 +55,7 @@ Flank runs on port 8083 by default.
     ```bash
     hostname -I
     ```
-    Then open http://\<vm-ip\>:8083
+    Then open http://<vm-ip>:8083
 
 ### 4. Create a report from a SPROC
 
@@ -72,8 +72,6 @@ Click on `Import SPROC` and follow the flow
 <summary>Debian / Ubuntu</summary>
 
 ----
-
-## Troubleshooting
 
 ### Installation failed
 
