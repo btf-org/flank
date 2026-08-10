@@ -75,7 +75,7 @@ Click on `Import SPROC` and follow the flow
 
 ### Installation failed
 
-If the installation command fails, send me the **full terminal output**, including the command you ran.
+I've tested this Ubuntu 24.04. If the installation command fails, send me the full terminal output, including the command you ran.
 
 ### Web address spins and nothing happens
 
