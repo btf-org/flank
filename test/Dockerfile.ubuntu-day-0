@@ -4,4 +4,4 @@ RUN apt-get update \
     && apt-get install -y systemd \
     && rm -rf /var/lib/apt/lists/*
 
-CMD ["/sbin/init"]
+CMD ["/usr/lib/systemd/systemd"]
