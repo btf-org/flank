@@ -596,18 +596,28 @@ fls() {
 	header_pwd
 	echo ""
 	echo '<div id="pBody">'
+	shopt -s nullglob dotglob
+	found=false
 	for f in *; do
 		if [ -d "$f" ] && [ ! -f "$f/template.sh" ]; then
 			echo '📁 <a onclick="run('\''fcd '"$f"\'')">'"$f"'</a>'
+			found=true
 		fi
 	done
 	for f in *; do
 		if [ -d "$f" ] && [ -f "$f/template.sh" ]; then
 			echo '<span class="hidden">📁</span> <a onclick="run('\''fcd '"$f"\'')">'"$f"'</a>'
+			found=true
 		elif [ -f "$f" ]; then
 			echo '<span class="hidden">📁</span> '"$f"
+			found=true
 		fi
 	done
+
+	if [ "$found" = false ]; then
+		echo 'Nothing here! Start by <a onclick="run('\''cmd_wizard__mssql_sproc'\'')">importing a SPROC</a>'
+	fi
+
 	echo '</div>'
 	footer
 	echo '%PAGEEND%'
