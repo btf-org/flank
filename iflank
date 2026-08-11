@@ -6,7 +6,7 @@ elif [ -d /opt/homebrew/var/flank ]; then
 	FLANK_ROOT=/opt/homebrew/var/flank
 elif [ -d /usr/local/var/flank ]; then
 	FLANK_ROOT=/usr/local/var/flank
-elif [ -n $(which brew) && $(brew --prefix) >0 ]; then
+elif command -v brew >/dev/null 2>&1; then
 	FLANK_ROOT=$(brew --prefix)/var
 else
 	echo "Cannot find flank root!"
