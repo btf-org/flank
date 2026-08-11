@@ -12,7 +12,7 @@
 #### 1. Install / Run
 
 ```bash
-brew tap btf-org/flank && brew install btf-org/flank/flank && { nohup $(which flankserver) >> $(brew --prefix)/var/log/flank/flankserver.log 2>> $(brew --prefix)/var/log/flank/flankserver.err & } && sleep 1 && open http://localhost:8083
+brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank && sleep 1 && open http://localhost:8083
 ```
 
 #### 2. Open Flank in a browser
