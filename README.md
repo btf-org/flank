@@ -8,18 +8,24 @@
 <summary>Mac</summary>
 
 ----
-  
-### 1. Install / Run
+
+### 1. Install prerequisites (`sqlcmd`)
+
+```bash
+brew install sqlcmd
+```
+
+### 2. Install / Run Flank
 
 ```bash
 brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank && sleep 1 && open http://localhost:8083
 ```
 
-### 2. Open Flank in a browser
+### 3. Open Flank in a browser
 
 The above command should automatically open http://localhost:8083, but if it didn't, do that now.
 
-### 3. Create a report from a SPROC
+### 4. Create a report from a SPROC
 
 Click on `Import SPROC`, add your DB credentials, then choose a SPROC. (This assumes you've already got a database set up with a SPROC you'd like to share)
 
