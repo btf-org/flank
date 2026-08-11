@@ -74,6 +74,106 @@ Click on `Import SPROC`, add your DB credentials, then choose a SPROC. (This ass
 ## Troubleshooting
 
 <details>
+
+<summary>Mac</summary>
+
+---
+
+### Installation failed
+
+If either installation command fails, send me the full terminal output, including the command you ran.
+
+### Web address spins and nothing happens
+
+First, check whether Flank is responding:
+
+```bash
+curl http://localhost:8083
+```
+
+If that doesn't work, check whether Flank is running:
+
+```bash
+brew services list
+```
+
+If Flank is running but isn't responding, restart it:
+
+```bash
+brew services restart flank
+```
+
+If `curl http://localhost:8083` works, try opening http://localhost:8083 again in your browser.
+
+### Flank freezes when importing SPROCs
+
+First, make sure sqlcmd is installed:
+
+```bash
+sqlcmd -?
+```
+
+Then check that sqlcmd can connect to your database:
+
+```bash
+sqlcmd -S <server> -d <database> -U <username> -P '<password>' -Q "SELECT 1"
+```
+
+If that works, check the Flank logs:
+
+```bash
+tail -n 100 "$(brew --prefix)/var/log/flank/flankserver.log"
+tail -n 100 "$(brew --prefix)/var/log/flank/flankserver.err"
+```
+
+Send me the output along with what you were trying to import.
+
+### Flank freezes when running a SPROC
+
+First, make sure sqlcmd can connect to your database:
+
+```bash
+sqlcmd -S <server> -d <database> -U <username> -P '<password>' -Q "SELECT 1"
+```
+
+If that works, try running the SPROC directly with sqlcmd:
+
+```bash
+sqlcmd -S <server> -d <database> -U <username> -P '<password>' -Q "EXEC <sproc>"
+```
+
+If the SPROC works with sqlcmd but freezes in Flank, check the Flank logs:
+
+```bash
+tail -n 100 "$(brew --prefix)/var/log/flank/flankserver.log"
+tail -n 100 "$(brew --prefix)/var/log/flank/flankserver.err"
+```
+
+Send me the output along with the SPROC you were trying to run and the parameters you entered.
+
+### Something else
+
+This is an early build, so don't spend too long trying to debug unexpected behavior.
+
+Send me:
+
+* What you were trying to do
+* What happened
+* Any error message or screenshot
+* The output of:
+
+```bash
+tail -n 100 "$(brew --prefix)/var/log/flank/flankserver.log"
+tail -n 100 "$(brew --prefix)/var/log/flank/flankserver.err"
+```
+
+Thanks!
+
+---
+
+</details>
+
+<details>
   
 <summary>Debian / Ubuntu</summary>
 
