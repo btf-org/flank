@@ -21,7 +21,7 @@ The above command should automatically open http://localhost:8083, but if it did
 
 #### 3. Create a report from a SPROC
 
-Look for `Import SPROC` on the bottom bar and click it. (This assumes you've already got a database set up with a SPROC you'd like to share)
+Click on `Import SPROC`, add your DB credentials, then choose a SPROC. (This assumes you've already got a database set up with a SPROC you'd like to share)
 
 ----
 
@@ -59,7 +59,7 @@ Flank runs on port 8083 by default.
 
 ### 4. Create a report from a SPROC
 
-Click on `Import SPROC` and follow the flow
+Click on `Import SPROC`, add your DB credentials, then choose a SPROC. (This assumes you've already got a database set up with a SPROC you'd like to share)
 
 ----
 
