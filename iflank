@@ -1510,7 +1510,7 @@ fcd "${_dirpath}"
 '
 }
 create_mssql_creds='
-# @description This user must have SELECT access to sys.objects and sys.schemas, and EXECUTE permission on any stored procedure you want to wire up.
+# @description If you'\''re importing SPROCs, this user must have SELECT access to sys.objects and sys.schemas, and EXECUTE permission on any stored procedure you want to wire up.
 # ${db_server} @input
 # ${db_name} @input
 # ${db_user} @input
