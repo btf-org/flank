@@ -622,7 +622,7 @@ fls() {
 		fi
 	done
 
-	if [ "$found" = false ]; then
+	if [ "$PWD" = "$FLANK_ROOT" ] && [ "$found" = false ]; then
 		echo 'Nothing here! Start by <a onclick="run('\''cmd_wizard__mssql_sproc'\'')">importing a SPROC</a>'
 	fi
 
