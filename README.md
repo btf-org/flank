@@ -110,7 +110,7 @@ If `curl http://localhost:8083` works, try opening http://localhost:8083 again i
 First, make sure sqlcmd is installed:
 
 ```bash
-sqlcmd -?
+sqlcmd --version
 ```
 
 Then check that sqlcmd can connect to your database:
@@ -219,7 +219,7 @@ Then try opening `http://<vm-ip>:8083` in Windows.
 First, make sure sqlcmd is installed:
 
 ```bash
-sqlcmd -?
+sqlcmd --version
 ```
 
 Then check that sqlcmd can connect to your database:
