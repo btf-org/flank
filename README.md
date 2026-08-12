@@ -42,13 +42,13 @@ Click on `Import SPROC`, add your DB credentials, then choose a SPROC. (This ass
 ### 1. Install prerequisites (`sqlcmd`)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/tags/v0.1.89/build/install-scripts/sqlcmd.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/tags/v0.1.92/build/install-scripts/sqlcmd.sh | sudo bash
 ```
 
 ### 2. Install / Run Flank
 
 ```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.89/flank_0.1.89_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.89_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.92/flank_0.1.92_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.92_amd64.deb
 ```
 
 ### 3. Open Flank in a browser
