@@ -1446,6 +1446,66 @@ ${_exec_stmt}
 EOF
 	fcd "${_dirpath}"
 }
+gen_input_raw_mssql_query(){
+	# <db_creds>
+	local _db_creds="$1"
+	printf '
+# ${query} @textarea
+# ${flank_name} @default new_query
+
+echo "QUERY" 1>&2
+echo "$query" 1>&2
+_dirpath="'"${PWD}"'/${flank_name}"
+if [ -d "$_dirpath" ]; then
+	suffix_i=2
+	while [ -d "'"${PWD}"'/${flank_name}_${suffix_i}" ]; do
+		suffix_i=$((suffix_i + 1))
+	done
+	_dirpath="'"${PWD}"'/${flank_name}_${suffix_i}"
+fi
+mkdir -p "${_dirpath}"
+
+cat >"${_dirpath}/template.sh" <<EOF
+source "'"${FLANK_ROOT}"'/.creds/'"${_db_creds}"'"
+
+_awk_query_to_html='\''
+	NR == 2 { next }   # remove SQLCMD dashed separator
+
+	NR == 1 {
+		print "<table><thead><tr>"
+		for (i = 1; i <= NF; i++)
+			print "<th>" \$i "</th>"
+		print "</tr></thead><tbody>"
+		next
+	}
+
+	{
+		print "<tr>"
+		for (i = 1; i <= NF; i++)
+			print "<td>" \$i "</td>"
+		print "</tr>"
+	}
+
+	END {
+		print "</tbody></table>"
+	}'\''
+
+sqlcmd \
+  -S "tcp:\${DB_SERVER},\${DB_PORT}" \
+  -d "\${DB_NAME}" \
+  -U "\${DB_USER}" \
+  -P "\${DB_PASSWORD}" \
+  -W -s \$'\''\t'\'' -Q "
+SET NOCOUNT ON;
+
+-- QUERY STARTS HERE
+${query}
+-- QUERY ENDS HERE
+
+" | awk -F $'\''\t'\'' "\$_awk_query_to_html"
+EOF
+'
+}
 create_mssql_creds='
 # @description This user must have SELECT access to sys.objects and sys.schemas, and EXECUTE permission on any stored procedure you want to wire up.
 # ${db_server} @input
@@ -1897,6 +1957,26 @@ while true; do
 	mssql_sproc_to_cmd)
 		mssql_sproc_to_cmd "$args"
 		;;
+	cmd_wizard__mssql_query)
+		num_creds=$(find "$FLANK_ROOT/.creds" -type f | wc -l)
+		if [ "$num_creds" -eq 0 ]; then
+			show_form "$create_mssql_creds" "create_mssql_creds_and_input_query" "Save"
+		elif [ "$num_creds" -eq 1 ]; then
+			_db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)
+			show_form "$(gen_input_raw_mssql_query "${_db_creds}")" "input_raw_mssql_query" "Save" "db_creds=${_db_creds}"
+			# input_raw_mssql_query_form "db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)"
+		else
+			show_form "$cmd_wizard__mssql_sproc" "input_raw_mssql_query_form" "Next"
+		fi
+		;;
+	input_raw_mssql_query_form)
+		_db_creds=$(get_value_url "$args" 'db_creds')
+		show_form "$(gen_input_raw_mssql_query "${_db_creds}")" "input_raw_mssql_query" "Save" "db_creds=${_db_creds}"
+		;;
+	input_raw_mssql_query)
+		_db_creds=$(get_value_url "$args" 'db_creds')
+		eval_form "$args" "$(gen_input_raw_mssql_query "${_db_creds}")"
+		;;
 	create_mssql_creds_form)
 		show_form "$create_mssql_creds" "create_mssql_creds" "Save"
 		;;
@@ -1907,6 +1987,10 @@ while true; do
 	create_mssql_creds_and_fetch)
 		eval_form "$args" "$create_mssql_creds"
 		fetch_mssql_sprocs "db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)"
+		;;
+	create_mssql_creds_and_input_query)
+		eval_form "$args" "$create_mssql_creds"
+		input_raw_mssql_query_form "db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)"
 		;;
 	eval_multistep_form)
 		eval_multistep_form "$args"
