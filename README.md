@@ -105,7 +105,7 @@ brew services restart flank
 
 If `curl http://localhost:8083` works, try opening http://localhost:8083 again in your browser.
 
-### Flank freezes when importing SPROCs
+### Flank hangs when importing SPROCs
 
 First, make sure sqlcmd is installed:
 
@@ -128,7 +128,7 @@ tail -n 100 "$(brew --prefix)/var/log/flank/flankserver.err"
 
 Send me the output along with what you were trying to import.
 
-### Flank freezes when running a SPROC
+### Flank hangs when running a SPROC
 
 First, make sure sqlcmd can connect to your database:
 
@@ -142,7 +142,7 @@ If that works, try running the SPROC directly with sqlcmd:
 sqlcmd -S <server> -d <database> -U <username> -P '<password>' -Q "EXEC <sproc>"
 ```
 
-If the SPROC works with sqlcmd but freezes in Flank, check the Flank logs:
+If the SPROC works with sqlcmd but hangs in Flank, check the Flank logs:
 
 ```bash
 tail -n 100 "$(brew --prefix)/var/log/flank/flankserver.log"
@@ -214,7 +214,7 @@ hostname -I
 Then try opening `http://<vm-ip>:8083` in Windows.
 
 
-### Flank freezes when importing SPROCs
+### Flank hangs when importing SPROCs
 
 First, make sure sqlcmd is installed:
 
@@ -236,7 +236,7 @@ journalctl -u flank -n 100 --no-pager
 
 Send me the output along with what you were trying to import.
 
-### Flank freezes when running a SPROC
+### Flank hangs when running a SPROC
 
 First, make sure sqlcmd can connect to your database:
 
@@ -250,7 +250,7 @@ If that works, try running the SPROC directly with sqlcmd:
 sqlcmd -S <server> -d <database> -U <username> -P '<password>' -Q "EXEC <sproc>"
 ```
 
-If the SPROC works with sqlcmd but freezes in Flank, check the Flank logs:
+If the SPROC works with sqlcmd but hangs in Flank, check the Flank logs:
 
 ```bash
 journalctl -u flank -n 100 --no-pager
