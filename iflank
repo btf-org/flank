@@ -1228,6 +1228,24 @@ fetch_mssql_sprocs() {
 	'
 	echo '<div id="pBody"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>'
 	awk_query_to_html='
+	BEGIN {
+		for (i = 1; i < 128; i++)
+			ord[sprintf("%c", i)] = i
+	}
+
+	function urlencode(s,    out, i, c) {
+		out = ""
+		for (i = 1; i <= length(s); i++) {
+			c = substr(s, i, 1)
+
+			if (c ~ /^[A-Za-z0-9._~-]$/)
+				out = out c
+			else
+				out = out sprintf("%%%02X", ord[c])
+		}
+		return out
+	}
+
 	NR == 2 { next }   # remove SQLCMD dashed separator
 
 	NR == 1 {
@@ -1241,7 +1259,7 @@ fetch_mssql_sprocs() {
 
 	{
 		print "<tr>"
-		print "<td><button onclick=\"run('\''mssql_sproc_to_cmd '${_db_creds}' "$1" "$2"'\'')\">Create Cmd</button></td>"
+		print "<td><button onclick=\"run('\''mssql_sproc_to_cmd db_creds=" urlencode(DB_CREDS) "&schema=" urlencode($1) "&object_name=" urlencode($2) "'\'')\">Create Cmd</button></td>"
 		for (i = 1; i <= NF; i++)
 			print "<td>" $i "</td>"
 		print "</tr>"
@@ -1261,7 +1279,7 @@ fetch_mssql_sprocs() {
 		  -P "${DB_PASSWORD}" \
 		  -W -s $'\t' \
 		  -Q "$_sproc_query" \
-			| awk -F $'\t' "$awk_query_to_html" && echo '%APPENDTREND%' &
+			| awk -v DB_CREDS="$_db_creds" -F $'\t' "$awk_query_to_html" && echo '%APPENDTREND%' &
 		sproc_pid=$!
 		echo "$sproc_pid" >$ACTIVE_PID_FILE
 		wait "$sproc_pid"
@@ -1269,9 +1287,11 @@ fetch_mssql_sprocs() {
 	} &
 }
 mssql_sproc_to_cmd(){
-	local _db_creds="$1"
-	local _schema="$2"
-	local _object_name="$3"
+	# <args>
+	local _args="$1"
+	local _db_creds=$(get_value_url "$_args" 'db_creds')
+	local _schema=$(get_value_url "$_args" 'schema')
+	local _object_name=$(get_value_url "$_args" 'object_name')
 
 	local _query_that_builds_stmt="
 	SET NOCOUNT ON;
@@ -1876,8 +1896,7 @@ while true; do
 		fetch_mssql_sprocs "$args"
 		;;
 	mssql_sproc_to_cmd)
-		IFS=' ' read db_creds schema obj_name <<<"$args"
-		mssql_sproc_to_cmd "$db_creds" "$schema" "$obj_name"
+		mssql_sproc_to_cmd "$args"
 		;;
 	create_mssql_creds_form)
 		show_form "$create_mssql_creds" "create_mssql_creds" "Save"
