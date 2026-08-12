@@ -1860,7 +1860,7 @@ while true; do
 		if [ "$num_creds" -eq 0 ]; then
 			show_form "$create_mssql_creds" "create_mssql_creds_and_fetch" "Save"
 		elif [ "$num_creds" -eq 1 ]; then
-			fetch_mssql_sprocs "db_creds=$(find /opt/homebrew/var/flank/.creds -type f -exec basename {} \;)"
+			fetch_mssql_sprocs "db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)"
 		else
 			show_form "$cmd_wizard__mssql_sproc" "fetch_mssql_sprocs" "Next"
 		fi
@@ -1881,7 +1881,7 @@ while true; do
 		;;
 	create_mssql_creds_and_fetch)
 		eval_form "$args" "$create_mssql_creds"
-		fetch_mssql_sprocs "db_creds=$(find /opt/homebrew/var/flank/.creds -type f -exec basename {} \;)"
+		fetch_mssql_sprocs "db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)"
 		;;
 	eval_multistep_form)
 		eval_multistep_form "$args"
