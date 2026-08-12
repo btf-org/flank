@@ -181,12 +181,13 @@ footer() {
 	echo '<a onclick="run('\''history'\'')">History</a>'
 	if [ -f 'template.sh' ]; then
 		echo '<a onclick="run('\''edit_cmd'\'')">Edit template.sh</a>'
-		echo '<a onclick="run('\''fcrontab_l'\'')">View Cron</a>'
-		echo '<a onclick="run('\''add_cron_form'\'')">Create Cron</a>'
+		# echo '<a onclick="run('\''fcrontab_l'\'')">View Cron</a>'
+		# echo '<a onclick="run('\''add_cron_form'\'')">Create Cron</a>'
 	else
 		echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
 		# echo '<a onclick="run('\''choose_cmd_wizard'\'')">Create Cmd</a>'
 		echo '<a onclick="run('\''cmd_wizard__mssql_sproc'\'')">Import SPROC</a>'
+		echo '<a onclick="run('\''cmd_wizard__mssql_query'\'')">Import query</a>'
 		# echo '<a onclick="run('\''create_mssql_creds_form'\'')">Add DB Creds</a>'
 		# echo '<a onclick="run('\''create_pipeline_form'\'')">Create Pipeline</a>'
 		# echo '<a onclick="run('\''fcrontab_e_form'\'')">Edit crontab</a>'
@@ -623,7 +624,7 @@ fls() {
 	done
 
 	if [ "$PWD" = "$FLANK_ROOT" ] && [ "$found" = false ]; then
-		echo 'Nothing here! Start by <a onclick="run('\''cmd_wizard__mssql_sproc'\'')">importing a SPROC</a>'
+		echo 'Nothing here! Start by <a onclick="run('\''cmd_wizard__mssql_sproc'\'')">importing a SPROC</a> or a <a onclick="run('\''cmd_wizard__mssql_query'\'')">query</a>'
 	fi
 
 	echo '</div>'
