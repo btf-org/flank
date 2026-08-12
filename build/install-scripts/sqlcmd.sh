@@ -8,6 +8,12 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
+if ! command -v bzip2 >/dev/null 2>&1; then
+    echo "Installing bzip2..."
+    apt-get update
+    apt-get install -y bzip2
+fi
+
 SQLCMD_VERSION="1.10.0"
 url="https://github.com/microsoft/go-sqlcmd/releases/download/v${SQLCMD_VERSION}/sqlcmd-linux-amd64.tar.bz2"
 
