@@ -1135,7 +1135,7 @@ eval_form() {
 
 	local _to_eval=$(prepend_vars_url_encoded "$_sh" "$_args")
 
-	eval "$_to_eval"
+	bash -c "$_to_eval"
 }
 flank_hist() {
 	echo '%PAGESTART%'
