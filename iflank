@@ -1241,7 +1241,7 @@ fetch_mssql_sprocs() {
 
 	{
 		print "<tr>"
-		print "<td><button onclick=\"run('\''mssql_sproc_to_cmd "$1" "$2"'\'')\">Create Cmd</button></td>"
+		print "<td><button onclick=\"run('\''mssql_sproc_to_cmd '${_db_creds}' "$1" "$2"'\'')\">Create Cmd</button></td>"
 		for (i = 1; i <= NF; i++)
 			print "<td>" $i "</td>"
 		print "</tr>"
@@ -1269,8 +1269,9 @@ fetch_mssql_sprocs() {
 	} &
 }
 mssql_sproc_to_cmd(){
-	local _schema="$1"
-	local _object_name="$2"
+	local _db_creds="$1"
+	local _schema="$2"
+	local _object_name="$3"
 
 	local _query_that_builds_stmt="
 	SET NOCOUNT ON;
@@ -1309,7 +1310,7 @@ mssql_sproc_to_cmd(){
 	"
 
 
-	source ${FLANK_ROOT}/.creds/fomf.sh
+	source "${FLANK_ROOT}/.creds/${_db_creds}"
 	local _exec_stmt=$(
 	  sqlcmd \
 		  -S "tcp:${DB_SERVER},${DB_PORT}" \
@@ -1391,7 +1392,7 @@ mssql_sproc_to_cmd(){
 	cat >"${_dirpath}/template.sh" <<EOF
 ${_decoration_section}
 
-source ${FLANK_ROOT}/.creds/fomf.sh
+source ${FLANK_ROOT}/.creds/${_db_creds}
 
 _awk_query_to_html='
 	NR == 2 { next }   # remove SQLCMD dashed separator
@@ -1875,8 +1876,8 @@ while true; do
 		fetch_mssql_sprocs "$args"
 		;;
 	mssql_sproc_to_cmd)
-		IFS=' ' read schema obj_name <<<"$args"
-		mssql_sproc_to_cmd "$schema" "$obj_name"
+		IFS=' ' read db_creds schema obj_name <<<"$args"
+		mssql_sproc_to_cmd "$db_creds" "$schema" "$obj_name"
 		;;
 	create_mssql_creds_form)
 		show_form "$create_mssql_creds" "create_mssql_creds" "Save"
