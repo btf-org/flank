@@ -1411,7 +1411,7 @@ mssql_sproc_to_cmd(){
 	cat >"${_dirpath}/template.sh" <<EOF
 ${_decoration_section}
 
-source ${FLANK_ROOT}/.creds/${_db_creds}
+source "${FLANK_ROOT}/.creds/${_db_creds}"
 
 _awk_query_to_html='
 	NR == 2 { next }   # remove SQLCMD dashed separator
