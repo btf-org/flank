@@ -1138,7 +1138,7 @@ eval_form() {
 
 	local _to_eval=$(prepend_vars_url_encoded "$_sh" "$_args")
 
-	bash -c "$_to_eval"
+	eval "$_to_eval"
 }
 flank_hist() {
 	echo '%PAGESTART%'
@@ -1506,6 +1506,7 @@ ${query}
 
 " | awk -F $'\''\t'\'' "\$_awk_query_to_html"
 EOF
+fcd "${_dirpath}"
 '
 }
 create_mssql_creds='
@@ -1992,7 +1993,8 @@ while true; do
 		;;
 	create_mssql_creds_and_input_query)
 		eval_form "$args" "$create_mssql_creds"
-		input_raw_mssql_query_form "db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)"
+		_db_creds=$(get_value_url "$args" 'db_creds')
+		show_form "$(gen_input_raw_mssql_query "${_db_creds}")" "input_raw_mssql_query" "Save" "db_creds=${_db_creds}"
 		;;
 	eval_multistep_form)
 		eval_multistep_form "$args"
