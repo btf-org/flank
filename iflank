@@ -1439,7 +1439,7 @@ create_mssql_creds='
 # ${nickname} @input
 
 mkdir -p "'$FLANK_ROOT'/.creds"
-cat > '$FLANK_ROOT'/.creds/${nickname}.sh <<EOF
+cat > '$FLANK_ROOT'/.creds/${nickname} <<EOF
 DB_SERVER="${db_server}"
 DB_NAME="${db_name}"
 DB_USER="${db_user}"
