@@ -214,7 +214,9 @@ prepend_vars_url_encoded() {
 		local _pending_key=''
 		local _pending_val=''
 
-		for kv in $(echo "$2" | tr '&' '\n' | sort); do
+		while IFS= read -r kv; do
+			local _decoded_kv
+			_decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<"$kv")")
 			local _decoded_kv=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${kv})")
 			local _key="${_decoded_kv%%=*}"
 			local _val="${_decoded_kv#*=}"
@@ -240,7 +242,7 @@ prepend_vars_url_encoded() {
 				_val="${_val//\'/$replacement}"
 				assignments="${assignments}${_key}='${_val}'"$'\n'
 			fi
-		done
+		done < <(printf '%s\n' "$2" | tr '&' '\n' | sort)
 
 		if [ -n "$_pending_key" ]; then
 			replacement="'\''"
