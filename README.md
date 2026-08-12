@@ -18,7 +18,7 @@ brew install sqlcmd
 ### 2. Install / Run Flank
 
 ```bash
-brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank && sleep 1 && open http://localhost:8083
+brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank && sleep 2 && open http://localhost:8083
 ```
 
 ### 3. Open Flank in a browser
