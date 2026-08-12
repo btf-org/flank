@@ -1408,8 +1408,6 @@ mssql_sproc_to_cmd(){
 	fi
 	
 	mkdir -p "${_dirpath}"
-	local _replacement="'\''"
-	local _escaped_awk_query_to_html="${awk_query_to_html//\'/$_replacement}"
 	cat >"${_dirpath}/template.sh" <<EOF
 ${_decoration_section}
 
