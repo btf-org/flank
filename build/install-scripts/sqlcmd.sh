@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Install Microsoft's sqlcmd on Ubuntu.
+# Install Microsoft's Go sqlcmd on Ubuntu/Debian.
 
 if [ "$(id -u)" -ne 0 ]; then
     echo "Please run this script with sudo."
@@ -38,13 +38,8 @@ dpkg -i "$tmp_deb"
 
 echo "Installing sqlcmd..."
 apt-get update
-ACCEPT_EULA=Y apt-get install -y mssql-tools18
-
-# Make sqlcmd available without requiring a PATH change.
-if [ ! -e /usr/local/bin/sqlcmd ]; then
-    ln -s /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd
-fi
+apt-get install -y sqlcmd
 
 echo
 echo "sqlcmd installed successfully:"
-sqlcmd -?
+sqlcmd --version
