@@ -1,16 +1,24 @@
 #!/usr/bin/env bash
 
 if [ -d /var/lib/flank ]; then
+	# Ubuntu
 	FLANK_ROOT=/var/lib/flank
+	export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:$PATH"
 elif [ -d /opt/homebrew/var/flank ]; then
+	# Apple Silicon Homebrew
 	FLANK_ROOT=/opt/homebrew/var/flank
+	export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 elif [ -d /usr/local/var/flank ]; then
+	# Intel Homebrew
 	FLANK_ROOT=/usr/local/var/flank
+	export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
 elif command -v brew >/dev/null 2>&1; then
-	FLANK_ROOT=$(brew --prefix)/var
+	# Unknown Homebrew installation
+	FLANK_ROOT="$(brew --prefix)/var/flank"
+	export PATH="$(brew --prefix)/bin:$(brew --prefix)/sbin:$PATH"
 else
 	echo "Cannot find flank root!"
-	exit
+	exit 1
 fi
 
 get_value_url() {
