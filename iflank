@@ -1437,16 +1437,23 @@ create_mssql_creds='
 # ${db_trust_server_certificate} @input @default false
 # ${nickname} @input
 
+shell_quote() {
+	printf "'\''"
+	printf "%s" "$1" | sed "s/'\''/'\''\\\\'\'''\''/g"
+	printf "'\''"
+}
+
 mkdir -p "'$FLANK_ROOT'/.creds"
-cat > '$FLANK_ROOT'/.creds/${nickname} <<EOF
-DB_SERVER="${db_server}"
-DB_NAME="${db_name}"
-DB_USER="${db_user}"
-DB_PASSWORD="${db_password}"
-DB_PORT="${db_port}"
-DB_ENCRYPT="${db_encrypt}"
-DB_TRUST_SERVER_CERTIFICATE="${db_trust_server_certificate}"
-EOF
+
+{
+	printf "DB_SERVER=%s\n" "$(shell_quote "${db_server}")"
+	printf "DB_NAME=%s\n" "$(shell_quote "${db_name}")"
+	printf "DB_USER=%s\n" "$(shell_quote "${db_user}")"
+	printf "DB_PASSWORD=%s\n" "$(shell_quote "${db_password}")"
+	printf "DB_PORT=%s\n" "$(shell_quote "${db_port}")"
+	printf "DB_ENCRYPT=%s\n" "$(shell_quote "${db_encrypt}")"
+	printf "DB_TRUST_SERVER_CERTIFICATE=%s\n" "$(shell_quote "${db_trust_server_certificate}")"
+} > "'$FLANK_ROOT'/.creds/${nickname}"
 '
 run_form() {
 	echo '%PAGESTART%'
