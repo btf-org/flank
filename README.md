@@ -83,6 +83,10 @@ Click on `Import SPROC`, add your DB credentials, then choose a SPROC. (This ass
 
 If either installation command fails, send me the full terminal output, including the command you ran.
 
+### Web page is blank (but not spinning)
+
+Try refreshing the page. If that doesn't work, try the steps below.
+
 ### Web address spins and nothing happens
 
 First, check whether Flank is responding:
@@ -182,6 +186,10 @@ Thanks!
 ### Installation failed
 
 I've tested this Ubuntu 24.04. If the installation command fails, send me the full terminal output, including the command you ran.
+
+### Web page is blank (but not spinning)
+
+Try refreshing the page. If that doesn't work, try the steps below.
 
 ### Web address spins and nothing happens
 
