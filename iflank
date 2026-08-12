@@ -1253,7 +1253,7 @@ fetch_mssql_sprocs() {
 	echo %APPENDTRSTART%
 	ACTIVE_PID_FILE=$(mktemp)
 	{
-		source ${FLANK_ROOT}/.creds/fomf.sh
+		source "${FLANK_ROOT}/.creds/${_db_creds}"
 		sqlcmd \
 		  -S "tcp:${DB_SERVER},${DB_PORT}" \
 		  -d "${DB_NAME}" \
