@@ -25,9 +25,9 @@ brew tap btf-org/flank && brew install btf-org/flank/flank && brew services star
 
 The above command should automatically open http://localhost:8083, but if it didn't, do that now.
 
-### 4. Create a report from a SPROC
+### 4. Create a report
 
-Click on `Import SPROC`, add your DB credentials, then choose a SPROC. (This assumes you've already got a database set up with a SPROC you'd like to share)
+Click on `Import SPROC` or `Import query`, add your DB credentials, and follow the instructions.
 
 ----
 
@@ -63,9 +63,9 @@ Flank runs on port 8083 by default.
     ```
     Then open `http://<vm-ip>:8083`
 
-### 4. Create a report from a SPROC
+### 4. Create a report
 
-Click on `Import SPROC`, add your DB credentials, then choose a SPROC. (This assumes you've already got a database set up with a SPROC you'd like to share)
+Click on `Import SPROC` or `Import query`, add your DB credentials, and follow the instructions.
 
 ----
 
