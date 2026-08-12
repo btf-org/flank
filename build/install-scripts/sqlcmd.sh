@@ -1,44 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Install Microsoft's Go sqlcmd on Ubuntu/Debian.
+# Install Microsoft's Go sqlcmd on Linux.
 
 if [ "$(id -u)" -ne 0 ]; then
     echo "Please run this script with sudo."
     exit 1
 fi
 
-if ! command -v apt-get >/dev/null 2>&1; then
-    echo "Error: apt-get not found. This installer currently supports Ubuntu/Debian."
-    exit 1
+if ! command -v bzip2 >/dev/null 2>&1; then
+    echo "Installing bzip2..."
+    apt-get update
+    apt-get install -y bzip2
 fi
 
-# Get distro/version information.
-. /etc/os-release
+SQLCMD_VERSION="1.10.0"
+url="https://github.com/microsoft/go-sqlcmd/releases/download/v${SQLCMD_VERSION}/sqlcmd-linux-amd64.tar.bz2"
 
-case "${ID:-}" in
-    ubuntu)
-        repo_url="https://packages.microsoft.com/config/ubuntu/${VERSION_ID}/packages-microsoft-prod.deb"
-        ;;
-    debian)
-        repo_url="https://packages.microsoft.com/config/debian/${VERSION_ID}/packages-microsoft-prod.deb"
-        ;;
-    *)
-        echo "Error: unsupported distribution: ${ID:-unknown}"
-        exit 1
-        ;;
-esac
+tmp_dir="$(mktemp -d)"
+trap 'rm -rf "$tmp_dir"' EXIT
 
-tmp_deb="$(mktemp)"
-trap 'rm -f "$tmp_deb"' EXIT
-
-echo "Adding Microsoft package repository..."
-curl -fsSL "$repo_url" -o "$tmp_deb"
-dpkg -i "$tmp_deb"
+echo "Downloading sqlcmd ${SQLCMD_VERSION}..."
+curl -fsSL "$url" -o "$tmp_dir/sqlcmd.tar.bz2"
 
 echo "Installing sqlcmd..."
-apt-get update
-apt-get install -y sqlcmd
+tar -xjf "$tmp_dir/sqlcmd.tar.bz2" -C "$tmp_dir"
+install -m 755 "$tmp_dir/sqlcmd" /usr/local/bin/sqlcmd
 
 echo
 echo "sqlcmd installed successfully:"
