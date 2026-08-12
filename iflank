@@ -900,7 +900,7 @@ fcd "./${cmd_name}"
 '
 cmd_wizard__mssql_sproc='
 # @page 1 @pass_hidden ${db_creds}
-# ${db_creds} @select @values `find '$FLANK_ROOT'/.creds -type f`
+# ${db_creds} @select @values `find '$FLANK_ROOT'/.creds -type f -exec basename {} \;`
 '
 create_cmd_from_cron_job_confirm_sh_fn() {
 	# create_cmd_from_cron_job_confirm_sh_fn <cron> <cmd> <existing cron>
