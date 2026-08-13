@@ -36,14 +36,14 @@ WSL runs in a separate network environment from Windows. We need to enable TCP a
 1. Open **SQL Server Configuration Manager** in Windows.
 2. Go to: **SQL Server Network Configuration → Protocols for `<your instance>`**
 3. Enable **TCP/IP**.
-4. Then open **TCP/IP → Properties → IP Addresses** and make sure SQL Server is configured to listen on a TCP port (typically `1433`).
+4. Open **TCP/IP → Properties → IP Addresses**, scroll to IPAll, clear TCP Dynamic Ports, and set TCP Port to 1433.
 
 #### 3b. Enable SQL Server Authentication
 
 1. Open **SQL Server Management Studio (SSMS)**.
 2. Right-click your server and go to: **Properties → Security**
 3. Select: **SQL Server and Windows Authentication mode**
-3. Click **OK**
+4. Click **OK**
 
 You'll also need a SQL Server login that has access to the database you want to use with Flank.
 
@@ -51,7 +51,7 @@ You'll also need a SQL Server login that has access to the database you want to 
 
 > If your server already had "SQL Server Authentication" enabled with an accompanying login, skip this part
 
-Run this from SSMS in Windows
+We'll create a SQL login named `flankuser` that Flank can use to connect to your database. Run the following in SSMS:
 
 ```sql
 USE master;
@@ -61,7 +61,7 @@ CREATE LOGIN flankuser
 WITH PASSWORD = 'FlankTest123!';
 GO
 
-USE FlankTest;
+USE <your-database>;
 GO
 
 CREATE USER flankuser FOR LOGIN flankuser;
@@ -70,9 +70,11 @@ GRANT EXECUTE TO flankuser;
 GO
 ```
 
+Replace <your-database> with the database you want to use with Flank.
+
 #### 3d. Restart SQL Server
 
-1. Open **SQL Server Management Studio (SSMS)**.
+1. Open **SQL Server Configuration Manager**
 2. Click "SQL Server Services" on the left
 3. Right-click your server, click "Restart"
 
@@ -111,7 +113,7 @@ From WSL, run:
 sqlcmd -S <windows-ip>,1433 -d <database> -U flankuser -P 'FlankTest123!' -Q "SELECT 1"
 ```
 
-Replace `<windows-ip>` with the IP address you found in step **2a**. If you already had a login, replace `flankuser` and `FlankTest123!` as well.
+Replace `<windows-ip>` with the IP address you found in step **3f**. If you already had a login, replace `flankuser` and `FlankTest123!` as well.
 
 If you get a result back, WSL can connect to your local SQL Server.
 
