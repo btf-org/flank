@@ -33,7 +33,7 @@ curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/heads/main/build
 
 ### 2. If SQL Server is running locally on Windows, configure it for WSL
 
-> If SQL Server is running on another server, skip to the Ubuntu section below.
+> If SQL Server is running on another server, skip to the step 3 below
 
 WSL runs in a separate network environment from Windows. To connect to SQL Server running locally on Windows:
 
