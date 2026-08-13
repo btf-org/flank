@@ -108,15 +108,7 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.100/flank_0.1.100_a
 
 ### 3. Open Flank in a browser
 
-Flank runs on port 8083 by default.
-
-**Note if running on a local VM:**
-  - If your VM forwards localhost ports to Windows, open http://localhost:8083 in Windows
-  - If not, run the following in your VM to get your VM's IP
-    ```bash
-    hostname -I
-    ```
-    Then open `http://<vm-ip>:8083`
+Flank runs on port 8083 by default, so if you're running an Ubuntu desktop, open http://localhost:8083. If it's a cloud VM, it'll be `http://<public-ip>:8083`. And if it's a local VM, it'll be http://localhost:8083 or `http://<vm-ip>:8083` depending on your port settings (you can get the VM IP via by running `hostname -I` in the VM).
 
 ### 4. Create a report
 
