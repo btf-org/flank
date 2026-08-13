@@ -36,7 +36,7 @@ WSL runs in a separate network environment from Windows. We need to enable TCP a
 1. Open **SQL Server Configuration Manager** in Windows.
 2. Go to: **SQL Server Network Configuration → Protocols for `<your instance>`**
 3. Enable **TCP/IP**.
-4. Open **TCP/IP → Properties → IP Addresses**, scroll to IPAll, clear TCP Dynamic Ports, and set TCP Port to 1433.
+4. Open **TCP/IP → Properties → IP Addresses**, scroll to `IPAll`, clear `TCP Dynamic Ports`, and set `TCP Port` to `1433`.
 
 #### 3b. Enable SQL Server Authentication
 
