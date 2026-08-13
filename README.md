@@ -55,11 +55,9 @@ You'll also need a SQL Server login that has access to the database you want to 
    
 #### 3d. Create a SQL Server login
 
-> If your server already had "SQL Server Authentication" enabled with an accompanying login, skip this part
+We'll create a SQL login named `flankuser` that Flank can use to connect to your database.
 
-We'll create a SQL login named `flankuser` that Flank can use to connect to your database. Run the following in SSMS:
-
-Replace `<your-database>` with the database you want to use with Flank.
+Replace `<your-database>` with the database you want to use with Flank, and run the following in SSMS:
 
 ```sql
 USE master;
@@ -86,8 +84,6 @@ Open PowerShell as Administrator and run:
 New-NetFirewallRule -DisplayName "SQL Server for WSL" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action Allow
 ```
 
-If SQL Server is using a port other than `1433`, replace `1433` with that port.
-
 #### 3f. Find your Windows host IP
 
 From WSL/Ubuntu, run:
@@ -109,10 +105,10 @@ You'll use this address as the SQL Server host when you plug in your credentials
 From WSL, run:
 
 ```bash
-sqlcmd -S <windows-ip>,1433 -d <database> -U flankuser -P 'FlankTest123!' -Q "SELECT 1"
+sqlcmd -S <windows-ip>,1433 -d <your-database> -U flankuser -P 'FlankTest123!' -Q "SELECT 1"
 ```
 
-Replace `<windows-ip>` with the IP address you found in step **3f**. If you already had a login, replace `flankuser` and `FlankTest123!` as well.
+Replace <windows-ip> with the IP address from step 3f and <your-database> with your database name. If you already had a login, replace `flankuser` and `FlankTest123!` as well.
 
 If you get a result back, WSL can connect to your local SQL Server.
 
