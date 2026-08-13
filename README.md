@@ -79,6 +79,10 @@ You'll also need a SQL Server login that has access to the database you want to 
 
 #### 2d. Create a SQL Server login
 
+> If your server already has a login, skip this part
+
+Run this from SSMS in Windows
+
 ```sql
 USE master;
 GO
@@ -111,10 +115,10 @@ If SQL Server is using a port other than `1433`, replace `1433` with that port.
 From WSL, run:
 
 ```bash
-sqlcmd -S <windows-ip>,1433 -d <database> -U <username> -P '<password>' -Q "SELECT 1"
+sqlcmd -S <windows-ip>,1433 -d <database> -U flankuser -P 'FlankTest123!' -Q "SELECT 1"
 ```
 
-Replace `<windows-ip>` with the IP address you found in step **2a**.
+Replace `<windows-ip>` with the IP address you found in step **2a**. If you already had a login, replace `flankuser` and `FlankTest123!` as well.
 
 If you get a result back, WSL can connect to your local SQL Server.
 
