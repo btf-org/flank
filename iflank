@@ -183,6 +183,8 @@ footer() {
 		echo '<a onclick="run('\''edit_cmd'\'')">Edit template.sh</a>'
 		# echo '<a onclick="run('\''fcrontab_l'\'')">View Cron</a>'
 		# echo '<a onclick="run('\''add_cron_form'\'')">Create Cron</a>'
+	elif [ -f 'content' ]; then
+		echo '<a onclick="run('\''edit_file'\'')">Edit</a>'
 	else
 		echo '<a onclick="run('\''fmkdir_form'\'')">Make Dir</a>'
 		# echo '<a onclick="run('\''choose_cmd_wizard'\'')">Create Cmd</a>'
@@ -515,6 +517,8 @@ fcd() {
 	cd "$d"
 	if [ -f template.sh ]; then
 		run_form
+	elif [ -f content ]; then
+		fcat "file=content"
 	elif [ -f status ] || [ -f exec.sh ]; then
 		log_dir
 	else
@@ -610,13 +614,16 @@ fls() {
 	shopt -s nullglob dotglob
 	found=false
 	for f in *; do
-		if [ -d "$f" ] && [ ! -f "$f/template.sh" ]; then
+		if [ -d "$f" ] && [ ! -f "$f/template.sh" ] && [ ! -f "$f/content" ]; then
 			echo '📁 <a onclick="run('\''fcd '"$f"\'')">'"$f"'</a>'
 			found=true
 		fi
 	done
 	for f in *; do
 		if [ -d "$f" ] && [ -f "$f/template.sh" ]; then
+			echo '<span class="hidden">📁</span> <a onclick="run('\''fcd '"$f"\'')">'"$f"'</a>'
+			found=true
+		elif [ -d "$f" ] && [ -f "$f/content" ]; then
 			echo '<span class="hidden">📁</span> <a onclick="run('\''fcd '"$f"\'')">'"$f"'</a>'
 			found=true
 		elif [ -f "$f" ]; then
@@ -902,7 +909,7 @@ crontab -l | LINE="${existing_cj}" awk '\''BEGIN{line=ENVIRON["LINE"]} $0 == lin
 fcd "./${cmd_name}"
 '
 cmd_wizard__mssql_sproc='
-# ${db_creds} @select @values `find '$FLANK_ROOT'/.creds -type f -exec basename {} \;`
+# ${db_creds} @select @values `find '$FLANK_ROOT'/.creds -type d -exec basename {} \;`
 '
 create_cmd_from_cron_job_confirm_sh_fn() {
 	# create_cmd_from_cron_job_confirm_sh_fn <cron> <cmd> <existing cron>
@@ -1274,7 +1281,7 @@ fetch_mssql_sprocs() {
 	echo %APPENDTRSTART%
 	ACTIVE_PID_FILE=$(mktemp)
 	{
-		source "${FLANK_ROOT}/.creds/${_db_creds}"
+		source "${FLANK_ROOT}/.creds/${_db_creds}/content"
 		sqlcmd \
 		  -S "tcp:${DB_SERVER},${DB_PORT}" \
 		  -d "${DB_NAME}" \
@@ -1333,7 +1340,7 @@ mssql_sproc_to_cmd(){
 	"
 
 
-	source "${FLANK_ROOT}/.creds/${_db_creds}"
+	source "${FLANK_ROOT}/.creds/${_db_creds}/content"
 	local _exec_stmt=$(
 	  sqlcmd \
 		  -S "tcp:${DB_SERVER},${DB_PORT}" \
@@ -1413,7 +1420,7 @@ mssql_sproc_to_cmd(){
 	cat >"${_dirpath}/template.sh" <<EOF
 ${_decoration_section}
 
-source "${FLANK_ROOT}/.creds/${_db_creds}"
+source "${FLANK_ROOT}/.creds/${_db_creds}/content"
 
 _awk_query_to_html='
 	NR == 2 { next }   # remove SQLCMD dashed separator
@@ -1468,7 +1475,7 @@ fi
 mkdir -p "${_dirpath}"
 
 cat >"${_dirpath}/template.sh" <<EOF
-source "'"${FLANK_ROOT}"'/.creds/'"${_db_creds}"'"
+source "'"${FLANK_ROOT}"'/.creds/'"${_db_creds}"'/content"
 
 _awk_query_to_html='\''
 	NR == 2 { next }   # remove SQLCMD dashed separator
@@ -1526,7 +1533,7 @@ shell_quote() {
 	printf "'\''"
 }
 
-mkdir -p "'$FLANK_ROOT'/.creds"
+mkdir -p "'$FLANK_ROOT'/.creds/${nickname}"
 
 {
 	printf "DB_SERVER=%s\n" "$(shell_quote "${db_server}")"
@@ -1536,7 +1543,7 @@ mkdir -p "'$FLANK_ROOT'/.creds"
 	printf "DB_PORT=%s\n" "$(shell_quote "${db_port}")"
 	printf "DB_ENCRYPT=%s\n" "$(shell_quote "${db_encrypt}")"
 	printf "DB_TRUST_SERVER_CERTIFICATE=%s\n" "$(shell_quote "${db_trust_server_certificate}")"
-} > "'$FLANK_ROOT'/.creds/${nickname}"
+} > "'$FLANK_ROOT'/.creds/${nickname}/content"
 '
 run_form() {
 	echo '%PAGESTART%'
@@ -1573,6 +1580,32 @@ edit_cmd() {
 			close("template.sh")
 		}
 		{ print "<div><div>"$0"</div><textarea name=\""$0"\">"template"</textarea></div>" }'
+	echo '<div><button type="button" onclick="iflankForm('\''savetemplate .'\'')">Save</button></div>'
+	echo '</form>'
+	echo '</div>'
+	footer
+	echo '%PAGEEND%'
+}
+edit_file() {
+	echo '%PAGESTART%'
+	header_pwd
+
+	echo '<div id="pBody">'
+	echo '<form id="form" method="POST">'
+	echo 'file' | awk ' 
+		BEGIN {
+			# read and escape content file
+			while ((getline line < "content") > 0) {
+				gsub(/&/, "\\&amp;", line);
+				gsub(/</, "\\&lt;", line);
+				gsub(/>/, "\\&gt;", line);
+				gsub(/"/, "\\&quot;", line);
+				gsub(/\t/, "\\&#9;", line);
+				content = content line "\n"
+			}
+			close("content")
+		}
+		{ print "<div><div>"$0"</div><textarea name=\""$0"\">"content"</textarea></div>" }'
 	echo '<div><button type="button" onclick="iflankForm('\''savefile .'\'')">Save</button></div>'
 	echo '</form>'
 	echo '</div>'
@@ -1590,10 +1623,12 @@ fcrontab_l() {
 	echo '%PAGEEND%'
 }
 fcat() {
+	local _args="$1"
+	local _filename="$(get_value_url "$_args" 'file')"
 	echo '%PAGESTART%'
 	header_pwd
 	echo '<div id="pBody">'
-	cat "$@"
+	cat "$_filename"
 	echo '</div>'
 	footer
 	echo '%PAGEEND%'
@@ -1637,7 +1672,7 @@ log_dir() {
 		disabled_class='class="disabled"'
 	fi
 	footer_html='<a '"$disabled_class"' onclick="run('\''fkill '"$PWD"\'')">Kill</a> '
-	footer_html="$footer_html"'<a '"$disabled_class"' onclick="run('\''fcat exec.sh'\'')">View exec.sh</a> '
+	footer_html="$footer_html"'<a '"$disabled_class"' onclick="run('\''fcat file=exec.sh'\'')">View exec.sh</a> '
 	disabled_class=''
 	path_components=(${PWD//\// })
 	length=${#path_components[@]}
@@ -1945,11 +1980,11 @@ while true; do
 		show_multistep_form 'cmd_wizard__cron_job_sh'
 		;;
 	cmd_wizard__mssql_sproc)
-		num_creds=$(find "$FLANK_ROOT/.creds" -type f | wc -l)
+		num_creds=$(find "$FLANK_ROOT/.creds" -type d | wc -l)
 		if [ "$num_creds" -eq 0 ]; then
 			show_form "$create_mssql_creds" "create_mssql_creds_and_fetch" "Save"
 		elif [ "$num_creds" -eq 1 ]; then
-			fetch_mssql_sprocs "db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)"
+			fetch_mssql_sprocs "db_creds=$(find $FLANK_ROOT/.creds -type d -exec basename {} \;)"
 		else
 			show_form "$cmd_wizard__mssql_sproc" "fetch_mssql_sprocs" "Next"
 		fi
@@ -1961,13 +1996,13 @@ while true; do
 		mssql_sproc_to_cmd "$args"
 		;;
 	cmd_wizard__mssql_query)
-		num_creds=$(find "$FLANK_ROOT/.creds" -type f | wc -l)
+		num_creds=$(find "$FLANK_ROOT/.creds" -type d | wc -l)
 		if [ "$num_creds" -eq 0 ]; then
 			show_form "$create_mssql_creds" "create_mssql_creds_and_input_query" "Save"
 		elif [ "$num_creds" -eq 1 ]; then
-			_db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)
+			_db_creds=$(find $FLANK_ROOT/.creds -type d -exec basename {} \;)
 			show_form "$(gen_input_raw_mssql_query "${_db_creds}")" "input_raw_mssql_query" "Save" "db_creds=${_db_creds}"
-			# input_raw_mssql_query_form "db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)"
+			# input_raw_mssql_query_form "db_creds=$(find $FLANK_ROOT/.creds -type d -exec basename {} \;)"
 		else
 			show_form "$cmd_wizard__mssql_sproc" "input_raw_mssql_query_form" "Next"
 		fi
@@ -1989,12 +2024,12 @@ while true; do
 		;;
 	create_mssql_creds_and_fetch)
 		eval_form "$args" "$create_mssql_creds"
-		fetch_mssql_sprocs "db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)"
+		fetch_mssql_sprocs "db_creds=$(find $FLANK_ROOT/.creds -type d -exec basename {} \;)"
 		;;
 	create_mssql_creds_and_input_query)
 		eval_form "$args" "$create_mssql_creds"
 		# should only be one at this point...
-		_db_creds=$(find $FLANK_ROOT/.creds -type f -exec basename {} \;)
+		_db_creds=$(find $FLANK_ROOT/.creds -type d -exec basename {} \;)
 		show_form "$(gen_input_raw_mssql_query "${_db_creds}")" "input_raw_mssql_query" "Save" "db_creds=${_db_creds}"
 		;;
 	eval_multistep_form)
@@ -2007,11 +2042,10 @@ while true; do
 		eval_form "$args" "$create_pipeline_form_sh"
 		;;
 	fcat)
-		# fcat <path>
 		fcat "$args"
 		;;
-	savefile)
-		# savefile <path> <k=v>
+	savetemplate)
+		# savetemplate <path> <k=v>
 		# everything after first space, then space delimited
 		split_kvs=$(echo "${args#* }" | tr '&' ' ')
 		file_contents="${split_kvs#*=}"
@@ -2024,6 +2058,21 @@ while true; do
 		cat <<<"$cleaned_file" >template.sh
 
 		run_form
+		;;
+	savefile)
+		# savefile <path> <k=v>
+		# everything after first space, then space delimited
+		split_kvs=$(echo "${args#* }" | tr '&' ' ')
+		file_contents="${split_kvs#*=}"
+		# echo "file contents" 1>&2
+		# echo "$file_contents" 1>&2
+		# Replace + with ' '. Replace % with \x. Then feed into %b in printf.
+		cleaned_file=$(printf '%b' "$(sed 's/+/ /g; s/%/\\x/g' <<<${file_contents})")
+		# echo "cleaned file" 1>&2
+		# echo "$cleaned_file" 1>&2
+		cat <<<"$cleaned_file" >file
+
+		fcd . 
 		;;
 	filepicker)
 		# filepicker <dir> <submit_cmd> <btn_text> <hidden_vars>
@@ -2041,6 +2090,9 @@ while true; do
 		;;
 	edit_cmd)
 		edit_cmd
+		;;
+	edit_file)
+		edit_file
 		;;
 	add_cron_form)
 		add_cron_form
