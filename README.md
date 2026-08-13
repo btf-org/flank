@@ -33,11 +33,9 @@ curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/heads/main/build
 wget https://github.com/btf-org/flank/releases/download/v0.1.100/flank_0.1.100_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.100_amd64.deb
 ```
 
-### 4. Open Flank
+### 4. Open Flank in a browser
 
-Open this in your Windows browser:
-
-http://localhost:8083
+Open this in your Windows browser: http://localhost:8083
 
 ### 5. Create a report
 
