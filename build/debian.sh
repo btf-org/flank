@@ -9,7 +9,7 @@ mkdir -p releases/flank_"$version"_amd64/lib/systemd/system
 mkdir -p releases/flank_"$version"_amd64/etc/default
 
 cp build/DEBIAN/control build/DEBIAN/postinst build/DEBIAN/conffiles releases/flank_"$version"_amd64/DEBIAN/
-cp build/DEBIAN/flankserver.service releases/flank_"$version"_amd64/lib/systemd/system
+cp build/DEBIAN/flank.service releases/flank_"$version"_amd64/lib/systemd/system
 cp build/DEBIAN/flank releases/flank_"$version"_amd64/etc/default/flank
 
 sed -i '' 's/Version: .*$/Version: '$version'/' releases/flank_"$version"_amd64/DEBIAN/control
