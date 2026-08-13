@@ -132,8 +132,6 @@ Open this in your Windows browser: http://localhost:8083
 
 Click on `Import SPROC` or `Import query`, add your DB credentials, and follow the instructions.
 
-**If SQL Server is running on your Windows host** (as opposed to a remote/cloud machine) your normal login may not work from WSL. See the WSL troubleshooting section below.
-
 ----
 
 </details>
