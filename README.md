@@ -98,7 +98,7 @@ wget https://github.com/btf-org/flank/releases/download/v0.1.100/flank_0.1.100_a
 
 Flank runs on port 8083 by default.
 
-**Note if running on a VM:**
+**Note if running on a local VM:**
   - If your VM forwards localhost ports to Windows, open http://localhost:8083 in Windows
   - If not, run the following in your VM to get your VM's IP
     ```bash
