@@ -21,11 +21,23 @@ wsl --install
 
 Restart Windows if prompted, and **open Ubuntu** to finish the setup.
 
-<details>
-  <summary><h3>2. If your DB is running locally, expose to WSL</h3></summary>
+### 2. If your SQL Server is running locally, expose to WSL
 
-  
-</details>
+(If it's running on a remote server, skip this section)
+
+For WSL to connect to your local SQL Server:
+- SQL Server must have TCP enabled
+- SQL Server must have "SQL Server Authentication" enabled
+- Windows Firewall must allow whatever port SQL Server is using
+- You need to know the IP address of the Windows host from the perspective of WSL
+
+#### SQL Server must have TCP enabled
+
+#### SQL Server must have "SQL Server Authentication" enabled
+
+#### Windows Firewall must allow whatever port SQL Server is using
+
+#### You need to know the IP address of the Windows host from the perspective of WSL
 
 ----
 
