@@ -48,7 +48,7 @@ curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/heads/main/build
 ### 2. Install / Run Flank
 
 ```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.98/flank_0.1.98_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.98_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.99/flank_0.1.99_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.99_amd64.deb
 ```
 
 ### 3. Open Flank in a browser
