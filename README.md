@@ -21,7 +21,7 @@ Restart Windows if prompted, and **open Ubuntu** to finish the setup.
 
 ### 2. Install prerequisites (`sqlcmd`)
 
-From **Ubuntu**
+From Ubuntu...
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/heads/main/build/install-scripts/sqlcmd.sh | sudo bash
