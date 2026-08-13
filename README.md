@@ -11,15 +11,13 @@
 
 ### 1. Install WSL / Ubuntu from Powershell
 
-1. Open PowerShell as Administrator (right click on **Powershell** > Run as administrator)
-2. Run the following command
+Run PowerShell as Administrator (right click on **Powershell** > Run as administrator)Run the following command
 
 ```powershell
 wsl --install
 ```
 
-3. Restart Windows if prompted
-4. **Open Ubuntu** and finish the setup.
+Restart Windows if prompted, and **open Ubuntu** to finish the setup.
 
 ### 2. Install prerequisites (`sqlcmd`)
 
