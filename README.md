@@ -9,8 +9,6 @@
 
 ----
 
-## In Windows
-
 ### 1. Install WSL / Ubuntu from Powershell
 
 Run PowerShell as Administrator (right click on **Powershell** > Run as administrator), run the following command, and restart Windows if prompted.
@@ -19,11 +17,7 @@ Run PowerShell as Administrator (right click on **Powershell** > Run as administ
 wsl --install
 ```
 
-----
-
-## In Ubuntu
-
-### 1. Install prerequisites (`sqlcmd`)
+### 2. Install prerequisites (`sqlcmd`)
 
 From Ubuntu...
 
@@ -31,55 +25,31 @@ From Ubuntu...
 curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/heads/main/build/install-scripts/sqlcmd.sh | sudo bash
 ```
 
-### 2. If SQL Server is running locally on Windows, configure it for WSL
+### 3. If SQL Server is running locally on Windows, configure it for WSL
 
-> If SQL Server is running on another server, skip to the step 3 below
+> If SQL Server is running on another server, skip to the step 4 below
 
-WSL runs in a separate network environment from Windows. To connect to SQL Server running locally on Windows:
+WSL runs in a separate network environment from Windows. We need to enable TCP and a couple other settings on SQL Server and then make sure it's reachable from WSL.
 
-- Find your Windows host IP address
-- Enable TCP/IP for SQL Server
-- Enable SQL Server Authentication
-- Allow the SQL Server port through Windows Firewall
-- Test the connection from WSL
-
-#### 2a. Find your Windows host IP address
-
-From WSL/Ubuntu, run:
-
-```bash
-ip route | awk '/default/ {print $3}'
-```
-
-This should return an IP address like:
-
-```text
-192.168.160.1
-```
-
-You'll use this address as the SQL Server host when you plug in your credentials to Flank.
-
-#### 2b. Enable TCP/IP for SQL Server
+#### 3a. Enable TCP/IP
 
 1. Open **SQL Server Configuration Manager** in Windows.
 2. Go to: **SQL Server Network Configuration → Protocols for `<your instance>`**
 3. Enable **TCP/IP**.
 4. Then open **TCP/IP → Properties → IP Addresses** and make sure SQL Server is configured to listen on a TCP port (typically `1433`).
-5. Restart the SQL Server service after making changes (Click "SQL Server Services" on the left, right-click your server, click "Restart")
 
-#### 2c. Enable SQL Server Authentication
+#### 3b. Enable SQL Server Authentication
 
 1. Open **SQL Server Management Studio (SSMS)**.
 2. Right-click your server and go to: **Properties → Security**
 3. Select: **SQL Server and Windows Authentication mode**
 3. Click **OK**
-4. Restart the SQL Server service after making changes (Click "SQL Server Services" on the left, right-click your server, click "Restart")
 
 You'll also need a SQL Server login that has access to the database you want to use with Flank.
 
-#### 2d. Create a SQL Server login
+#### 3c. Create a SQL Server login
 
-> If your server already has a login, skip this part
+> If your server already had "SQL Server Authentication" enabled with an accompanying login, skip this part
 
 Run this from SSMS in Windows
 
@@ -100,7 +70,14 @@ GRANT EXECUTE TO flankuser;
 GO
 ```
 
-#### 2e. Allow SQL Server through Windows Firewall
+#### 3d. Restart SQL Server
+
+1. Open **SQL Server Management Studio (SSMS)**.
+2. Click "SQL Server Services" on the left
+3. Right-click your server, click "Restart"
+
+
+#### 3e. Allow SQL Server through Windows Firewall
 
 Open PowerShell as Administrator and run:
 
@@ -110,7 +87,23 @@ New-NetFirewallRule -DisplayName "SQL Server for WSL" -Direction Inbound -Protoc
 
 If SQL Server is using a port other than `1433`, replace `1433` with that port.
 
-#### 2f. Test the connection from WSL
+#### 3f. Find your Windows host IP
+
+From WSL/Ubuntu, run:
+
+```bash
+ip route | awk '/default/ {print $3}'
+```
+
+This should return an IP address like:
+
+```text
+192.168.160.1
+```
+
+You'll use this address as the SQL Server host when you plug in your credentials to Flank.
+
+#### 3g. Test the connection from WSL
 
 From WSL, run:
 
@@ -122,17 +115,17 @@ Replace `<windows-ip>` with the IP address you found in step **2a**. If you alre
 
 If you get a result back, WSL can connect to your local SQL Server.
 
-### 3. Install / Run Flank
+### 4. Install / Run Flank
 
 ```bash
 wget https://github.com/btf-org/flank/releases/download/v0.1.100/flank_0.1.100_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.100_amd64.deb
 ```
 
-### 4. Open Flank in a browser
+### 5. Open Flank in a browser
 
 Open this in your Windows browser: http://localhost:8083
 
-### 5. Create a report
+### 6. Create a report
 
 Click on `Import SPROC` or `Import query`, add your DB credentials, and follow the instructions.
 
