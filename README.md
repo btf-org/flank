@@ -11,13 +11,15 @@
 
 ### 1. Install WSL / Ubuntu from Powershell
 
-Open **PowerShell** as Administrator (right click on Powershell > Run as administrator)
+1. Open PowerShell as Administrator (right click on **Powershell** > Run as administrator)
+2. Run the following command
 
 ```powershell
 wsl --install
 ```
 
-Restart Windows if prompted, then **open Ubuntu** and finish the setup.
+3. Restart Windows if prompted
+4. **Open Ubuntu** and finish the setup.
 
 ### 2. Install prerequisites (`sqlcmd`)
 
@@ -43,7 +45,7 @@ http://localhost:8083
 
 Click on `Import SPROC` or `Import query`, add your DB credentials, and follow the instructions.
 
-**If SQL Server is running on Windows:** `localhost` and your Windows computer name may not work from WSL. See the WSL troubleshooting section below.
+**If SQL Server is running on your Windows host** (as opposed to a remote/cloud machine) your normal login may not work from WSL. See the WSL troubleshooting section below.
 
 ----
 
