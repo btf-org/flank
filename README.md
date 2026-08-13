@@ -9,6 +9,8 @@
 
 ----
 
+## In Windows
+
 ### 1. Install WSL / Ubuntu from Powershell
 
 Run PowerShell as Administrator (right click on **Powershell** > Run as administrator)Run the following command
@@ -19,7 +21,17 @@ wsl --install
 
 Restart Windows if prompted, and **open Ubuntu** to finish the setup.
 
-### 2. Install prerequisites (`sqlcmd`)
+<details>
+  <summary><h3>2. If your DB is running locally, expose to WSL</h3></summary>
+
+  
+</details>
+
+----
+
+## In Ubuntu
+
+### 1. Install prerequisites (`sqlcmd`)
 
 From Ubuntu...
 
@@ -27,17 +39,17 @@ From Ubuntu...
 curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/heads/main/build/install-scripts/sqlcmd.sh | sudo bash
 ```
 
-### 3. Install / Run Flank
+### 2. Install / Run Flank
 
 ```bash
 wget https://github.com/btf-org/flank/releases/download/v0.1.100/flank_0.1.100_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.100_amd64.deb
 ```
 
-### 4. Open Flank in a browser
+### 3. Open Flank in a browser
 
 Open this in your Windows browser: http://localhost:8083
 
-### 5. Create a report
+### 4. Create a report
 
 Click on `Import SPROC` or `Import query`, add your DB credentials, and follow the instructions.
 
