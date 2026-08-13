@@ -9,19 +9,19 @@
 
 ----
 
-### 1. Install WSL / Ubuntu
+### 1. Install WSL / Ubuntu from Powershell
 
-Open PowerShell as Administrator:
+Open **PowerShell** as Administrator (right click on Powershell > Run as administrator)
 
 ```powershell
 wsl --install
 ```
 
-Restart Windows if prompted, then open Ubuntu and finish the initial setup.
+Restart Windows if prompted, then **open Ubuntu** and finish the setup.
 
 ### 2. Install prerequisites (`sqlcmd`)
 
-From Ubuntu:
+From **Ubuntu**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/heads/main/build/install-scripts/sqlcmd.sh | sudo bash
