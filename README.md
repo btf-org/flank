@@ -18,16 +18,16 @@ brew install sqlcmd
 ### 2. Install / Run Flank
 
 ```bash
-brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank && sleep 1 && open http://localhost:8083
+brew tap btf-org/flank && brew install btf-org/flank/flank && brew services start flank && sleep 2 && open http://localhost:8083
 ```
 
 ### 3. Open Flank in a browser
 
 The above command should automatically open http://localhost:8083, but if it didn't, do that now.
 
-### 4. Create a report from a SPROC
+### 4. Create a report
 
-Click on `Import SPROC`, add your DB credentials, then choose a SPROC. (This assumes you've already got a database set up with a SPROC you'd like to share)
+Click on `Import SPROC` or `Import query`, add your DB credentials, and follow the instructions.
 
 ----
 
@@ -48,7 +48,7 @@ curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/heads/main/build
 ### 2. Install / Run Flank
 
 ```bash
-wget https://github.com/btf-org/flank/releases/download/v0.1.94/flank_0.1.94_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.94_amd64.deb
+wget https://github.com/btf-org/flank/releases/download/v0.1.98/flank_0.1.98_amd64.deb && sudo FLANK_USER=$(whoami) apt install ./flank_0.1.98_amd64.deb
 ```
 
 ### 3. Open Flank in a browser
@@ -63,9 +63,9 @@ Flank runs on port 8083 by default.
     ```
     Then open `http://<vm-ip>:8083`
 
-### 4. Create a report from a SPROC
+### 4. Create a report
 
-Click on `Import SPROC`, add your DB credentials, then choose a SPROC. (This assumes you've already got a database set up with a SPROC you'd like to share)
+Click on `Import SPROC` or `Import query`, add your DB credentials, and follow the instructions.
 
 ----
 
@@ -82,6 +82,10 @@ Click on `Import SPROC`, add your DB credentials, then choose a SPROC. (This ass
 ### Installation failed
 
 If either installation command fails, send me the full terminal output, including the command you ran.
+
+### Web page is blank (but not spinning)
+
+Try refreshing the page. If that doesn't work, try the steps below.
 
 ### Web address spins and nothing happens
 
@@ -182,6 +186,10 @@ Thanks!
 ### Installation failed
 
 I've tested this Ubuntu 24.04. If the installation command fails, send me the full terminal output, including the command you ran.
+
+### Web page is blank (but not spinning)
+
+Try refreshing the page. If that doesn't work, try the steps below.
 
 ### Web address spins and nothing happens
 
