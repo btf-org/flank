@@ -9,9 +9,9 @@
 
 ----
 
-### 1. Install WSL / Ubuntu from Powershell
+### 1. Install WSL / Ubuntu from PowerShell
 
-Run PowerShell as Administrator (right click on **Powershell** > Run as administrator), run the following command, and restart Windows if prompted.
+Run PowerShell as Administrator (right-click on **PowerShell** > Run as administrator), run the following command, and restart Windows if prompted.
 
 ```powershell
 wsl --install
@@ -19,7 +19,7 @@ wsl --install
 
 ### 2. Install prerequisites (`sqlcmd`)
 
-From Ubuntu...
+In Ubuntu, run:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/heads/main/build/install-scripts/sqlcmd.sh | sudo bash
@@ -27,7 +27,7 @@ curl -fsSL https://raw.githubusercontent.com/btf-org/flank/refs/heads/main/build
 
 ### 3. If SQL Server is running locally on Windows, configure it for WSL
 
-> If SQL Server is running on another server, skip to the step 4 below
+> If SQL Server is running on another server, skip to step 4
 
 WSL runs in a separate network environment from Windows. We need to enable TCP and a couple other settings on SQL Server and then make sure it's reachable from WSL.
 
@@ -47,11 +47,19 @@ WSL runs in a separate network environment from Windows. We need to enable TCP a
 
 You'll also need a SQL Server login that has access to the database you want to use with Flank.
 
-#### 3c. Create a SQL Server login
+#### 3c. Restart SQL Server
+
+1. Open **SQL Server Configuration Manager**
+2. Click "SQL Server Services" on the left
+3. Right-click your server, click "Restart"
+   
+#### 3d. Create a SQL Server login
 
 > If your server already had "SQL Server Authentication" enabled with an accompanying login, skip this part
 
 We'll create a SQL login named `flankuser` that Flank can use to connect to your database. Run the following in SSMS:
+
+Replace `<your-database>` with the database you want to use with Flank.
 
 ```sql
 USE master;
@@ -69,15 +77,6 @@ GRANT SELECT TO flankuser;
 GRANT EXECUTE TO flankuser;
 GO
 ```
-
-Replace <your-database> with the database you want to use with Flank.
-
-#### 3d. Restart SQL Server
-
-1. Open **SQL Server Configuration Manager**
-2. Click "SQL Server Services" on the left
-3. Right-click your server, click "Restart"
-
 
 #### 3e. Allow SQL Server through Windows Firewall
 
