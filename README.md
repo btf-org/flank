@@ -192,6 +192,116 @@ Click on `Import SPROC` or `Import query`, add your DB credentials, and follow t
 ## Troubleshooting
 
 <details>
+  
+<summary>Windows (WSL2)</summary>
+
+----
+
+### Installation failed
+
+I've tested this Ubuntu 24.04. If the installation command fails, send me the full terminal output, including the command you ran.
+
+### Web page is blank (but not spinning)
+
+Try refreshing the page. If that doesn't work, try the steps below.
+
+### Web address spins and nothing happens
+
+First, check whether Flank is responding inside the Ubuntu VM:
+
+```bash
+curl http://localhost:8083
+```
+
+If that doesn't work, check whether Flank is running:
+
+```bash
+systemctl status flank
+```
+
+If Flank is running but isn't responding, restart it:
+
+```bash
+sudo systemctl restart flank
+```
+
+If `curl http://localhost:8083` **does work** and you're running Flank in a VM, Flank is running and the problem is likely the connection between Windows and your VM.
+
+Get the VM's IP address:
+
+```bash
+hostname -I
+```
+
+Then try opening `http://<vm-ip>:8083` in Windows.
+
+
+### Flank hangs when importing SPROCs
+
+First, make sure sqlcmd is installed:
+
+```bash
+sqlcmd --version
+```
+
+Then check that sqlcmd can connect to your database:
+
+```bash
+sqlcmd -S <server> -d <database> -U <username> -P '<password>' -Q "SELECT 1"
+```
+
+If that works, check the Flank logs:
+
+```bash
+journalctl -u flank -n 100 --no-pager
+```
+
+Send me the output along with what you were trying to import.
+
+### Flank hangs when running a SPROC
+
+First, make sure sqlcmd can connect to your database:
+
+```bash
+sqlcmd -S <server> -d <database> -U <username> -P '<password>' -Q "SELECT 1"
+```
+
+If that works, try running the SPROC directly with sqlcmd:
+
+```bash
+sqlcmd -S <server> -d <database> -U <username> -P '<password>' -Q "EXEC <sproc>"
+```
+
+If the SPROC works with sqlcmd but hangs in Flank, check the Flank logs:
+
+```bash
+journalctl -u flank -n 100 --no-pager
+```
+
+Send me the output along with the SPROC you were trying to run and the parameters you entered.
+
+### Something else
+
+This is an early build, so don't spend too long trying to debug unexpected behavior.
+
+Send me:
+
+* What you were trying to do
+* What happened
+* Any error message or screenshot
+* The output of:
+
+```bash
+journalctl -u flank -n 100 --no-pager
+```
+
+Thanks!
+
+----
+
+</details>
+
+<details>
 
 <summary>Mac</summary>
 
