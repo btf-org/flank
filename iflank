@@ -909,7 +909,7 @@ crontab -l | LINE="${existing_cj}" awk '\''BEGIN{line=ENVIRON["LINE"]} $0 == lin
 fcd "./${cmd_name}"
 '
 cmd_wizard__mssql_sproc='
-# ${db_creds} @select @values `find '$FLANK_ROOT'/.creds -type d -exec basename {} \;`
+# ${db_creds} @select @values `find '$FLANK_ROOT'/.creds -type d ! -path '$FLANK_ROOT'/.creds -exec basename {} \;`
 '
 create_cmd_from_cron_job_confirm_sh_fn() {
 	# create_cmd_from_cron_job_confirm_sh_fn <cron> <cmd> <existing cron>
@@ -1980,11 +1980,11 @@ while true; do
 		show_multistep_form 'cmd_wizard__cron_job_sh'
 		;;
 	cmd_wizard__mssql_sproc)
-		num_creds=$(find "$FLANK_ROOT/.creds" -type d | wc -l)
+		num_creds=$(find "$FLANK_ROOT/.creds" -type d ! -path "$FLANK_ROOT/.creds" | wc -l)
 		if [ "$num_creds" -eq 0 ]; then
 			show_form "$create_mssql_creds" "create_mssql_creds_and_fetch" "Save"
 		elif [ "$num_creds" -eq 1 ]; then
-			fetch_mssql_sprocs "db_creds=$(find $FLANK_ROOT/.creds -type d -exec basename {} \;)"
+			fetch_mssql_sprocs "db_creds=$(find "$FLANK_ROOT/.creds" -type d ! -path "$FLANK_ROOT/.creds" -exec basename {} \;)"
 		else
 			show_form "$cmd_wizard__mssql_sproc" "fetch_mssql_sprocs" "Next"
 		fi
@@ -1996,11 +1996,11 @@ while true; do
 		mssql_sproc_to_cmd "$args"
 		;;
 	cmd_wizard__mssql_query)
-		num_creds=$(find "$FLANK_ROOT/.creds" -type d | wc -l)
+		num_creds=$(find "$FLANK_ROOT/.creds" -type d ! -path "$FLANK_ROOT/.creds" | wc -l)
 		if [ "$num_creds" -eq 0 ]; then
 			show_form "$create_mssql_creds" "create_mssql_creds_and_input_query" "Save"
 		elif [ "$num_creds" -eq 1 ]; then
-			_db_creds=$(find $FLANK_ROOT/.creds -type d -exec basename {} \;)
+			_db_creds=$(find "$FLANK_ROOT/.creds" -type d ! -path "$FLANK_ROOT/.creds" -exec basename {} \;)
 			show_form "$(gen_input_raw_mssql_query "${_db_creds}")" "input_raw_mssql_query" "Save" "db_creds=${_db_creds}"
 			# input_raw_mssql_query_form "db_creds=$(find $FLANK_ROOT/.creds -type d -exec basename {} \;)"
 		else
@@ -2024,12 +2024,12 @@ while true; do
 		;;
 	create_mssql_creds_and_fetch)
 		eval_form "$args" "$create_mssql_creds"
-		fetch_mssql_sprocs "db_creds=$(find $FLANK_ROOT/.creds -type d -exec basename {} \;)"
+		fetch_mssql_sprocs "db_creds=$(find "$FLANK_ROOT/.creds" -type d ! -path "$FLANK_ROOT/.creds" -exec basename {} \;)"
 		;;
 	create_mssql_creds_and_input_query)
 		eval_form "$args" "$create_mssql_creds"
 		# should only be one at this point...
-		_db_creds=$(find $FLANK_ROOT/.creds -type d -exec basename {} \;)
+		_db_creds=$(find "$FLANK_ROOT/.creds" -type d ! -path "$FLANK_ROOT/.creds" -exec basename {} \;)
 		show_form "$(gen_input_raw_mssql_query "${_db_creds}")" "input_raw_mssql_query" "Save" "db_creds=${_db_creds}"
 		;;
 	eval_multistep_form)
