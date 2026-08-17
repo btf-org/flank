@@ -1,6 +1,13 @@
 # Flank
 
-> A modern, open-source SSRS
+> Turn T-SQL into SSRS-like reports
+
+| Flank                                   | SSRS                          | Power BI                              |
+| --------------------------------------- | ----------------------------- | ------------------------------------- |
+| Operational/self-service requests       | Recurring reporting           | Business intelligence                 |
+| Developer-owned tools                   | IT-owned reports              | Analyst-owned analytics               |
+| Turn a manual request into self-service | Build a reporting application | Build a dashboard                     |
+| Minutes of effort                       | Hours+ of report development  | Hours+ of modeling/report development |
 
 ## Getting Started
 
