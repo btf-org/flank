@@ -12,6 +12,17 @@
 ## Getting Started
 
 <details>
+<summary>Windows (EXE)</summary>
+
+----
+
+Right now, Windows is supported through WSL2 (see below). If you're interested in an EXE, please [let me know here](https://docs.google.com/forms/d/e/1FAIpQLSd_Il0SMnKwX06OPkX9JqRdPNRDOn0Jt11ChfPj4voWxiEn-Q/viewform?usp=publish-editor).
+
+----
+
+</details>
+
+<details>
 <summary>Windows (WSL2)</summary>
 
 ----
