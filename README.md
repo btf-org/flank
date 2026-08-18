@@ -1,11 +1,15 @@
 # Flank
 
-> Turn T-SQL into SSRS-like reports
+> Turn T-SQL into SSRS-like reports.
 
-| Flank              | SSRS                     | Power BI                |
-| ------------------ | ------------------------ | ----------------------- |
-| Speed matters  | Presentation matters | Exploration matters |
-| Expose the SQL | Design the report    | Model the data    |
+## For the little things
+
+Flank is useful in situations where your business user would rather have the data today than a designed report tomorrow.
+
+|                                 | Flank          | SSRS              | Power BI       |
+| ------------------------------- | -------------- | ----------------- | -------------- |
+| **What matters?**               | Speed          | Presentation      | Exploration    |
+| **What does the developer do?** | Just write SQL | Design the report | Model the data |
 
 
 ## Getting Started
