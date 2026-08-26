@@ -4,7 +4,7 @@
 
 ## For the little things
 
-Flank is useful in situations where your business user would rather have the data today than a designed report tomorrow.
+Flank is useful in situations where your business user would rather have the data today than a designed report tomorrow. It's a simple tool where they can put in the parameters and get the data they need.
 
 |                                 | Flank          | SSRS              | Power BI       |
 | ------------------------------- | -------------- | ----------------- | -------------- |
