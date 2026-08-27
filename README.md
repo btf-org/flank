@@ -1,6 +1,6 @@
 # Flank
 
-> Turn T-SQL into SSRS-like reports.
+> A modern, open-source SSRS
 
 ## For the little things
 
