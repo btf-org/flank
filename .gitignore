@@ -4,6 +4,8 @@ fsl
 /node_modules
 /releases
 /venv
+__pycache__/
+*.pyc
 f
 s
 patch.sh
