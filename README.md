@@ -6,6 +6,8 @@ Flank is a a modern, open-source SSRS designed for rapid iteration in an AI-worl
 - 🤖 **AI-ready** — No bolted-on chatbot. Just use your favorite AI.
 - 📦 **Cross-platform** — No Windows Server required. Just install and run.
 
+[Install .exe](https://github.com/btf-org/flank/raw/refs/heads/windows/Output/FlankSetup.exe)
+
 ## Getting Started
 
 <details>
