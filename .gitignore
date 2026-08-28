@@ -1,4 +1,4 @@
-fsl
+/flank_server
 .env
 .DS_Store
 /node_modules
