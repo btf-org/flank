@@ -24,6 +24,8 @@
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 #include <sys/types.h>
 #include <sys/event.h>
+#elif defined(_WIN32)
+// Windows event-loop headers will go here
 #else
 #error "Unsupported platform"
 #endif
@@ -152,12 +154,21 @@ int main(int argc, char *argv[])
 			"/usr/local/bin/iflank",
 			NULL
 		};
+#elif defined(_WIN32)
+    		const char *candidates[] = {
+        		"iflank.exe",
+        		NULL
+    		};
 #else
 #error "Unsupported platform"
 #endif
 
 		for (int i = 0; candidates[i]; i++) {
+#ifdef _WIN32
+			if (_access(candidates[i], 0) == 0) {
+#else
 			if (access(candidates[i], X_OK) == 0) {
+#endif
 				iflank_path = candidates[i];
 			}
 		}
