@@ -3,6 +3,7 @@ fsl
 .DS_Store
 /node_modules
 /releases
+/venv
 f
 s
 patch.sh
