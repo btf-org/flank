@@ -117,8 +117,11 @@ int main(int argc, char *argv[])
 	signal(SIGTERM, sigint_handler);
 
 	struct session sessions[64] = { 0 };
-	if (strstr(argv[0], "fsl") != NULL) {
-		PORT = 8084;
+	for (int i = 1; i + 1 < argc; i++) {
+		if (strcmp(argv[i], "--port") == 0) {
+			PORT = atoi(argv[i + 1]);
+			break;
+		}
 	}
 	const char *iflank_path = NULL;
 	int explicit_iflank_path = 0;
