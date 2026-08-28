@@ -1,13 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
 #include <arpa/inet.h>
+#endif
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <signal.h>
 #include <errno.h>
-#include <unistd.h>
 #include <stdarg.h>
 #include <time.h>
 
