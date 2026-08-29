@@ -297,7 +297,24 @@ int main(int argc, char *argv[])
 	}
 
     while (1) {
-        // TODO: IOCP event loop
+		DWORD transferred;
+		ULONG_PTR completion_key;
+		OVERLAPPED *completed_overlapped;
+
+		BOOL ok = GetQueuedCompletionStatus(
+			iocp,
+			&transferred,
+			&completion_key,
+			&completed_overlapped,
+			INFINITE
+		);
+
+		if (!ok) {
+			fprintf(stderr, "IOCP operation failed: %lu\n", GetLastError());
+			continue;
+		}
+
+		printf("IOCP completion received\n");
     }
 
 #else
