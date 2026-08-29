@@ -242,6 +242,15 @@ int main(int argc, char *argv[])
 #error "Unsupported platform"
 #endif
 
+#ifdef _WIN32
+
+    // Windows IOCP setup
+
+    while (1) {
+        // Windows IOCP loop
+    }
+
+#else
 	while (1) {
 #ifdef __linux__
 		struct epoll_event events[64];
@@ -596,7 +605,7 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
-
+#endif
 	close(server_fd);
 	return 0;
 }
