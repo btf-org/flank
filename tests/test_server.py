@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import subprocess
 import urllib.request
@@ -7,7 +8,8 @@ import time
 
 
 def test_serves_index(tmp_path):
-    flank_server = Path("./flank_server").resolve()
+    executable = "flank_server.exe" if os.name == "nt" else "flank_server"
+    flank_server = Path(executable).resolve()
 
     index = tmp_path / "index.html"
     index.write_text("hello test")
