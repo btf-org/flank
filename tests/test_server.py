@@ -24,14 +24,14 @@ def test_serves_index(tmp_path):
     )
 
     try:
-        response = urllib.request.urlopen("http://localhost:8084/")
+        response = urllib.request.urlopen("http://localhost:8084/", timeout=2)
 
         assert response.status == 200
         assert response.read() == b"hello test"
 
     finally:
         server.terminate()
-        server.wait()
+        server.wait(timeout=2)
 
 
 
