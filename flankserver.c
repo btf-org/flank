@@ -243,6 +243,17 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+	if (CreateIoCompletionPort(
+			(HANDLE)server_fd,
+			iocp,
+			0,
+			0
+		) == NULL) {
+		fprintf(stderr, "Failed to associate server socket with IOCP: %lu\n",
+				GetLastError());
+		exit(1);
+	}
+
 	GUID guidAcceptEx = WSAID_ACCEPTEX;
 	LPFN_ACCEPTEX AcceptEx = NULL;
 	DWORD bytes;
@@ -259,6 +270,29 @@ int main(int argc, char *argv[])
 			NULL
 		) == SOCKET_ERROR) {
 		fprintf(stderr, "Failed to get AcceptEx: %d\n", WSAGetLastError());
+		exit(1);
+	}
+
+	SOCKET accept_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+	if (accept_socket == INVALID_SOCKET) {
+		fprintf(stderr, "socket failed: %d\n", WSAGetLastError());
+		exit(1);
+	}
+	OVERLAPPED accept_overlapped = { 0 };
+	char accept_buffer[(sizeof(struct sockaddr_in) + 16) * 2];
+	BOOL result = AcceptEx(
+		server_fd,
+		accept_socket,
+		accept_buffer,
+		0,
+		sizeof(struct sockaddr_in) + 16,
+		sizeof(struct sockaddr_in) + 16,
+		&bytes,
+		&accept_overlapped
+	);
+	if (!result && WSAGetLastError() != ERROR_IO_PENDING) {
+		fprintf(stderr, "AcceptEx failed: %d\n", WSAGetLastError());
 		exit(1);
 	}
 
