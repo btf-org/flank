@@ -27,7 +27,7 @@
 #include <sys/types.h>
 #include <sys/event.h>
 #elif defined(_WIN32)
-// Windows event-loop headers defined above
+#include <mswsock.h>
 #else
 #error "Unsupported platform"
 #endif
@@ -242,6 +242,25 @@ int main(int argc, char *argv[])
                 GetLastError());
         exit(1);
     }
+
+	GUID guidAcceptEx = WSAID_ACCEPTEX;
+	LPFN_ACCEPTEX AcceptEx = NULL;
+	DWORD bytes;
+
+	if (WSAIoctl(
+			server_fd,
+			SIO_GET_EXTENSION_FUNCTION_POINTER,
+			&guidAcceptEx,
+			sizeof(guidAcceptEx),
+			&AcceptEx,
+			sizeof(AcceptEx),
+			&bytes,
+			NULL,
+			NULL
+		) == SOCKET_ERROR) {
+		fprintf(stderr, "Failed to get AcceptEx: %d\n", WSAGetLastError());
+		exit(1);
+	}
 
     while (1) {
         // TODO: IOCP event loop
