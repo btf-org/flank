@@ -186,6 +186,14 @@ int main(int argc, char *argv[])
 	int http_bytes_read;
 
 	// Create socket
+#ifdef _WIN32
+	// Unix networking is just available. Windows requires initialization before socket()
+	WSADATA wsa;
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+		fprintf(stderr, "WSAStartup failed\n");
+		exit(1);
+	}
+#endif
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);	// AF_NET = Address Family IPv4 / SOCK_STREAM = Socket Type TCP / 0 = Protocol = Let OS decide
 	if (server_fd < 0) {
 		perror("socket");
@@ -193,7 +201,12 @@ int main(int argc, char *argv[])
 	}
 	// Prevents port from being tied up after exit
 	int opt = 1;
+#ifdef _WIN32
+	setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR,
+		   (const char *)&opt, sizeof(opt));
+#else
 	setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+#endif
 
 	// Bind
 	// This is kernel bookkeeping
