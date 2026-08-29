@@ -7,8 +7,10 @@
 #include <unistd.h>
 #endif
 #ifdef _WIN32
+// Keep winsock2.h before windows.h to avoid header conflicts.
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <windows.h>
 #else
 #include <arpa/inet.h>
 #endif
@@ -25,7 +27,7 @@
 #include <sys/types.h>
 #include <sys/event.h>
 #elif defined(_WIN32)
-// Windows event-loop headers will go here
+// Windows event-loop headers defined above
 #else
 #error "Unsupported platform"
 #endif
@@ -212,6 +214,28 @@ int main(int argc, char *argv[])
 	}
 	tsprintf("Server listening on port %d...\n", PORT);
 
+
+#ifdef _WIN32
+	// Windows
+	HANDLE iocp = CreateIoCompletionPort(
+        INVALID_HANDLE_VALUE,
+        NULL,
+        0,
+        0
+    );
+
+    if (iocp == NULL) {
+        fprintf(stderr, "CreateIoCompletionPort failed: %lu\n",
+                GetLastError());
+        exit(1);
+    }
+
+    while (1) {
+        // TODO: IOCP event loop
+    }
+
+#else
+	// Linux / Mac
 	// Create Queue
 #ifdef __linux__
 	int ep = epoll_create1(0);
@@ -241,16 +265,6 @@ int main(int argc, char *argv[])
 #else
 #error "Unsupported platform"
 #endif
-
-#ifdef _WIN32
-
-    // Windows IOCP setup
-
-    while (1) {
-        // Windows IOCP loop
-    }
-
-#else
 	while (1) {
 #ifdef __linux__
 		struct epoll_event events[64];
