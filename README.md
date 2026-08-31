@@ -1,6 +1,6 @@
 # Flank
 
-Flank is a modern, open-source SSRS. It's designed for rapid iteration in an AI-world.
+Flank is a modern, open-source SSRS.
 
 - 🔥 **Blazing-fast authoring loop** — No drag-and-drop. Just write SQL.
 - 🤖 **AI-ready** — No bolted-on chatbot. Just use your favorite AI.
