@@ -3,7 +3,7 @@
 Flank is a modern, open-source SSRS.
 
 - 🔥 **Blazing-fast authoring loop** — No drag-and-drop. Just write SQL once.
-- 🤖 **AI-ready** — No flipping back and forth to chatGPT. Just use Flank + Claude Code / Copilot.
+- 🤖 **AI-extensible** — No ceiling on what you can build. Just use an LLM to edit a report, or Flank itself.
 - 📦 **Cross-platform** — No Windows Server required. Just install and run.
 
 ## Getting Started
