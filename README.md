@@ -2,8 +2,8 @@
 
 Flank is a lightweight SSRS for quick reports.
 
-- 🔥 **Blazing-fast authoring loop** — No drag-and-drop. Just write SQL once.
-- 🤖 **AI-friendly** — No new language to learn. Just use Claude Code / Copilot.
+- 🔥 **Blazing-fast authoring** — No drag-and-drop. Just write SQL once.
+- 📤 **Easy sharing** — No exporting and emailing CSVs. Just share a webpage.
 - 📦 **Dead-simple deployment** — No Windows Server required. Just install and run.
 
 ## A faster way to get people their data
