@@ -21,10 +21,20 @@ Flank is a modern, open-source SSRS.
 
 ## See it in action
 
-<img width="2514" height="867" alt="README Cartoon Day3x" src="https://github.com/user-attachments/assets/7eec8b61-b390-45e3-abe1-d6c369d92215" />
-
-<img width="2514" height="867" alt="README Cartoon Night3x" src="https://github.com/user-attachments/assets/7398e1fa-80a9-49f4-81ba-eaec9e964f15" />
-
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="https://github.com/user-attachments/assets/efde76e9-590f-4326-a6df-88e51b30425d"
+  >
+  <source
+    media="(prefers-color-scheme: light)"
+    srcset="https://github.com/user-attachments/assets/7eec8b61-b390-45e3-abe1-d6c369d92215"
+  >
+  <img
+    alt="Flank: two clicks from SQL to a shareable report"
+    src="https://github.com/user-attachments/assets/7eec8b61-b390-45e3-abe1-d6c369d92215"
+  >
+</picture>
 
 ## Getting Started
 
