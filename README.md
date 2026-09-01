@@ -21,7 +21,7 @@ Flank is a modern, open-source SSRS.
 
 ## See it in action
 
-<img width="2514" height="867" alt="README Cartoon Day3x" src="https://github.com/user-attachments/assets/0bfced43-deea-46fc-b2a9-86a7d17b3af6" />
+<img width="2514" height="867" alt="README Cartoon Day3x" src="https://github.com/user-attachments/assets/7eec8b61-b390-45e3-abe1-d6c369d92215" />
 
 
 ## Getting Started
