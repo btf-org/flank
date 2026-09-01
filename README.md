@@ -9,15 +9,15 @@ Flank is a lightweight SSRS for quick reports.
 ## A faster way to get people their data
 
 ### Today
-> **Data request** → Write SQL → Run in SSMS → Export CSV → Email
+> **"Can you get me that data?"** → Write SQL → Run in SSMS → Export CSV → Email
 
-> **Same request** → Run again → Export CSV → Email
+> (2 weeks later) **"Can you get me the latest numbers?"** → Run again → Export CSV → Email
 
-> **"Can we make this a report?"** → Open Visual Studio → Build Report → Deploy → Share
+> (2 weeks later) **"Can we make this a report?"** → Open Visual Studio → Build Report → Deploy → Share
 
 
 ### Flank
-> **Data request** → Write SQL → 2 clicks → Share
+> **"Can you get me that data?"** → Write SQL → 2 clicks → Share
 
 ## See it in action
 
