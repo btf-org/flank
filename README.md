@@ -3,7 +3,7 @@
 Flank is a lightweight SSRS for quick reports.
 
 - 🔥 **Blazing-fast authoring** — No drag-and-drop. Just write SQL once.
-- 🙋 **Self-service reporting** - No rerunning and emailing CSVs. Just share a webpage.
+- 🙋 **Self-service reporting** — No rerunning and emailing CSVs. Just share a webpage.
 - 📦 **Dead-simple deployment** — No Windows Server required. Just install and run.
 
 ## A faster way to get people their data
