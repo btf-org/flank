@@ -15,8 +15,11 @@ Flank is a modern, open-source SSRS.
 
 `🙋 "Can we make this a report?" → 💻 Open Visual Studio → 🛠️ Build Report → 🚀 Deploy → 📤 Share`
 
+
 ### Flank
 `🙋 Request → 💻 Write SQL → 👆 2 clicks → 📤 Share`
+
+## See it in action
 
 ## Getting Started
 
