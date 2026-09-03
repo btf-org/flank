@@ -4,9 +4,9 @@ Flank is an SSMS extension that turns queries into self-serve reports
 
 ## CSVs are dead artifacts
 
-Today, you right-click > **Save results as...** > **CSV**.
+Today, you right-click on results > **Save results as...** > **CSV**.
 
-The next time a user needs the data, they have to come back to you.
+But the next time a user needs the data, they have to come back to you.
 
 ## Share the query instead
 
