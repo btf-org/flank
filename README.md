@@ -1,40 +1,22 @@
 # Flank
 
-Flank is a lightweight SSRS for quick reports.
+Flank is a small modification to `SSMS` > `Run query` > **Save results as...** > **CSV**
 
-- 🔥 **Blazing-fast authoring** — No drag-and-drop. Just write SQL once.
-- 🙋 **Self-service reporting** — No rerunning and emailing CSVs. Just share a webpage.
-- 📦 **Dead-simple deployment** — No Windows Server required. Just install and run.
+## CSVs are dead artifacts
 
-## A faster way to get people their data
+Today, you right-click > **Save results as...** > **CSV**.
 
-### Today
-> **"Can you get me that data?"** → Write SQL → Run in SSMS → Export CSV → Email
+The next time a user needs the data, they have to come back to you.
 
-> (2 weeks later) **"Can you get me the latest numbers?"** → Run again → Export CSV → Email
+## Share the query instead
 
-> (2 weeks later) **"Can we make this a report?"** → Open Visual Studio → Build Report → Deploy → Share
+What if, instead, you highlighted the query and clicked **Save query as...** > **Self-serve report**? 
 
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/e2639b70-9363-4a87-be2c-8a7ed7628d4a" />
 
-### Flank
-> **"Can you get me that data?"** → Write SQL → 2 clicks → Share
+## Turn T-SQL into parameterized reports in seconds
 
-## See it in action
-
-<picture>
-  <source
-    media="(prefers-color-scheme: dark)"
-    srcset="https://github.com/user-attachments/assets/a88a3c3f-457a-4183-b8f3-eed94a054977"
-  >
-  <source
-    media="(prefers-color-scheme: light)"
-    srcset="https://github.com/user-attachments/assets/3f30a81e-b5ac-492b-8a33-22659ae2131b"
-  >
-  <img
-    alt="Flank: two clicks from SQL to a shareable report"
-    src="https://github.com/user-attachments/assets/3f30a81e-b5ac-492b-8a33-22659ae2131b"
-  >
-</picture>
+<img width="1681" height="935" alt="image" src="https://github.com/user-attachments/assets/7a792320-11be-4802-997d-6cdc17dd188d" />
 
 ## Getting Started
 
