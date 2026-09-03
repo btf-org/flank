@@ -16,6 +16,10 @@ What if, instead, you highlighted the query and clicked **Save query as...** > *
 
 ## Turn T-SQL into parameterized reports in seconds
 
+Flank turns your query parameters into inputs automatically. The user fills them out, clicks Run, and gets fresh results.
+
+That's it. No report designer. No frontend.
+
 <img width="1681" height="935" alt="image" src="https://github.com/user-attachments/assets/7a792320-11be-4802-997d-6cdc17dd188d" />
 
 ## Getting Started
