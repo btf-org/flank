@@ -1,6 +1,6 @@
 # Flank
 
-Flank is a small modification to `SSMS` > `Run query` > **Save results as...** > **CSV**
+Flank is an SSMS extension that turns queries into self-serve reports
 
 ## CSVs are dead artifacts
 
